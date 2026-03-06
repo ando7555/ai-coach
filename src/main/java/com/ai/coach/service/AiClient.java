@@ -1,43 +1,57 @@
 package com.ai.coach.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 @Component
 public class AiClient {
 
-    // TODO: inject WebClient and call your AI model
+    private final ChatClient tacticalClient;
+    private final ChatClient seasonPlanClient;
+    private final ChatClient trainingPlanClient;
+
+    public AiClient(ChatClient.Builder builder) {
+        this.tacticalClient = builder.clone()
+                .defaultSystem("You are an expert football/soccer tactical analyst. "
+                        + "Provide concise, actionable tactical advice based on the match data and context provided.")
+                .build();
+
+        this.seasonPlanClient = builder.clone()
+                .defaultSystem("You are an expert football/soccer season planner and sporting director. "
+                        + "Create structured, phased season plans that cover tactical development, "
+                        + "squad rotation, and periodisation.")
+                .build();
+
+        this.trainingPlanClient = builder.clone()
+                .defaultSystem("You are an expert football/soccer fitness and training coach. "
+                        + "Design detailed weekly microcycles and training sessions that balance "
+                        + "intensity, recovery, and tactical preparation.")
+                .build();
+    }
+
     public Mono<String> generateTacticalAdvice(String prompt) {
-        String demo = """
-                Suggested tactics:
-                - Press high on the right flank.
-                - Overload half-spaces with your #8 and #10.
-                - Switch to 4-3-3 in possession, 4-1-4-1 in defence.
-                """;
-        return Mono.just(demo);
+        return Mono.fromCallable(() -> tacticalClient.prompt().user(prompt).call().content())
+                .subscribeOn(Schedulers.boundedElastic())
+                .doOnError(e -> log.error("Tactical advice generation failed", e))
+                .onErrorResume(e -> Mono.empty());
     }
 
-    // Season-long tactical / development plan
+
     public Mono<String> generateSeasonPlan(String prompt) {
-        String demo = """
-                Season plan:
-                - Phase 1 (Rounds 1–10): Stabilise defence, focus on compact mid-block.
-                - Phase 2 (Rounds 11–20): Introduce higher pressing and rotations.
-                - Phase 3 (Rounds 21–30): Refine automatisms, add set-piece variations.
-                """;
-        return Mono.just(demo);
+        return Mono.fromCallable(() -> seasonPlanClient.prompt().user(prompt).call().content())
+                .subscribeOn(Schedulers.boundedElastic())
+                .doOnError(e -> log.error("Season plan generation failed", e))
+                .onErrorResume(e -> Mono.empty());
     }
 
-    // Weekly training / microcycle plan
     public Mono<String> generateTrainingPlan(String prompt) {
-        String demo = """
-                Training microcycle:
-                - Monday: Recovery + video tactical review.
-                - Tuesday: Small-sided games, high-intensity pressing drills.
-                - Wednesday: Tactical 11v11, build-up under pressure.
-                - Thursday: Finishing + set pieces.
-                - Friday: Low-intensity walkthrough + rest.
-                """;
-        return Mono.just(demo);
+        return Mono.fromCallable(() -> trainingPlanClient.prompt().user(prompt).call().content())
+                .subscribeOn(Schedulers.boundedElastic())
+                .doOnError(e -> log.error("Training plan generation failed", e))
+                .onErrorResume(e -> Mono.empty());
     }
 }

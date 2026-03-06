@@ -1,4 +1,21 @@
 spring:
+  ai:
+    openai:
+      api-key: ${GOOGLE_GEMINI_API_KEY}
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      chat:
+        completions-path: /chat/completions
+        options:
+          model: gemini-2.5-flash
+          temperature: 0.7
+    retry:
+      max-attempts: 3
+      backoff:
+        initial-interval: 2s
+        multiplier: 2
+        max-interval: 15s
+      on-client-errors: false
+
   neo4j:
     uri: bolt://localhost:7687
     authentication:
