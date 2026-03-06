@@ -1,0 +1,168 @@
+type Team {
+  id: ID!
+  name: String!
+  league: String
+  formation: String
+  players: [Player!]!
+}
+
+type Player {
+  id: ID!
+  name: String!
+  position: String!
+  rating: Float
+  team: Team
+}
+
+type Match {
+  id: ID!
+  homeTeam: Team!
+  awayTeam: Team!
+  homeGoals: Int
+  awayGoals: Int
+  date: String
+}
+
+type Recommendation {
+  id: ID!
+  advice: String!
+  context: String
+  createdAt: String!
+}
+
+input MatchInput {
+  homeTeamId: ID!
+  awayTeamId: ID!
+  homeGoals: Int
+  awayGoals: Int
+  date: String
+}
+
+input TacticalContextInput {
+  matchId: ID!
+  focusArea: String
+  style: String
+  riskLevel: String
+}
+
+type Query {
+  teams: [Team!]!
+  team(id: ID!): Team
+
+  playersByTeam(teamId: ID!): [Player!]!
+
+  match(id: ID!): Match
+  matchesByTeam(teamId: ID!): [Match!]!
+
+  recommendationsByMatch(matchId: ID!): [Recommendation!]!
+}
+
+enum FocusArea { PRESSING, BUILD_UP, DEFENCE }
+enum PlayingStyle { POSSESSION, DIRECT, BALANCED }
+enum RiskLevel { LOW, MEDIUM, HIGH }
+
+input RecommendationContextInput {
+  matchId: ID!
+  focusArea: FocusArea!
+  style: PlayingStyle!
+  riskLevel: RiskLevel!
+}
+
+type Mutation {
+  createTeam(name: String!, league: String, formation: String): Team!
+  createPlayer(teamId: ID!, name: String!, position: String!, rating: Float): Player!
+
+  recordMatch(input: MatchInput!): Match!
+
+  generateRecommendation(context: RecommendationContextInput!): Recommendation!
+}
+
+"Existing types are kept as you already have them"
+
+type MatchAnalysis {
+  id: ID!
+  match: Match!
+  focusArea: FocusArea!
+  style: PlayingStyle!
+  riskLevel: RiskLevel!
+  summary: String!
+  keyFactors: [String!]!
+  createdAt: String!
+}
+
+type TrainingSession {
+  id: ID!
+  date: String!
+  focusArea: FocusArea!
+  intensity: String!
+  durationMinutes: Int!
+  notes: String
+}
+
+type TrainingPlan {
+  id: ID!
+  team: Team!
+  weekStart: String!
+  weekEnd: String!
+  sessions: [TrainingSession!]!
+  summary: String!
+  createdAt: String!
+}
+
+type PlayerWorkloadSnapshot {
+  id: ID!
+  player: Player!
+  matchesLast28Days: Int!
+  minutesLast28Days: Int!
+  fatigueLevel: String!
+  injuryRisk: String!
+  comment: String
+  createdAt: String!
+}
+
+type SeasonPlan {
+  id: ID!
+  team: Team!
+  season: String!
+  objectives: [String!]!
+  workloadSnapshots: [PlayerWorkloadSnapshot!]!
+  summary: String!
+  createdAt: String!
+}
+
+"Input for match-day coach"
+input MatchAnalysisInput {
+  matchId: ID!
+  focusArea: FocusArea!
+  style: PlayingStyle!
+  riskLevel: RiskLevel!
+}
+
+"Input for training coach"
+input TrainingPlanInput {
+  teamId: ID!
+  weekStart: String!
+  weekEnd: String!
+  primaryFocus: FocusArea!
+  intensity: String
+}
+
+"Input for season / rotation coach"
+input SeasonPlanInput {
+  teamId: ID!
+  season: String!
+  priority: String
+}
+
+extend type Query {
+  matchAnalysis(matchId: ID!): [MatchAnalysis!]!
+  trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
+  seasonPlansByTeam(teamId: ID!): [SeasonPlan!]!
+}
+
+extend type Mutation {
+  generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
+  generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
+  generateSeasonPlan(input: SeasonPlanInput!): SeasonPlan!
+}
+
