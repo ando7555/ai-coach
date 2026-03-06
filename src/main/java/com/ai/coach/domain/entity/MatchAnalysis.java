@@ -32,7 +32,6 @@ public class MatchAnalysis {
     @Property("summary")
     private String summary;
 
-    @CompositeProperty
     private List<String> keyFactors;
 
     @Property("created_at")

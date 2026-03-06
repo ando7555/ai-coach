@@ -22,7 +22,6 @@ public class SeasonPlan {
 
     private String season;  // "2025/26"
 
-    @CompositeProperty
     private List<String> objectives;
 
     @Relationship(type = "HAS_WORKLOAD", direction = Relationship.Direction.OUTGOING)
