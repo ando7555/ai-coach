@@ -1,6 +1,7 @@
 package com.ai.coach.service;
 
 import com.ai.coach.domain.dto.PlayerMatchStatInput;
+import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Match;
 import com.ai.coach.domain.entity.Player;
 import com.ai.coach.domain.entity.PlayerMatchStat;
@@ -34,10 +35,10 @@ public class PlayerMatchStatService {
     @Transactional
     public PlayerMatchStat record(PlayerMatchStatInput input) {
         Player player = playerRepository.findById(input.playerId())
-                .orElseThrow(() -> new IllegalArgumentException("Player not found: " + input.playerId()));
+                .orElseThrow(() -> new EntityNotFoundException("Player", input.playerId()));
 
         Match match = matchRepository.findById(input.matchId())
-                .orElseThrow(() -> new IllegalArgumentException("Match not found: " + input.matchId()));
+                .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 
         PlayerMatchStat stat = PlayerMatchStat.builder()
                 .player(player)

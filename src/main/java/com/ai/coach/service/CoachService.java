@@ -7,6 +7,7 @@ import com.ai.coach.domain.entity.*;
 import com.ai.coach.domain.repository.*;
 import com.ai.coach.service.dto.AiSeasonPlanResponse;
 import com.ai.coach.service.dto.AiTrainingPlanResponse;
+import com.ai.coach.exception.EntityNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class CoachService {
     @Transactional
     public MatchAnalysis generateMatchAnalysis(MatchAnalysisInput input) {
         Match match = matchRepository.findById(input.matchId())
-                .orElseThrow(() -> new RuntimeException("Match not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 
         String prompt = buildMatchAnalysisPrompt(match, input);
 
@@ -91,7 +92,7 @@ public class CoachService {
     @Transactional
     public TrainingPlan generateTrainingPlan(TrainingPlanInput input) {
         Team team = teamRepository.findById(input.teamId())
-                .orElseThrow(() -> new RuntimeException("Team not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 
         LocalDate start = LocalDate.parse(input.weekStart());
         LocalDate end = LocalDate.parse(input.weekEnd());
@@ -212,7 +213,7 @@ public class CoachService {
     @Transactional
     public SeasonPlan generateSeasonPlan(SeasonPlanInput input) {
         Team team = teamRepository.findById(input.teamId())
-                .orElseThrow(() -> new RuntimeException("Team not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 
         List<Player> players = playerRepository.findByTeamId(team.getId());
         LocalDate cutoff = LocalDate.now().minusDays(28);

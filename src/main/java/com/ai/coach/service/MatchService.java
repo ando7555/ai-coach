@@ -1,6 +1,7 @@
 package com.ai.coach.service;
 
 import com.ai.coach.domain.dto.MatchInput;
+import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Match;
 import com.ai.coach.domain.entity.Team;
 import com.ai.coach.domain.repository.MatchRepository;
@@ -35,9 +36,9 @@ public class MatchService {
     @Transactional
     public Match recordMatch(MatchInput input) {
         Team home = teamRepository.findById(input.getHomeTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("Home team not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.getHomeTeamId()));
         Team away = teamRepository.findById(input.getAwayTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("Away team not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.getAwayTeamId()));
 
         LocalDate date = input.getDate() != null
                 ? LocalDate.parse(input.getDate())
