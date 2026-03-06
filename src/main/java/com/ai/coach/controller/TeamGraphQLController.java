@@ -2,6 +2,7 @@ package com.ai.coach.controller;
 
 
 import com.ai.coach.domain.entity.Player;
+import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Team;
 import com.ai.coach.domain.repository.PlayerRepository;
 import com.ai.coach.service.TeamService;
@@ -52,7 +53,7 @@ public class TeamGraphQLController {
                                @Argument Double rating) {
         Team team = teamService.getTeam(teamId);
         if (team == null) {
-            throw new IllegalArgumentException("Team not found");
+            throw new EntityNotFoundException("Team", teamId);
         }
         Player player = new Player(name, position, rating);
         player.setTeam(team);

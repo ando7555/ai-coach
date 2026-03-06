@@ -6,14 +6,17 @@ import com.ai.coach.domain.entity.SeasonPlan;
 import com.ai.coach.domain.entity.TrainingPlan;
 import com.ai.coach.domain.repository.*;
 import com.ai.coach.service.CoachService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Validated
 public class CoachGraphqlController {
 
     private final CoachService coachService;
@@ -41,17 +44,17 @@ public class CoachGraphqlController {
     // --- Mutations ---
 
     @MutationMapping
-    public MatchAnalysis generateMatchAnalysis(@Argument MatchAnalysisInput input) {
+    public MatchAnalysis generateMatchAnalysis(@Argument @Valid MatchAnalysisInput input) {
         return coachService.generateMatchAnalysis(input);
     }
 
     @MutationMapping
-    public TrainingPlan generateTrainingPlan(@Argument TrainingPlanInput input) {
+    public TrainingPlan generateTrainingPlan(@Argument @Valid TrainingPlanInput input) {
         return coachService.generateTrainingPlan(input);
     }
 
     @MutationMapping
-    public SeasonPlan generateSeasonPlan(@Argument SeasonPlanInput input) {
+    public SeasonPlan generateSeasonPlan(@Argument @Valid SeasonPlanInput input) {
         return coachService.generateSeasonPlan(input);
     }
 }

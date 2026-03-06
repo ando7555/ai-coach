@@ -1,6 +1,7 @@
 package com.ai.coach.service;
 
 import com.ai.coach.domain.entity.Match;
+import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Recommendation;
 import com.ai.coach.domain.entity.RecommendationContextInput;
 import com.ai.coach.domain.repository.MatchRepository;
@@ -34,7 +35,7 @@ public class RecommendationService {
     @Transactional
     public Recommendation generateRecommendation(RecommendationContextInput input) {
         Match match = matchRepository.findById(input.matchId())
-                .orElseThrow(() -> new RuntimeException("Match not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 
         String prompt = buildPrompt(match, input);
 
