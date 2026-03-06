@@ -5,6 +5,7 @@ import com.ai.coach.domain.dto.SeasonPlanInput;
 import com.ai.coach.domain.dto.TrainingPlanInput;
 import com.ai.coach.domain.entity.*;
 import com.ai.coach.domain.repository.*;
+import com.ai.coach.service.dto.AiSeasonPlanResponse;
 import com.ai.coach.service.dto.AiTrainingPlanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class CoachService {
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
+    private final PlayerMatchStatRepository playerMatchStatRepository;
     private final MatchAnalysisRepository matchAnalysisRepository;
     private final TrainingPlanRepository trainingPlanRepository;
     private final SeasonPlanRepository seasonPlanRepository;
@@ -213,46 +215,105 @@ public class CoachService {
                 .orElseThrow(() -> new RuntimeException("Team not found"));
 
         List<Player> players = playerRepository.findByTeamId(team.getId());
+        LocalDate cutoff = LocalDate.now().minusDays(28);
 
-        String prompt = buildSeasonPlanPrompt(team, players, input);
+        // Compute real workload snapshots from PlayerMatchStat data
+        List<PlayerWorkloadSnapshot> snapshots = players.stream()
+                .map(p -> buildWorkloadSnapshot(p, cutoff))
+                .toList();
+
+        String prompt = buildSeasonPlanPrompt(team, players, snapshots, input);
 
         String aiResponse = aiClient.generateSeasonPlan(prompt)
                 .blockOptional()
                 .orElse("No season plan generated.");
 
-        // Very simple workload snapshot – later you can compute from Match history.
-        List<PlayerWorkloadSnapshot> snapshots = players.stream()
-                .map(p -> PlayerWorkloadSnapshot.builder()
-                        .player(p)
-                        .matchesLast28Days(0)
-                        .minutesLast28Days(0)
-                        .fatigueLevel("UNKNOWN")
-                        .injuryRisk("MEDIUM")
-                        .comment("Initial plan – workload yet to be calculated.")
-                        .createdAt(OffsetDateTime.now())
-                        .build()
-                ).toList();
+        AiSeasonPlanResponse parsed = parseSeasonPlanResponse(aiResponse);
 
         SeasonPlan plan = SeasonPlan.builder()
                 .team(team)
                 .season(input.season())
-                .objectives(List.of(
-                        "Finish in top 4",
-                        "Reach at least quarter-finals in main cup"
-                ))
+                .objectives(parsed.objectives())
                 .workloadSnapshots(snapshots)
-                .summary(aiResponse)
+                .summary(parsed.summary())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
         return seasonPlanRepository.save(plan);
     }
 
-    private String buildSeasonPlanPrompt(Team team, List<Player> players, SeasonPlanInput input) {
-        String playerList = players.stream()
-                .map(p -> p.getName() + " (" + p.getPosition() + ")")
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("No players");
+    /**
+     * Builds a workload snapshot for a player based on real match stats
+     * from the last 28 days.
+     */
+    private PlayerWorkloadSnapshot buildWorkloadSnapshot(Player player, LocalDate cutoff) {
+        List<PlayerMatchStat> recentStats =
+                playerMatchStatRepository.findByPlayerIdAndMatchDateAfter(player.getId(), cutoff);
+
+        int matches = recentStats.size();
+        int minutes = recentStats.stream().mapToInt(PlayerMatchStat::getMinutesPlayed).sum();
+        String fatigue = computeFatigueLevel(minutes);
+        String injuryRisk = computeInjuryRisk(fatigue, matches);
+
+        String comment = String.format("%d matches, %d min in last 28 days", matches, minutes);
+
+        return PlayerWorkloadSnapshot.builder()
+                .player(player)
+                .matchesLast28Days(matches)
+                .minutesLast28Days(minutes)
+                .fatigueLevel(fatigue)
+                .injuryRisk(injuryRisk)
+                .comment(comment)
+                .createdAt(OffsetDateTime.now())
+                .build();
+    }
+
+    /**
+     * Fatigue level based on minutes played in last 28 days.
+     *   0–180 min (≤2 full matches)  → FRESH
+     * 181–450 min (3–5 matches)      → MODERATE
+     * 451–720 min (6–8 matches)      → TIRED
+     *   720+ min                      → EXHAUSTED
+     */
+    private String computeFatigueLevel(int minutes) {
+        if (minutes <= 180) return "FRESH";
+        if (minutes <= 450) return "MODERATE";
+        if (minutes <= 720) return "TIRED";
+        return "EXHAUSTED";
+    }
+
+    /**
+     * Injury risk combines fatigue level with match density.
+     * High density (≥6 matches in 28 days) always → HIGH.
+     */
+    private String computeInjuryRisk(String fatigueLevel, int matches) {
+        if (matches >= 6 || "EXHAUSTED".equals(fatigueLevel)) return "HIGH";
+        if ("TIRED".equals(fatigueLevel)) return "MEDIUM";
+        return "LOW";
+    }
+
+    private AiSeasonPlanResponse parseSeasonPlanResponse(String aiResponse) {
+        try {
+            String json = stripMarkdownFences(aiResponse);
+            return objectMapper.readValue(json, AiSeasonPlanResponse.class);
+        } catch (Exception e) {
+            log.warn("Failed to parse AI season plan JSON, using raw text: {}", e.getMessage());
+            return new AiSeasonPlanResponse(aiResponse, List.of("See summary for details"));
+        }
+    }
+
+    private String buildSeasonPlanPrompt(Team team, List<Player> players,
+                                         List<PlayerWorkloadSnapshot> snapshots, SeasonPlanInput input) {
+        String workloadReport = snapshots.stream()
+                .map(s -> String.format("- %s (%s): %d matches, %d min, fatigue=%s, injury risk=%s",
+                        s.getPlayer().getName(),
+                        s.getPlayer().getPosition(),
+                        s.getMatchesLast28Days(),
+                        s.getMinutesLast28Days(),
+                        s.getFatigueLevel(),
+                        s.getInjuryRisk()))
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("No player data available");
 
         return """
                 You are a head coach planning an entire season.
@@ -261,18 +322,30 @@ public class CoachService {
                 Season: %s
                 Priority: %s
 
-                Current squad: %s
+                Squad workload (last 28 days):
+                %s
 
-                Provide:
-                - 3–5 key tactical and performance objectives
-                - Guidance on rotation policy and minute management
-                - Risk management for injuries and fatigue
-                - Focus areas in different phases of the season
+                Based on the workload data above, return ONLY valid JSON in this format:
+                {
+                  "summary": "Detailed season plan covering rotation, periodisation, and tactics",
+                  "objectives": [
+                    "Objective 1",
+                    "Objective 2"
+                  ]
+                }
+
+                Rules:
+                - Provide 3-5 specific, measurable objectives
+                - Reference specific players who need rest or increased minutes
+                - Address injury risks for TIRED/EXHAUSTED players
+                - Include periodisation phases (preparation, competition, transition)
+                - Consider the stated priority: %s
                 """.formatted(
                 team.getName(),
                 input.season(),
                 input.priority() != null ? input.priority() : "Balanced",
-                playerList
+                workloadReport,
+                input.priority() != null ? input.priority() : "Balanced"
         );
     }
 }
