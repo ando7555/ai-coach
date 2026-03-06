@@ -154,15 +154,40 @@ input SeasonPlanInput {
   priority: String
 }
 
+type PlayerMatchStat {
+  id: ID!
+  player: Player!
+  match: Match!
+  minutesPlayed: Int!
+  goals: Int!
+  assists: Int!
+  yellowCards: Int!
+  redCard: Boolean!
+  rating: Float
+}
+
+input PlayerMatchStatInput {
+  playerId: ID!
+  matchId: ID!
+  minutesPlayed: Int!
+  goals: Int
+  assists: Int
+  yellowCards: Int
+  redCard: Boolean
+}
+
 extend type Query {
   matchAnalysis(matchId: ID!): [MatchAnalysis!]!
   trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
   seasonPlansByTeam(teamId: ID!): [SeasonPlan!]!
+  statsByMatch(matchId: ID!): [PlayerMatchStat!]!
+  statsByPlayer(playerId: ID!): [PlayerMatchStat!]!
 }
 
 extend type Mutation {
   generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
   generateSeasonPlan(input: SeasonPlanInput!): SeasonPlan!
+  recordPlayerMatchStat(input: PlayerMatchStatInput!): PlayerMatchStat!
 }
 
