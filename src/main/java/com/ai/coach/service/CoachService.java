@@ -5,7 +5,10 @@ import com.ai.coach.domain.dto.SeasonPlanInput;
 import com.ai.coach.domain.dto.TrainingPlanInput;
 import com.ai.coach.domain.entity.*;
 import com.ai.coach.domain.repository.*;
+import com.ai.coach.service.dto.AiTrainingPlanResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +16,15 @@ import java.time.OffsetDateTime;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CoachService {
+
+    private static final Set<String> VALID_INTENSITIES = Set.of("LOW", "MEDIUM", "HIGH");
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
@@ -92,25 +100,70 @@ public class CoachService {
                 .blockOptional()
                 .orElse("No training plan generated.");
 
-        // For now create a simple single session; later parse AI into sessions.
-        TrainingSession session = TrainingSession.builder()
-                .date(start.atStartOfDay().atOffset(ZoneOffset.UTC))
-                .focusArea(input.primaryFocus())
-                .intensity(input.intensity() != null ? input.intensity() : "MEDIUM")
-                .durationMinutes(90)
-                .notes("Generated automatically based on AI plan.")
-                .build();
+        AiTrainingPlanResponse parsed = parseTrainingPlanResponse(aiResponse);
+
+        List<TrainingSession> sessions = parsed.sessions().stream()
+                .map(entry -> TrainingSession.builder()
+                        .date(start.plusDays(entry.dayOffset()).atStartOfDay().atOffset(ZoneOffset.UTC))
+                        .focusArea(entry.focusArea() != null ? entry.focusArea() : input.primaryFocus())
+                        .intensity(normalizeIntensity(entry.intensity()))
+                        .durationMinutes(entry.durationMinutes() > 0 ? entry.durationMinutes() : 90)
+                        .notes(entry.notes())
+                        .build())
+                .toList();
 
         TrainingPlan plan = TrainingPlan.builder()
                 .team(team)
                 .weekStart(start.atStartOfDay().atOffset(ZoneOffset.UTC))
                 .weekEnd(end.atStartOfDay().atOffset(ZoneOffset.UTC))
-                .sessions(List.of(session))
-                .summary(aiResponse)
+                .sessions(sessions)
+                .summary(parsed.summary())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
         return trainingPlanRepository.save(plan);
+    }
+
+    /**
+     * Parses the AI JSON response into an AiTrainingPlanResponse.
+     * If parsing fails (malformed JSON, markdown fences, etc.), falls back to
+     * a single-session plan with the raw AI text as notes.
+     */
+    private AiTrainingPlanResponse parseTrainingPlanResponse(String aiResponse) {
+        try {
+            String json = stripMarkdownFences(aiResponse);
+            return objectMapper.readValue(json, AiTrainingPlanResponse.class);
+        } catch (Exception e) {
+            log.warn("Failed to parse AI training plan JSON, falling back to single session: {}", e.getMessage());
+            return new AiTrainingPlanResponse(
+                    aiResponse,
+                    List.of(new AiTrainingPlanResponse.SessionEntry(0, "BUILD_UP", "MEDIUM", 90, aiResponse))
+            );
+        }
+    }
+
+    /**
+     * Strips markdown code fences (```json ... ```) that LLMs sometimes wrap around JSON.
+     */
+    private String stripMarkdownFences(String text) {
+        String trimmed = text.strip();
+        if (trimmed.startsWith("```")) {
+            // Remove opening fence (```json or ```)
+            int firstNewline = trimmed.indexOf('\n');
+            if (firstNewline != -1) {
+                trimmed = trimmed.substring(firstNewline + 1);
+            }
+        }
+        if (trimmed.endsWith("```")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 3);
+        }
+        return trimmed.strip();
+    }
+
+    private String normalizeIntensity(String intensity) {
+        if (intensity == null) return "MEDIUM";
+        String upper = intensity.toUpperCase();
+        return VALID_INTENSITIES.contains(upper) ? upper : "MEDIUM";
     }
 
     private String buildTrainingPlanPrompt(Team team, TrainingPlanInput input) {
@@ -122,18 +175,33 @@ public class CoachService {
                 Primary focus: %s
                 Intensity: %s (overall)
 
-                Consider:
-                - Upcoming matches
-                - Need for recovery and conditioning
-                - Tactical focus requested
+                Return ONLY valid JSON (no markdown, no explanation) in this exact format:
+                {
+                  "summary": "Brief overview of the week's training philosophy",
+                  "sessions": [
+                    {
+                      "dayOffset": 0,
+                      "focusArea": "PRESSING",
+                      "intensity": "LOW",
+                      "durationMinutes": 60,
+                      "notes": "Description of the session"
+                    }
+                  ]
+                }
 
-                Return the plan in short natural language blocks per day.
+                Rules:
+                - dayOffset 0 = %s (first day of the week), increment by 1 per day
+                - focusArea must be one of: PRESSING, BUILD_UP, DEFENCE
+                - intensity must be one of: LOW, MEDIUM, HIGH
+                - Include 5-6 sessions across the week
+                - Balance intensity: start with recovery, peak mid-week, taper before weekend
                 """.formatted(
                 team.getName(),
                 input.weekStart(),
                 input.weekEnd(),
                 input.primaryFocus(),
-                input.intensity() != null ? input.intensity() : "MEDIUM"
+                input.intensity() != null ? input.intensity() : "MEDIUM",
+                input.weekStart()
         );
     }
 
