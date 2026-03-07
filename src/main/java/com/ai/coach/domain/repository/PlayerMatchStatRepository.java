@@ -1,4 +1,3 @@
-
 package com.ai.coach.domain.repository;
 
 import com.ai.coach.domain.entity.PlayerMatchStat;

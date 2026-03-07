@@ -176,12 +176,31 @@ input PlayerMatchStatInput {
   redCard: Boolean
 }
 
+enum FormIndicator { IMPROVING, DECLINING, STABLE }
+
+type PlayerPerformanceTrend {
+  player: Player!
+  matchCount: Int!
+  totalGoals: Int!
+  totalAssists: Int!
+  totalGoalContributions: Int!
+  averageGoals: Float!
+  averageAssists: Float!
+  averageGoalContributions: Float!
+  averageRating: Float
+  totalMinutesPlayed: Int!
+  form: FormIndicator!
+  matches: [PlayerMatchStat!]!
+}
+
 extend type Query {
   matchAnalysis(matchId: ID!): [MatchAnalysis!]!
   trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
   seasonPlansByTeam(teamId: ID!): [SeasonPlan!]!
   statsByMatch(matchId: ID!): [PlayerMatchStat!]!
   statsByPlayer(playerId: ID!): [PlayerMatchStat!]!
+  playerTrendByLastMatches(playerId: ID!, lastN: Int!): PlayerPerformanceTrend!
+  playerTrendByDateRange(playerId: ID!, from: String!, to: String!): PlayerPerformanceTrend!
 }
 
 type User {
