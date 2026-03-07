@@ -16,16 +16,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
+    private static final java.util.Set<String> VALID_ROLES = java.util.Set.of("COACH", "ADMIN");
+
     @Transactional
-    public AuthPayload register(String username, String password) {
+    public AuthPayload register(String username, String password, String role) {
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already taken: " + username);
         }
 
+        String assignedRole = role != null && VALID_ROLES.contains(role.toUpperCase())
+                ? role.toUpperCase() : "COACH";
+
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
-                .role("COACH")
+                .role(assignedRole)
                 .build();
 
         user = userRepository.save(user);

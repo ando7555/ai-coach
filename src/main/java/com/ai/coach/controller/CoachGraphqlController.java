@@ -9,6 +9,7 @@ import com.ai.coach.service.CoachService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
@@ -44,16 +45,19 @@ public class CoachGraphqlController {
     // --- Mutations ---
 
     @MutationMapping
+    @PreAuthorize("isAuthenticated()")
     public MatchAnalysis generateMatchAnalysis(@Argument @Valid MatchAnalysisInput input) {
         return coachService.generateMatchAnalysis(input);
     }
 
     @MutationMapping
+    @PreAuthorize("isAuthenticated()")
     public TrainingPlan generateTrainingPlan(@Argument @Valid TrainingPlanInput input) {
         return coachService.generateTrainingPlan(input);
     }
 
     @MutationMapping
+    @PreAuthorize("isAuthenticated()")
     public SeasonPlan generateSeasonPlan(@Argument @Valid SeasonPlanInput input) {
         return coachService.generateSeasonPlan(input);
     }

@@ -13,8 +13,10 @@ public class AuthGraphQLController {
     private final AuthService authService;
 
     @MutationMapping
-    public AuthService.AuthPayload register(@Argument String username, @Argument String password) {
-        return authService.register(username, password);
+    public AuthService.AuthPayload register(@Argument String username,
+                                               @Argument String password,
+                                               @Argument String role) {
+        return authService.register(username, password, role);
     }
 
     @MutationMapping

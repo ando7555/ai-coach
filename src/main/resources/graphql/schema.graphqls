@@ -196,7 +196,7 @@ type AuthPayload {
 }
 
 extend type Mutation {
-  register(username: String!, password: String!): AuthPayload!
+  register(username: String!, password: String!, role: String): AuthPayload!
   login(username: String!, password: String!): AuthPayload!
 
   generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
