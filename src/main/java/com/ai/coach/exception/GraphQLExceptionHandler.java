@@ -7,6 +7,8 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -32,6 +34,10 @@ public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter
 
         if (ex instanceof IllegalArgumentException e) {
             return buildError(e.getMessage(), ErrorType.BAD_REQUEST, env, Map.of());
+        }
+
+        if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+            return buildError("Authentication required", ErrorType.UNAUTHORIZED, env, Map.of());
         }
 
         if (ex instanceof AiGenerationException e) {

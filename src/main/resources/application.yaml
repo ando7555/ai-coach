@@ -28,5 +28,9 @@ spring:
     graphiql:
       enabled: true
 
+jwt:
+  secret: ${JWT_SECRET:ai-coach-default-secret-key-change-in-production-min-32-chars}
+  expiration-ms: 86400000
+
 server:
   port: 8080

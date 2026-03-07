@@ -184,7 +184,21 @@ extend type Query {
   statsByPlayer(playerId: ID!): [PlayerMatchStat!]!
 }
 
+type User {
+  id: ID!
+  username: String!
+  role: String!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 extend type Mutation {
+  register(username: String!, password: String!): AuthPayload!
+  login(username: String!, password: String!): AuthPayload!
+
   generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
   generateSeasonPlan(input: SeasonPlanInput!): SeasonPlan!
