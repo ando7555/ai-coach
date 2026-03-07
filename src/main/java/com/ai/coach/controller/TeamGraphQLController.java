@@ -9,6 +9,7 @@ import com.ai.coach.service.TeamService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class TeamGraphQLController {
     }
 
     @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Team createTeam(@Argument String name,
                            @Argument String league,
                            @Argument String formation) {
@@ -47,6 +49,7 @@ public class TeamGraphQLController {
     }
 
     @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Player createPlayer(@Argument Long teamId,
                                @Argument String name,
                                @Argument String position,

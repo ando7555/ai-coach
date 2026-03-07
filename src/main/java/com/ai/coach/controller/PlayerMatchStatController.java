@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,6 +32,7 @@ public class PlayerMatchStatController {
     }
 
     @MutationMapping
+    @PreAuthorize("isAuthenticated()")
     public PlayerMatchStat recordPlayerMatchStat(@Argument @Valid PlayerMatchStatInput input) {
         return statService.record(input);
     }
