@@ -60,3 +60,9 @@ jacocoTestReport {
 		html.required = true
 	}
 }
+
+jar {
+	manifest {
+		attributes('Automatic-Module-Name': 'com.ai.coach')
+	}
+}
