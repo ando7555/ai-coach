@@ -1,0 +1,113 @@
+/**
+ * Java Platform Module System (JPMS) descriptor for the AI Coach application.
+ *
+ * <p><strong>STATUS: REFERENCE ONLY — not compiled.</strong></p>
+ *
+ * <p>This file is kept outside {@code src/main/java} because the jjwt
+ * library (io.jsonwebtoken:jjwt-api) does not publish a valid JPMS module
+ * descriptor, causing {@code module not found: io.jsonwebtoken.jjwt.api}
+ * at compile time. Spring Boot applications typically run on the classpath
+ * anyway, so full JPMS enforcement is not required.</p>
+ *
+ * <h2>Why keep it?</h2>
+ * <ul>
+ *   <li>Documents every external module the application depends on.</li>
+ *   <li>Shows which packages are exported and which are opened for
+ *       reflection (Spring, Jackson, Neo4j).</li>
+ *   <li>Can be activated once all dependencies ship proper module
+ *       descriptors — just move it back to {@code src/main/java/}.</li>
+ * </ul>
+ *
+ * <h2>Compile error when active</h2>
+ * <pre>
+ * module-info.java:49: error: module not found: io.jsonwebtoken.jjwt.api
+ *     requires io.jsonwebtoken.jjwt.api;
+ *                                  ^
+ * </pre>
+ */
+module com.ai.coach {
+
+    /* ------------------------------------------------------------------ */
+    /*  Spring Framework core                                             */
+    /* ------------------------------------------------------------------ */
+    requires spring.boot;
+    requires spring.boot.autoconfigure;
+    requires spring.context;
+    requires spring.beans;
+    requires spring.core;
+    requires spring.web;
+    requires spring.webmvc;
+    requires spring.webflux;
+
+    /* ------------------------------------------------------------------ */
+    /*  Spring Security                                                   */
+    /* ------------------------------------------------------------------ */
+    requires spring.security.core;
+    requires spring.security.config;
+    requires spring.security.web;
+
+    /* ------------------------------------------------------------------ */
+    /*  Spring Data & Neo4j                                               */
+    /* ------------------------------------------------------------------ */
+    requires spring.data.commons;
+    requires spring.data.neo4j;
+
+    /* ------------------------------------------------------------------ */
+    /*  GraphQL                                                           */
+    /* ------------------------------------------------------------------ */
+    requires spring.graphql;
+
+    /* ------------------------------------------------------------------ */
+    /*  Validation                                                        */
+    /* ------------------------------------------------------------------ */
+    requires jakarta.validation;
+
+    /* ------------------------------------------------------------------ */
+    /*  JWT (jjwt)                                                        */
+    /* ------------------------------------------------------------------ */
+    requires io.jsonwebtoken.jjwt.api;
+
+    /* ------------------------------------------------------------------ */
+    /*  Reactor (reactive streams for AI client)                          */
+    /* ------------------------------------------------------------------ */
+    requires reactor.core;
+
+    /* ------------------------------------------------------------------ */
+    /*  Jackson JSON (used by AI response parsing)                        */
+    /* ------------------------------------------------------------------ */
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.datatype.jsr310;
+
+    /* ------------------------------------------------------------------ */
+    /*  Lombok (compile-time only, but module-info needs the reference)   */
+    /* ------------------------------------------------------------------ */
+    requires static lombok;
+
+    /* ------------------------------------------------------------------ */
+    /*  Exports – public API packages                                     */
+    /* ------------------------------------------------------------------ */
+    exports com.ai.coach;
+    exports com.ai.coach.config;
+    exports com.ai.coach.controller;
+    exports com.ai.coach.domain.dto;
+    exports com.ai.coach.domain.entity;
+    exports com.ai.coach.domain.repository;
+    exports com.ai.coach.exception;
+    exports com.ai.coach.security;
+    exports com.ai.coach.service;
+    exports com.ai.coach.service.dto;
+
+    /* ------------------------------------------------------------------ */
+    /*  Opens – allow reflective access for Spring and Jackson            */
+    /* ------------------------------------------------------------------ */
+    opens com.ai.coach to spring.core, spring.beans, spring.context;
+    opens com.ai.coach.config to spring.core, spring.beans, spring.context;
+    opens com.ai.coach.controller to spring.core, spring.beans, spring.context, spring.graphql;
+    opens com.ai.coach.domain.dto to com.fasterxml.jackson.databind, spring.core;
+    opens com.ai.coach.domain.entity to spring.core, spring.data.neo4j, com.fasterxml.jackson.databind;
+    opens com.ai.coach.domain.repository to spring.core, spring.beans, spring.data.commons, spring.data.neo4j;
+    opens com.ai.coach.exception to spring.core, spring.beans, spring.context;
+    opens com.ai.coach.security to spring.core, spring.beans, spring.context;
+    opens com.ai.coach.service to spring.core, spring.beans, spring.context;
+    opens com.ai.coach.service.dto to com.fasterxml.jackson.databind, spring.core;
+}
