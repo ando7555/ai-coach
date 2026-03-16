@@ -52,7 +52,7 @@ public class PlayerMatchStatController {
             fromDate = LocalDate.parse(from);
             toDate = LocalDate.parse(to);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid date format. Expected yyyy-MM-dd, got: " + e.getParsedString());
+            throw new IllegalArgumentException("Invalid date format. Expected yyyy-MM-dd, got: %s".formatted(e.getParsedString()));
         }
         return statService.getTrendByDateRange(playerId, fromDate, toDate);
     }
