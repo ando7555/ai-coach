@@ -35,16 +35,16 @@ public class MatchService {
 
     @Transactional
     public Match recordMatch(MatchInput input) {
-        Team home = teamRepository.findById(input.getHomeTeamId())
-                .orElseThrow(() -> new EntityNotFoundException("Team", input.getHomeTeamId()));
-        Team away = teamRepository.findById(input.getAwayTeamId())
-                .orElseThrow(() -> new EntityNotFoundException("Team", input.getAwayTeamId()));
+        Team home = teamRepository.findById(input.homeTeamId())
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.homeTeamId()));
+        Team away = teamRepository.findById(input.awayTeamId())
+                .orElseThrow(() -> new EntityNotFoundException("Team", input.awayTeamId()));
 
-        LocalDate date = input.getDate() != null
-                ? LocalDate.parse(input.getDate())
+        LocalDate date = input.date() != null
+                ? LocalDate.parse(input.date())
                 : LocalDate.now();
 
-        Match match = new Match(home, away, input.getHomeGoals(), input.getAwayGoals(), date);
+        Match match = new Match(home, away, input.homeGoals(), input.awayGoals(), date);
         return matchRepository.save(match);
     }
 }

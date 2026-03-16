@@ -1,6 +1,6 @@
 package com.ai.coach.exception;
 
-public class AiGenerationException extends RuntimeException {
+public final class AiGenerationException extends CoachException {
 
     private final String operation;
 

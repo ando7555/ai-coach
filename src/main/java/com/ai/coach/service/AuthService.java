@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -16,7 +18,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
-    private static final java.util.Set<String> VALID_ROLES = java.util.Set.of("COACH", "ADMIN");
+    private static final Set<String> VALID_ROLES = Set.of("COACH", "ADMIN");
 
     @Transactional
     public AuthPayload register(String username, String password, String role) {

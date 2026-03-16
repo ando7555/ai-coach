@@ -256,7 +256,7 @@ public class CoachService {
         String fatigue = computeFatigueLevel(minutes);
         String injuryRisk = computeInjuryRisk(fatigue, matches);
 
-        String comment = String.format("%d matches, %d min in last 28 days", matches, minutes);
+        String comment = "%d matches, %d min in last 28 days".formatted(matches, minutes);
 
         return PlayerWorkloadSnapshot.builder()
                 .player(player)
@@ -288,9 +288,12 @@ public class CoachService {
      * High density (≥6 matches in 28 days) always → HIGH.
      */
     private String computeInjuryRisk(String fatigueLevel, int matches) {
-        if (matches >= 6 || "EXHAUSTED".equals(fatigueLevel)) return "HIGH";
-        if ("TIRED".equals(fatigueLevel)) return "MEDIUM";
-        return "LOW";
+        if (matches >= 6) return "HIGH";
+        return switch (fatigueLevel) {
+            case "EXHAUSTED" -> "HIGH";
+            case "TIRED" -> "MEDIUM";
+            default -> "LOW";
+        };
     }
 
     private AiSeasonPlanResponse parseSeasonPlanResponse(String aiResponse) {
@@ -306,7 +309,7 @@ public class CoachService {
     private String buildSeasonPlanPrompt(Team team, List<Player> players,
                                          List<PlayerWorkloadSnapshot> snapshots, SeasonPlanInput input) {
         String workloadReport = snapshots.stream()
-                .map(s -> String.format("- %s (%s): %d matches, %d min, fatigue=%s, injury risk=%s",
+                .map(s -> "- %s (%s): %d matches, %d min, fatigue=%s, injury risk=%s".formatted(
                         s.getPlayer().getName(),
                         s.getPlayer().getPosition(),
                         s.getMatchesLast28Days(),

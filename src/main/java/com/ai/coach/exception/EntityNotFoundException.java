@@ -1,6 +1,6 @@
 package com.ai.coach.exception;
 
-public class EntityNotFoundException extends RuntimeException {
+public final class EntityNotFoundException extends CoachException {
 
     private final String entityType;
     private final Object entityId;
