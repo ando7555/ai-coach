@@ -3,7 +3,7 @@ package com.ai.coach.controller;
 import com.ai.coach.domain.entity.Player;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Team;
-import com.ai.coach.domain.repository.PlayerRepository;
+import com.ai.coach.service.PlayerService;
 import com.ai.coach.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -19,7 +19,7 @@ import java.util.List;
 public class TeamGraphQLController {
 
     private final TeamService teamService;
-    private final PlayerRepository playerRepository;
+    private final PlayerService playerService;
 
     @QueryMapping
     public List<Team> teams() {
@@ -33,7 +33,7 @@ public class TeamGraphQLController {
 
     @QueryMapping
     public List<Player> playersByTeam(@Argument Long teamId) {
-        return playerRepository.findByTeamId(teamId);
+        return playerService.getPlayersByTeam(teamId);
     }
 
     @MutationMapping
@@ -60,6 +60,6 @@ public class TeamGraphQLController {
                 .rating(rating)
                 .team(team)
                 .build();
-        return playerRepository.save(player);
+        return playerService.createPlayer(player);
     }
 }
