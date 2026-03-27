@@ -14,6 +14,7 @@ public class AiClient {
     private final ChatClient seasonPlanClient;
     private final ChatClient trainingPlanClient;
 
+    // Manual constructor: each ChatClient needs a distinct system prompt via builder.clone()
     public AiClient(ChatClient.Builder builder) {
         this.tacticalClient = builder.clone()
                 .defaultSystem("You are an expert football/soccer tactical analyst. "
@@ -34,24 +35,21 @@ public class AiClient {
     }
 
     public Mono<String> generateTacticalAdvice(String prompt) {
-        return Mono.fromCallable(() -> tacticalClient.prompt().user(prompt).call().content())
-                .subscribeOn(Schedulers.boundedElastic())
-                .doOnError(e -> log.error("Tactical advice generation failed", e))
-                .onErrorResume(e -> Mono.empty());
+        return callClient(tacticalClient, prompt, "Tactical advice");
     }
 
-
     public Mono<String> generateSeasonPlan(String prompt) {
-        return Mono.fromCallable(() -> seasonPlanClient.prompt().user(prompt).call().content())
-                .subscribeOn(Schedulers.boundedElastic())
-                .doOnError(e -> log.error("Season plan generation failed", e))
-                .onErrorResume(e -> Mono.empty());
+        return callClient(seasonPlanClient, prompt, "Season plan");
     }
 
     public Mono<String> generateTrainingPlan(String prompt) {
-        return Mono.fromCallable(() -> trainingPlanClient.prompt().user(prompt).call().content())
+        return callClient(trainingPlanClient, prompt, "Training plan");
+    }
+
+    private Mono<String> callClient(ChatClient client, String prompt, String context) {
+        return Mono.fromCallable(() -> client.prompt().user(prompt).call().content())
                 .subscribeOn(Schedulers.boundedElastic())
-                .doOnError(e -> log.error("Training plan generation failed", e))
+                .doOnError(e -> log.error("{} generation failed", context, e))
                 .onErrorResume(e -> Mono.empty());
     }
 }

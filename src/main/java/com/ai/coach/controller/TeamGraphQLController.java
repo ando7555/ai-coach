@@ -1,11 +1,11 @@
 package com.ai.coach.controller;
 
-
 import com.ai.coach.domain.entity.Player;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Team;
-import com.ai.coach.domain.repository.PlayerRepository;
+import com.ai.coach.service.PlayerService;
 import com.ai.coach.service.TeamService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -15,15 +15,11 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class TeamGraphQLController {
 
     private final TeamService teamService;
-    private final PlayerRepository playerRepository;
-
-    public TeamGraphQLController(TeamService teamService, PlayerRepository playerRepository) {
-        this.teamService = teamService;
-        this.playerRepository = playerRepository;
-    }
+    private final PlayerService playerService;
 
     @QueryMapping
     public List<Team> teams() {
@@ -37,7 +33,7 @@ public class TeamGraphQLController {
 
     @QueryMapping
     public List<Player> playersByTeam(@Argument Long teamId) {
-        return playerRepository.findByTeamId(teamId);
+        return playerService.getPlayersByTeam(teamId);
     }
 
     @MutationMapping
@@ -58,8 +54,12 @@ public class TeamGraphQLController {
         if (team == null) {
             throw new EntityNotFoundException("Team", teamId);
         }
-        Player player = new Player(name, position, rating);
-        player.setTeam(team);
-        return playerRepository.save(player);
+        Player player = Player.builder()
+                .name(name)
+                .position(position)
+                .rating(rating)
+                .team(team)
+                .build();
+        return playerService.createPlayer(player);
     }
 }

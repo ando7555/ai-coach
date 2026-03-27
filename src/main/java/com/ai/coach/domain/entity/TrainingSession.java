@@ -20,9 +20,8 @@ public class TrainingSession {
     private Long id;
 
     private OffsetDateTime date;
-    private String focusArea;     // enum name
-    private String intensity;     // LOW / MEDIUM / HIGH
+    private FocusArea focusArea;
+    private TrainingIntensity intensity;
     private Integer durationMinutes;
     private String notes;
 }
-

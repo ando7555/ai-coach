@@ -6,6 +6,7 @@ import com.ai.coach.domain.entity.Match;
 import com.ai.coach.domain.entity.Team;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.domain.repository.TeamRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MatchService {
 
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
-
-    public MatchService(MatchRepository matchRepository, TeamRepository teamRepository) {
-        this.matchRepository = matchRepository;
-        this.teamRepository = teamRepository;
-    }
 
     @Transactional(readOnly = true)
     public Match getMatch(Long id) {
@@ -44,7 +41,13 @@ public class MatchService {
                 ? LocalDate.parse(input.date())
                 : LocalDate.now();
 
-        Match match = new Match(home, away, input.homeGoals(), input.awayGoals(), date);
+        Match match = Match.builder()
+                .homeTeam(home)
+                .awayTeam(away)
+                .homeGoals(input.homeGoals())
+                .awayGoals(input.awayGoals())
+                .date(date)
+                .build();
         return matchRepository.save(match);
     }
 }

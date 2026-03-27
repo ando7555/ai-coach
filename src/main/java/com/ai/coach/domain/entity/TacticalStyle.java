@@ -1,3 +1,3 @@
 package com.ai.coach.domain.entity;
 
-enum TacticalStyle { POSSESSION, DIRECT, BALANCED }
+public enum TacticalStyle { POSSESSION, DIRECT, BALANCED }

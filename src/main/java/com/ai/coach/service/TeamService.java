@@ -2,19 +2,17 @@ package com.ai.coach.service;
 
 import com.ai.coach.domain.entity.Team;
 import com.ai.coach.domain.repository.TeamRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TeamService {
 
     private final TeamRepository teamRepository;
-
-    public TeamService(TeamRepository teamRepository) {
-        this.teamRepository = teamRepository;
-    }
 
     @Transactional(readOnly = true)
     public List<Team> getAllTeams() {
@@ -28,7 +26,11 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(String name, String league, String formation) {
-        Team team = new Team(name, league, formation);
+        Team team = Team.builder()
+                .name(name)
+                .league(league)
+                .formation(formation)
+                .build();
         return teamRepository.save(team);
     }
 }

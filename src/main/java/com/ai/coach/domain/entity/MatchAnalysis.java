@@ -1,13 +1,14 @@
 package com.ai.coach.domain.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.*;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 
 @Node
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,13 +22,13 @@ public class MatchAnalysis {
     private Match match;
 
     @Property("focus_area")
-    private String focusArea;  // e.g. "PRESSING"
+    private FocusArea focusArea;
 
     @Property("style")
-    private String style;      // e.g. "POSSESSION"
+    private TacticalStyle style;
 
     @Property("risk_level")
-    private String riskLevel;  // e.g. "MEDIUM"
+    private RiskLevel riskLevel;
 
     @Property("summary")
     private String summary;
