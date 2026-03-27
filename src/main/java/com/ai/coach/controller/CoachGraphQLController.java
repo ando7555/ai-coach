@@ -18,7 +18,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Validated
-public class CoachGraphqlController {
+public class CoachGraphQLController {
 
     private final CoachService coachService;
     private final MatchAnalysisRepository matchAnalysisRepository;

@@ -14,6 +14,7 @@ public class AiClient {
     private final ChatClient seasonPlanClient;
     private final ChatClient trainingPlanClient;
 
+    // Manual constructor: each ChatClient needs a distinct system prompt via builder.clone()
     public AiClient(ChatClient.Builder builder) {
         this.tacticalClient = builder.clone()
                 .defaultSystem("You are an expert football/soccer tactical analyst. "
