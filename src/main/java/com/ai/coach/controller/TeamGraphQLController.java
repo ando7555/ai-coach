@@ -58,8 +58,12 @@ public class TeamGraphQLController {
         if (team == null) {
             throw new EntityNotFoundException("Team", teamId);
         }
-        Player player = new Player(name, position, rating);
-        player.setTeam(team);
+        Player player = Player.builder()
+                .name(name)
+                .position(position)
+                .rating(rating)
+                .team(team)
+                .build();
         return playerRepository.save(player);
     }
 }

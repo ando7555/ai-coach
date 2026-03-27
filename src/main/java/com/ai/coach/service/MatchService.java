@@ -44,7 +44,13 @@ public class MatchService {
                 ? LocalDate.parse(input.date())
                 : LocalDate.now();
 
-        Match match = new Match(home, away, input.homeGoals(), input.awayGoals(), date);
+        Match match = Match.builder()
+                .homeTeam(home)
+                .awayTeam(away)
+                .homeGoals(input.homeGoals())
+                .awayGoals(input.awayGoals())
+                .date(date)
+                .build();
         return matchRepository.save(match);
     }
 }

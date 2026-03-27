@@ -43,12 +43,12 @@ public class RecommendationService {
                 .blockOptional()
                 .orElse("No advice generated.");
 
-        Recommendation rec = new Recommendation(
-                match,
-                prompt,
-                advice,
-                OffsetDateTime.now()
-        );
+        Recommendation rec = Recommendation.builder()
+                .match(match)
+                .context(prompt)
+                .advice(advice)
+                .createdAt(OffsetDateTime.now())
+                .build();
 
         return recommendationRepository.save(rec);
     }

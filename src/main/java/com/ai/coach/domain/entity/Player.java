@@ -1,8 +1,14 @@
 package com.ai.coach.domain.entity;
 
+import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
 
 @Node
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Player {
 
     @Id
@@ -15,30 +21,4 @@ public class Player {
 
     @Relationship(type = "PLAYS_FOR")
     private Team team;
-
-    public Player() {}
-
-    public Player(String name, String position, Double rating) {
-        this.name = name;
-        this.position = position;
-        this.rating = rating;
-    }
-
-    public Long getId() { return id; }
-
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-
-    public String getPosition() { return position; }
-
-    public void setPosition(String position) { this.position = position; }
-
-    public Double getRating() { return rating; }
-
-    public void setRating(Double rating) { this.rating = rating; }
-
-    public Team getTeam() { return team; }
-
-    public void setTeam(Team team) { this.team = team; }
 }

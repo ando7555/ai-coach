@@ -28,7 +28,11 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(String name, String league, String formation) {
-        Team team = new Team(name, league, formation);
+        Team team = Team.builder()
+                .name(name)
+                .league(league)
+                .formation(formation)
+                .build();
         return teamRepository.save(team);
     }
 }
