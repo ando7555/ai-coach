@@ -18,14 +18,12 @@ import java.time.OffsetDateTime;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CoachService {
 
-    private static final Set<String> VALID_INTENSITIES = Set.of("LOW", "MEDIUM", "HIGH");
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final MatchRepository matchRepository;
@@ -108,7 +106,7 @@ public class CoachService {
         List<TrainingSession> sessions = parsed.sessions().stream()
                 .map(entry -> TrainingSession.builder()
                         .date(start.plusDays(entry.dayOffset()).atStartOfDay().atOffset(ZoneOffset.UTC))
-                        .focusArea(entry.focusArea() != null ? entry.focusArea() : input.primaryFocus())
+                        .focusArea(parseFocusArea(entry.focusArea(), input.primaryFocus()))
                         .intensity(normalizeIntensity(entry.intensity()))
                         .durationMinutes(entry.durationMinutes() > 0 ? entry.durationMinutes() : 90)
                         .notes(entry.notes())
@@ -163,10 +161,21 @@ public class CoachService {
         return trimmed.strip();
     }
 
-    private String normalizeIntensity(String intensity) {
-        if (intensity == null) return "MEDIUM";
-        String upper = intensity.toUpperCase();
-        return VALID_INTENSITIES.contains(upper) ? upper : "MEDIUM";
+    private FocusArea parseFocusArea(String value, String fallback) {
+        try {
+            return value != null ? FocusArea.valueOf(value.toUpperCase()) : FocusArea.valueOf(fallback.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return FocusArea.valueOf(fallback.toUpperCase());
+        }
+    }
+
+    private TrainingIntensity normalizeIntensity(String intensity) {
+        if (intensity == null) return TrainingIntensity.MEDIUM;
+        try {
+            return TrainingIntensity.valueOf(intensity.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return TrainingIntensity.MEDIUM;
+        }
     }
 
     private String buildTrainingPlanPrompt(Team team, TrainingPlanInput input) {
@@ -253,8 +262,8 @@ public class CoachService {
 
         int matches = recentStats.size();
         int minutes = recentStats.stream().mapToInt(PlayerMatchStat::getMinutesPlayed).sum();
-        String fatigue = computeFatigueLevel(minutes);
-        String injuryRisk = computeInjuryRisk(fatigue, matches);
+        FatigueLevel fatigue = computeFatigueLevel(minutes);
+        InjuryRisk injuryRisk = computeInjuryRisk(fatigue, matches);
 
         String comment = "%d matches, %d min in last 28 days".formatted(matches, minutes);
 
@@ -276,23 +285,23 @@ public class CoachService {
      * 451–720 min (6–8 matches)      → TIRED
      *   720+ min                      → EXHAUSTED
      */
-    private String computeFatigueLevel(int minutes) {
-        if (minutes <= 180) return "FRESH";
-        if (minutes <= 450) return "MODERATE";
-        if (minutes <= 720) return "TIRED";
-        return "EXHAUSTED";
+    private FatigueLevel computeFatigueLevel(int minutes) {
+        if (minutes <= 180) return FatigueLevel.FRESH;
+        if (minutes <= 450) return FatigueLevel.MODERATE;
+        if (minutes <= 720) return FatigueLevel.TIRED;
+        return FatigueLevel.EXHAUSTED;
     }
 
     /**
      * Injury risk combines fatigue level with match density.
      * High density (≥6 matches in 28 days) always → HIGH.
      */
-    private String computeInjuryRisk(String fatigueLevel, int matches) {
-        if (matches >= 6) return "HIGH";
+    private InjuryRisk computeInjuryRisk(FatigueLevel fatigueLevel, int matches) {
+        if (matches >= 6) return InjuryRisk.HIGH;
         return switch (fatigueLevel) {
-            case "EXHAUSTED" -> "HIGH";
-            case "TIRED" -> "MEDIUM";
-            default -> "LOW";
+            case EXHAUSTED -> InjuryRisk.HIGH;
+            case TIRED -> InjuryRisk.MEDIUM;
+            default -> InjuryRisk.LOW;
         };
     }
 

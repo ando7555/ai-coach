@@ -1,7 +1,7 @@
 package com.ai.coach.controller;
 
 import com.ai.coach.domain.entity.Recommendation;
-import com.ai.coach.domain.entity.RecommendationContextInput;
+import com.ai.coach.domain.dto.RecommendationContextInput;
 import com.ai.coach.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;

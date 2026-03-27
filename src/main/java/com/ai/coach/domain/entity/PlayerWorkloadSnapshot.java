@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @Node
 @Getter
@@ -23,9 +22,8 @@ public class PlayerWorkloadSnapshot {
 
     private Integer matchesLast28Days;
     private Integer minutesLast28Days;
-    private String fatigueLevel;  // e.g. "FRESH", "TIRED"
-    private String injuryRisk;    // e.g. "LOW", "MEDIUM", "HIGH"
+    private FatigueLevel fatigueLevel;
+    private InjuryRisk injuryRisk;
     private String comment;
     private OffsetDateTime createdAt;
 }
-

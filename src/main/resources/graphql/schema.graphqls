@@ -53,6 +53,9 @@ type Query {
 enum FocusArea { PRESSING, BUILD_UP, DEFENCE }
 enum PlayingStyle { POSSESSION, DIRECT, BALANCED }
 enum RiskLevel { LOW, MEDIUM, HIGH }
+enum FatigueLevel { FRESH, MODERATE, TIRED, EXHAUSTED }
+enum InjuryRisk { LOW, MEDIUM, HIGH }
+enum TrainingIntensity { LOW, MEDIUM, HIGH }
 
 input RecommendationContextInput {
   matchId: ID!
@@ -85,7 +88,7 @@ type TrainingSession {
   id: ID!
   date: String!
   focusArea: FocusArea!
-  intensity: String!
+  intensity: TrainingIntensity!
   durationMinutes: Int!
   notes: String
 }
@@ -105,8 +108,8 @@ type PlayerWorkloadSnapshot {
   player: Player!
   matchesLast28Days: Int!
   minutesLast28Days: Int!
-  fatigueLevel: String!
-  injuryRisk: String!
+  fatigueLevel: FatigueLevel!
+  injuryRisk: InjuryRisk!
   comment: String
   createdAt: String!
 }
@@ -135,7 +138,7 @@ input TrainingPlanInput {
   weekStart: String!
   weekEnd: String!
   primaryFocus: FocusArea!
-  intensity: String
+  intensity: TrainingIntensity
 }
 
 "Input for season / rotation coach"

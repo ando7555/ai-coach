@@ -3,7 +3,7 @@ package com.ai.coach.service;
 import com.ai.coach.domain.entity.Match;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Recommendation;
-import com.ai.coach.domain.entity.RecommendationContextInput;
+import com.ai.coach.domain.dto.RecommendationContextInput;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.domain.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
