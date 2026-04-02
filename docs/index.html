@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — LinkedIn Post Series</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 48px 24px 56px;
+    text-align: center;
+  }
+  .header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .logo {
+    width: 220px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 15px;
+    color: #90e0ef;
+    max-width: 520px;
+    margin: 0 auto 20px;
+  }
+  .header-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #00b4d8;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid rgba(0, 180, 216, 0.3);
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .header-link:hover {
+    background: rgba(0, 180, 216, 0.1);
+    border-color: #00b4d8;
+  }
+  .header-link svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  /* ─── Timeline ─── */
+  .timeline {
+    max-width: 720px;
+    margin: -28px auto 0;
+    padding: 0 24px 60px;
+    position: relative;
+  }
+
+  /* vertical line */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 47px;
+    top: 0;
+    bottom: 60px;
+    width: 3px;
+    background: linear-gradient(180deg, #1565c0 0%, #2e7d32 40%, #e65100 70%, #6a1b9a 100%);
+    border-radius: 2px;
+  }
+
+  /* ─── Phase Banner ─── */
+  .phase-banner {
+    position: relative;
+    margin-left: 28px;
+    margin-bottom: 24px;
+    padding-top: 12px;
+  }
+  .phase-dot {
+    position: absolute;
+    left: -9px;
+    top: 16px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid #f5f5f5;
+  }
+  .phase-dot.blue   { background: #1565c0; }
+  .phase-dot.green  { background: #2e7d32; }
+  .phase-label {
+    margin-left: 32px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    position: relative;
+    margin-left: 28px;
+    margin-bottom: 28px;
+  }
+  .card-dot {
+    position: absolute;
+    left: -5px;
+    top: 24px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid #f5f5f5;
+    z-index: 1;
+  }
+  .card-dot.blue   { background: #1565c0; }
+  .card-dot.green  { background: #2e7d32; }
+  .card-dot.orange { background: #e65100; }
+  .card-dot.purple { background: #6a1b9a; }
+
+  .card-body {
+    margin-left: 32px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    border-left: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card-body:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  }
+  .card-body.blue   { border-left-color: #1565c0; }
+  .card-body.green  { border-left-color: #2e7d32; }
+  .card-body.orange { border-left-color: #e65100; }
+  .card-body.purple { border-left-color: #6a1b9a; }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .post-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 10px;
+    letter-spacing: 0.5px;
+  }
+  .post-number.blue   { background: #1565c0; }
+  .post-number.green  { background: #2e7d32; }
+  .post-number.orange { background: #e65100; }
+  .post-number.purple { background: #6a1b9a; }
+
+  .phase-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    background: #f0f0f0;
+    border-radius: 6px;
+    padding: 3px 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-left: auto;
+  }
+  .status-badge.published {
+    color: #2e7d32;
+    background: #e8f5e9;
+  }
+  .status-badge.coming-soon {
+    color: #e65100;
+    background: #fff3e0;
+  }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 14px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tag {
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 3px 10px;
+  }
+  .tag.blue   { color: #1565c0; background: #e3f2fd; }
+  .tag.green  { color: #2e7d32; background: #e8f5e9; }
+  .tag.orange { color: #e65100; background: #fff3e0; }
+  .tag.purple { color: #6a1b9a; background: #f3e5f5; }
+
+  .read-btn {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    color: #fff;
+    transition: opacity 0.2s;
+  }
+  .read-btn:hover { opacity: 0.85; }
+  .read-btn.blue   { background: #1565c0; }
+  .read-btn.green  { background: #2e7d32; }
+  .read-btn.orange { background: #e65100; }
+  .read-btn.purple { background: #6a1b9a; }
+
+  /* ─── Footer ─── */
+  .footer {
+    background: #1a1a2e;
+    padding: 36px 24px;
+    text-align: center;
+  }
+  .footer p {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .footer a {
+    color: #00b4d8;
+    text-decoration: none;
+  }
+  .footer a:hover { text-decoration: underline; }
+  .footer .tech {
+    font-size: 12px;
+    color: #555;
+    margin-top: 10px;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 600px) {
+    .header { padding: 32px 16px 40px; }
+    .header h1 { font-size: 22px; }
+    .logo { width: 160px; }
+    .timeline { padding: 0 12px 40px; }
+    .timeline::before { left: 39px; }
+    .phase-banner { margin-left: 20px; }
+    .phase-dot { left: -9px; }
+    .phase-label { margin-left: 28px; }
+    .card { margin-left: 20px; }
+    .card-dot { left: -5px; }
+    .card-body { margin-left: 28px; padding: 20px; }
+    .card-title { font-size: 15px; }
+    .status-badge { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="header">
+  <div class="header-inner">
+    <img src="logo-ai-coach.svg" alt="AI Coach logo" class="logo">
+    <h1>LinkedIn Post Series</h1>
+    <p>A series of articles documenting the design, architecture, and Java fundamentals behind an AI-powered football coaching app built with Spring Boot, GraphQL, and Neo4j.</p>
+    <a href="https://github.com/ando7555/ai-coach" target="_blank" rel="noopener" class="header-link">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+</header>
+
+<!-- ═══════════ TIMELINE ═══════════ -->
+<section class="timeline">
+
+  <!-- Phase 1 -->
+  <div class="phase-banner">
+    <div class="phase-dot blue"></div>
+    <div class="phase-label">Phase 1 &mdash; Foundations</div>
+  </div>
+
+  <!-- Post 1 -->
+  <div class="card">
+    <div class="card-dot blue"></div>
+    <div class="card-body blue">
+      <div class="card-top">
+        <span class="post-number blue">Post 1</span>
+        <span class="phase-tag">Phase 1</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">I'm Building an AI-Powered Football Coaching App &mdash; Here's How It Works</div>
+      <div class="card-desc">Introducing the AI Coach project: motivation, tech stack overview, and the vision for combining Spring Boot, GraphQL, Neo4j, and Gemini AI into a football coaching platform.</div>
+      <div class="tags">
+        <span class="tag blue">#AICoach</span>
+        <span class="tag blue">#SpringBoot</span>
+      </div>
+      <a href="#" class="read-btn blue">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Post 2 -->
+  <div class="card">
+    <div class="card-dot purple"></div>
+    <div class="card-body purple">
+      <div class="card-top">
+        <span class="post-number purple">Post 2</span>
+        <span class="phase-tag">Phase 1</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">Java 9 Modularity &mdash; What Happens When You Try JPMS in a Real Spring Boot App</div>
+      <div class="card-desc">A hands-on exploration of the Java Platform Module System: what it promises, where it struggles with Spring Boot, and the practical lessons learned.</div>
+      <div class="tags">
+        <span class="tag purple">#Java</span>
+        <span class="tag purple">#JPMS</span>
+        <span class="tag purple">#Modularity</span>
+      </div>
+      <a href="#" class="read-btn purple">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Post 3 -->
+  <div class="card">
+    <div class="card-dot green"></div>
+    <div class="card-body green">
+      <div class="card-top">
+        <span class="post-number green">Post 3</span>
+        <span class="phase-tag">Phase 1</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">Java Fundamentals &mdash; Why the JVM Is Still the Best Platform for Production Software</div>
+      <div class="card-desc">Deep dive into the JVM internals, type safety, memory model, and the fundamentals that make Java a battle-tested choice for enterprise backends.</div>
+      <div class="tags">
+        <span class="tag green">#Java</span>
+        <span class="tag green">#JVM</span>
+        <span class="tag green">#TypeSafety</span>
+      </div>
+      <a href="#" class="read-btn green">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Post 4 -->
+  <div class="card">
+    <div class="card-dot purple"></div>
+    <div class="card-body purple">
+      <div class="card-top">
+        <span class="post-number purple">Post 4</span>
+        <span class="phase-tag">Phase 1</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">Java 8 to 17 &mdash; The Modern Features That Changed Everything</div>
+      <div class="card-desc">From lambdas and streams to records, sealed classes, and pattern matching &mdash; how modern Java features make the AI Coach codebase cleaner and more expressive.</div>
+      <div class="tags">
+        <span class="tag purple">#Java</span>
+        <span class="tag purple">#Java17</span>
+        <span class="tag purple">#ModernJava</span>
+      </div>
+      <a href="#" class="read-btn purple">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Post 5 -->
+  <div class="card">
+    <div class="card-dot blue"></div>
+    <div class="card-body blue">
+      <div class="card-top">
+        <span class="post-number blue">Post 5</span>
+        <span class="phase-tag">Phase 1</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">HTTP, REST vs GraphQL, and the Spring Request Lifecycle</div>
+      <div class="card-desc">How HTTP works under the hood, the REST vs GraphQL trade-off, and a complete walkthrough of a request flowing through the Spring Boot stack.</div>
+      <div class="tags">
+        <span class="tag blue">#GraphQL</span>
+        <span class="tag blue">#REST</span>
+        <span class="tag blue">#HTTP</span>
+      </div>
+      <a href="#" class="read-btn blue">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase-banner">
+    <div class="phase-dot green"></div>
+    <div class="phase-label">Phase 2 &mdash; Architecture &amp; Patterns</div>
+  </div>
+
+  <!-- Post 6 -->
+  <div class="card">
+    <div class="card-dot orange"></div>
+    <div class="card-body orange">
+      <div class="card-top">
+        <span class="post-number orange">Post 6</span>
+        <span class="phase-tag">Phase 2</span>
+        <span class="status-badge published">Published</span>
+      </div>
+      <div class="card-title">Anatomy of an Architecture Refactoring &mdash; 15 Issues, 7 Commits, Zero Behavior Changes</div>
+      <div class="card-desc">A real-world refactoring story: how the AI Coach backend was restructured with SOLID principles, service extraction, and DRY patterns without changing a single API response.</div>
+      <div class="tags">
+        <span class="tag orange">#Refactoring</span>
+        <span class="tag orange">#SOLID</span>
+        <span class="tag orange">#CleanCode</span>
+      </div>
+      <a href="#" class="read-btn orange">Read on LinkedIn</a>
+    </div>
+  </div>
+
+  <!-- Post 7 -->
+  <div class="card">
+    <div class="card-dot purple"></div>
+    <div class="card-body purple">
+      <div class="card-top">
+        <span class="post-number purple">Post 7</span>
+        <span class="phase-tag">Phase 2</span>
+        <span class="status-badge coming-soon">Coming Soon</span>
+      </div>
+      <div class="card-title">15 Design Patterns Hiding in My Spring Boot App &mdash; A Pattern Safari Through Real Code</div>
+      <div class="card-desc">Spotting GoF and enterprise patterns in a real Spring Boot + GraphQL codebase &mdash; from Singleton and Proxy to Strategy, Observer, and Template Method.</div>
+      <div class="tags">
+        <span class="tag purple">#DesignPatterns</span>
+        <span class="tag purple">#GoF</span>
+      </div>
+      <a href="#" class="read-btn purple">Read on LinkedIn</a>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <p>Built by <a href="https://github.com/ando7555" target="_blank" rel="noopener">ando7555</a></p>
+  <p><a href="https://github.com/ando7555/ai-coach" target="_blank" rel="noopener">github.com/ando7555/ai-coach</a></p>
+  <p class="tech">Spring Boot 3.5 &middot; GraphQL &middot; Neo4j &middot; Google Gemini AI</p>
+</footer>
+
+</body>
+</html>
