@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="500" height="300">
+  <defs>
+    <linearGradient id="whistleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#e8e8e8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="signalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0077b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00b4d8;stop-opacity:0.3" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="500" height="300" rx="20" fill="url(#bgGrad)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.03">
+    <line x1="0" y1="50" x2="500" y2="50" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="100" x2="500" y2="100" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="150" x2="500" y2="150" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="200" x2="500" y2="200" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="250" x2="500" y2="250" stroke="white" stroke-width="1"/>
+    <line x1="100" y1="0" x2="100" y2="300" stroke="white" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="300" stroke="white" stroke-width="1"/>
+    <line x1="300" y1="0" x2="300" y2="300" stroke="white" stroke-width="1"/>
+    <line x1="400" y1="0" x2="400" y2="300" stroke="white" stroke-width="1"/>
+  </g>
+
+  <!-- Whistle group -->
+  <g transform="translate(85, 120)" filter="url(#shadow)">
+    <!-- Lanyard ring -->
+    <circle cx="0" cy="-10" r="10" fill="none" stroke="#e8e8e8" stroke-width="3"/>
+
+    <!-- Whistle body -->
+    <rect x="5" y="-18" width="90" height="36" rx="8" fill="url(#whistleGrad)" stroke="#999" stroke-width="1.5"/>
+
+    <!-- Whistle mouthpiece (tapered left side) -->
+    <path d="M5 -14 Q-12 -10 -12 0 Q-12 10 5 14" fill="url(#whistleGrad)" stroke="#999" stroke-width="1.5"/>
+
+    <!-- Whistle window/slot -->
+    <rect x="72" y="-8" width="18" height="16" rx="3" fill="#1a1a2e" stroke="#888" stroke-width="1"/>
+
+    <!-- Whistle pea bump -->
+    <circle cx="81" cy="0" r="5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+
+    <!-- Highlight reflection -->
+    <rect x="20" y="-14" width="40" height="5" rx="2.5" fill="white" opacity="0.25"/>
+
+    <!-- Whistle tip (sound exit) -->
+    <rect x="90" y="-10" width="12" height="20" rx="3" fill="#d0d0d0" stroke="#999" stroke-width="1.5"/>
+  </g>
+
+  <!-- AI Signal waves emanating from whistle -->
+  <g transform="translate(195, 120)" filter="url(#glow)">
+    <!-- Wave 1 (closest) -->
+    <path d="M0 -30 Q15 -15 0 0 Q-15 15 0 30" fill="none" stroke="#00b4d8" stroke-width="3" opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.5;0.9" dur="2s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- Wave 2 -->
+    <path d="M18 -38 Q38 -19 18 0 Q-2 19 18 38" fill="none" stroke="#00b4d8" stroke-width="2.5" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- Wave 3 -->
+    <path d="M38 -46 Q63 -23 38 0 Q13 23 38 46" fill="none" stroke="#00b4d8" stroke-width="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.5;0.2;0.5" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- Digital signal nodes on wave paths -->
+    <circle cx="0" cy="0" r="4" fill="#00b4d8" opacity="0.9">
+      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="18" cy="0" r="3.5" fill="#00b4d8" opacity="0.7">
+      <animate attributeName="r" values="2.5;4.5;2.5" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="38" cy="0" r="3" fill="#00b4d8" opacity="0.5">
+      <animate attributeName="r" values="2;4;2" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Small data dots floating between waves -->
+    <circle cx="8" cy="-18" r="2" fill="#90e0ef" opacity="0.6">
+      <animate attributeName="cy" values="-18;-14;-18" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="28" cy="12" r="2" fill="#90e0ef" opacity="0.5">
+      <animate attributeName="cy" values="12;16;12" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="12" cy="22" r="1.5" fill="#90e0ef" opacity="0.4">
+      <animate attributeName="cy" values="22;18;22" dur="1.8s" begin="0.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="48" cy="-20" r="1.5" fill="#90e0ef" opacity="0.35">
+      <animate attributeName="cy" values="-20;-24;-20" dur="1.6s" begin="0.7s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Text: AI -->
+  <text x="300" y="105" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="52" font-weight="300" fill="#00b4d8" letter-spacing="6" filter="url(#softGlow)">AI</text>
+
+  <!-- Text: COACH -->
+  <text x="300" y="155" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="52" font-weight="700" fill="white" letter-spacing="6">COACH</text>
+
+  <!-- Tagline -->
+  <text x="300" y="182" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="12" font-weight="400" fill="#00b4d8" letter-spacing="5" opacity="0.7">INTELLIGENCE IN PLAY</text>
+
+  <!-- Subtle accent line under tagline -->
+  <line x1="300" y1="192" x2="440" y2="192" stroke="#0077b6" stroke-width="1" opacity="0.3"/>
+</svg>
