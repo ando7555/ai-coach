@@ -1,6 +1,6 @@
 # TEASER POST (copy-paste into LinkedIn post composer — attach diagram screenshots as carousel images)
 
-7 libraries. 5 organizations. 1 codebase. Zero glue code.
+7 libraries. 5 organizations. 1 codebase. Zero glue code. 🔧
 
 My AI Coach app integrates Neo4j, GraphQL, Spring AI, JWT, Jackson, Lombok, and Spring Security — and they all just work together.
 
@@ -8,17 +8,17 @@ That's not luck. That's the JVM.
 
 I broke down how it actually works — from source code to running app:
 
-↳ How .java compiles to bytecode and the JIT compiler makes it as fast as C
-↳ Why my Docker build uses JDK to compile but JRE to run (70% smaller image)
-↳ 6 Java language features — all from the real codebase, not textbook examples
-↳ How Spring generates full database implementations from an empty interface
-↳ Why Java catches at compile time what Python/JS catch at 2 AM in production
+-> ⚙️ How .java compiles to bytecode and the JIT compiler makes it as fast as C
+-> 🐳 Why my Docker build uses JDK to compile but JRE to run (70% smaller image)
+-> 💻 6 Java language features — all from the real codebase, not textbook examples
+-> 🪄 How Spring generates full database implementations from an empty interface
+-> 🛡️ Why Java catches at compile time what Python/JS catch at 2 AM in production
 
 Java isn't trendy. It's the language where your bugs are compiler errors instead of production incidents.
 
-Full visual breakdown with diagrams 👇
+Full article in the comments 👇
 
-The code is open source: github.com/ando7555/ai-coach
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
 
 #Java #JVM #SpringBoot #TypeSafety #SoftwareEngineering #LearningInPublic
 
@@ -137,9 +137,9 @@ Try to save a `Team` through `PlayerRepository`? Compiler error. Add a `Player` 
 
 ```java
 @SpringBootApplication
-public class ActingSchoolBackendApplication {
+public class AiCoachApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ActingSchoolBackendApplication.class, args);
+        SpringApplication.run(AiCoachApplication.class, args);
     }
 }
 ```

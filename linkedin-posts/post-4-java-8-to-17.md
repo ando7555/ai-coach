@@ -1,25 +1,25 @@
 # TEASER POST (copy-paste into LinkedIn post composer — attach diagram screenshots as carousel images)
 
-Java 8 was released in 2014. Java 17 in 2021. Between those seven years, Java went from the most verbose mainstream language to one of the most expressive.
+Java 8 was released in 2014. Java 17 in 2021. Between those seven years, Java went from the most verbose mainstream language to one of the most expressive. ⚡
 
 I tracked every modern feature in my AI Coach codebase. Here's the transformation:
 
--> Lambdas replaced 15+ anonymous inner classes with one-liners
--> Streams turned 20-line for loops into 3-line pipelines
--> Records replaced 12 classes that would have been 40+ lines each — now they're 1-4 lines
--> Text blocks made AI prompts readable instead of a concatenation nightmare
--> Pattern matching instanceof eliminated every manual cast in exception handling
--> Switch expressions turned if-else chains into value-returning expressions
--> Sealed classes made the exception hierarchy compiler-enforced
--> var + Stream.toList() + Set.of() — the small quality-of-life changes that add up
+-> ✂️ Lambdas replaced 15+ anonymous inner classes with one-liners
+-> 🌊 Streams turned 20-line for loops into 3-line pipelines
+-> 📦 Records replaced 12 classes that would have been 40+ lines each — now they're 1-4 lines
+-> 📝 Text blocks made AI prompts readable instead of a concatenation nightmare
+-> 🔍 Pattern matching instanceof eliminated every manual cast in exception handling
+-> 🔀 Switch expressions turned if-else chains into value-returning expressions
+-> 🔒 Sealed classes made the exception hierarchy compiler-enforced
+-> ✨ var + Stream.toList() + Set.of() — the small quality-of-life changes that add up
 
 Every example is from the real codebase. Not textbook code. Production code.
 
-Full visual breakdown with before/after comparisons and a feature map:
+Full article in the comments 👇
 
-The code is open source: github.com/ando7555/ai-coach
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
 
-#Java #Java17 #SpringBoot #ModernJava #SoftwareEngineering #LearningInPublic
+#Java #Java17 #SpringBoot #ModernJava #Streams #Records #SoftwareEngineering #LearningInPublic
 
 ---
 ---

@@ -1,4 +1,30 @@
-TITLE: I'm Building an AI-Powered Football Coaching App — Here's How It Works
+# TEASER POST (copy-paste into LinkedIn post composer — attach diagram screenshots as carousel images)
+
+What if a football coach had an AI assistant that analyzes matches, designs training, plans entire seasons, and flags injury risks — all from one system?
+
+That's what I'm building. It's called AI Coach. 🏟️
+
+-> 🧠 Match Day Intelligence — tactical recommendations based on opponent and game plan
+-> 🏋️ Training Design — weekly micro-cycles with intensity, load management, and coaching notes
+-> 📅 Season Planning — periodisation, rotation strategies, and long-term squad objectives
+-> 📊 Player Monitoring — composite scoring detects form trends; fatigue tracking flags injury risk
+
+Every technology choice serves a purpose: Java 17, Spring Boot 3.5, GraphQL, Neo4j, Google Gemini AI, Docker, GitHub Actions CI/CD.
+
+This is Post 1 of a series where I build the app and explain every layer — from algorithms to architecture.
+
+Full article in the comments 👇
+
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
+
+#AICoach #SpringBoot #GraphQL #Neo4j #AI #SoftwareEngineering #LearningInPublic
+
+---
+---
+
+# FULL LINKEDIN ARTICLE (paste into LinkedIn Article editor)
+
+**Title:** I'm Building an AI-Powered Football Coaching App in Public — Here's the Architecture
 
 ---
 
@@ -10,7 +36,7 @@ That's what I'm building. It's called AI Coach.
 
 ---
 
-THE IDEA
+## 🏟️ The Idea
 
 Football coaching involves hundreds of decisions: Who starts? What formation? How hard do we train on Wednesday if we play Saturday? When do we rotate the squad?
 
@@ -18,17 +44,17 @@ Most of these decisions rely on gut feeling and experience. AI Coach adds data a
 
 The system has four core capabilities:
 
-Match Day Intelligence — Before a match, the coach describes the opponent and selects a focus (pressing, build-up, or defence) and a style (possession, direct, or balanced). The AI generates tactical recommendations: defensive shape, attacking patterns, pressing triggers, and phase-by-phase adjustments.
+**Match Day Intelligence** — Before a match, the coach describes the opponent and selects a focus (pressing, build-up, or defence) and a style (possession, direct, or balanced). The AI generates tactical recommendations: defensive shape, attacking patterns, pressing triggers, and phase-by-phase adjustments.
 
-Training Design — The AI creates weekly micro-cycles: day-by-day training sessions with intensity levels (low, medium, high), focus areas, duration, and coaching notes. It balances load so players aren't overtrained before match day.
+**Training Design** — The AI creates weekly micro-cycles: day-by-day training sessions with intensity levels (low, medium, high), focus areas, duration, and coaching notes. It balances load so players aren't overtrained before match day.
 
-Season Planning — Given the squad and schedule, the AI designs periodisation phases, rotation strategies, and long-term objectives. It considers player workload across the entire season.
+**Season Planning** — Given the squad and schedule, the AI designs periodisation phases, rotation strategies, and long-term objectives. It considers player workload across the entire season.
 
-Player Monitoring — This is where it gets interesting.
+**Player Monitoring** — This is where it gets interesting.
 
 ---
 
-HOW THE APP TRACKS PLAYER FORM
+## 🧠 How the App Tracks Player Form
 
 After every match, the system records each player's stats: goals, assists, minutes played, cards, and a performance rating.
 
@@ -38,7 +64,9 @@ To detect whether a player is improving, declining, or stable, the app uses a co
 
 The algorithm takes a player's recent match stats, splits them in half (older games vs newer games), and calculates a composite score for each half:
 
+```
 Composite Score = (goals × 3) + (assists × 2) + (rating ÷ 10)
+```
 
 Goals are weighted heaviest because they're the hardest to produce. Assists are next. Rating provides a baseline even in games without goal contributions.
 
@@ -48,7 +76,7 @@ This gives coaches a clear, data-driven signal about who's trending up and who m
 
 ---
 
-HOW THE APP MANAGES FATIGUE
+## 🏋️ How the App Manages Fatigue
 
 Overplaying fatigued players is the leading cause of soft-tissue injuries. The app calculates fatigue based on minutes played over the last 28 days:
 
@@ -58,7 +86,7 @@ Combined with match density (how many games per week), this feeds into an injury
 
 ---
 
-THE ARCHITECTURE
+## 🏗️ The Architecture
 
 [INSERT DIAGRAM: System Architecture]
 
@@ -76,7 +104,7 @@ At the bottom, Neo4j stores the data as a graph.
 
 ---
 
-WHY A GRAPH DATABASE?
+## 🤔 Why a Graph Database?
 
 [INSERT DIAGRAM: Neo4j Graph Data Model]
 
@@ -90,7 +118,7 @@ This matters now for performance queries. It will matter even more as the app gr
 
 ---
 
-WHY GRAPHQL INSTEAD OF REST?
+## 🤔 Why GraphQL Instead of REST?
 
 [INSERT DIAGRAM: REST vs GraphQL comparison]
 
@@ -104,29 +132,29 @@ For a data-rich coaching application, this isn't just convenient. It's the diffe
 
 ---
 
-THE TECH STACK
+## 🛠️ The Tech Stack
 
 [INSERT DIAGRAM: Tech Stack grid]
 
 Every technology choice serves a purpose:
 
-Java 17 — battle-tested language with modern features, long-term support, and the richest ecosystem for enterprise applications.
+**Java 17** — battle-tested language with modern features, long-term support, and the richest ecosystem for enterprise applications.
 
-Spring Boot 3.5 — handles security, dependency injection, database integration, and AI client configuration with minimal boilerplate.
+**Spring Boot 3.5** — handles security, dependency injection, database integration, and AI client configuration with minimal boilerplate.
 
-GraphQL — one flexible API endpoint instead of dozens of REST routes. The client decides what data it needs.
+**GraphQL** — one flexible API endpoint instead of dozens of REST routes. The client decides what data it needs.
 
-Neo4j 5 — graph database that stores relationships as first-class citizens. Built for the kind of connected data coaching produces.
+**Neo4j 5** — graph database that stores relationships as first-class citizens. Built for the kind of connected data coaching produces.
 
-Google Gemini — powerful AI model accessible through a free tier. Connected via Spring AI's OpenAI-compatible interface.
+**Google Gemini** — powerful AI model accessible through a free tier. Connected via Spring AI's OpenAI-compatible interface.
 
-Docker — multi-stage build keeps the production image lean. Docker Compose runs the app and Neo4j together.
+**Docker** — multi-stage build keeps the production image lean. Docker Compose runs the app and Neo4j together.
 
-GitHub Actions — automated CI/CD pipeline that builds, tests, generates coverage reports, and runs code quality analysis on every push.
+**GitHub Actions** — automated CI/CD pipeline that builds, tests, generates coverage reports, and runs code quality analysis on every push.
 
 ---
 
-WHAT'S COMING NEXT
+## 📚 What's Coming Next
 
 [INSERT DIAGRAM: Series Roadmap]
 
@@ -136,4 +164,8 @@ Over the next weeks, I'll publish a post for each topic in the series. Every pos
 
 Follow along if you want to learn with me.
 
-The code is open source: https://github.com/ando7555/ai-coach
+---
+
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
+
+#AICoach #SpringBoot #GraphQL #Neo4j #AI #SoftwareEngineering #LearningInPublic
