@@ -1,26 +1,26 @@
 # TEASER POST (copy-paste into LinkedIn post composer — attach diagram screenshots as carousel images)
 
-Every request to my AI Coach app travels through 11 layers before it becomes a JSON response. Here's exactly what happens — from raw TCP to GraphQL result.
+Every request to my AI Coach app travels through 11 layers before it becomes a JSON response. Here's exactly what happens — from raw TCP to GraphQL result. 🔍
 
--> HTTP POST hits port 8080 — Tomcat accepts the connection
--> JwtAuthenticationFilter extracts and validates the Bearer token
--> SecurityFilterChain checks URL rules — /graphql is permitAll()
--> DispatcherServlet routes to the GraphQL handler
--> GraphQL engine parses the query against a typed schema
--> @PreAuthorize("isAuthenticated()") blocks anonymous users at the resolver level
--> @Valid triggers bean validation on the input record
--> CoachService fetches data from Neo4j, builds a prompt, calls AI
--> AiClient wraps the blocking call in a reactive Mono on boundedElastic
--> GraphQLExceptionHandler maps domain exceptions to GraphQL ErrorType
--> Response: always HTTP 200, data or errors in JSON body
+-> 1️⃣ HTTP POST hits port 8080 — Tomcat accepts the connection
+-> 2️⃣ JwtAuthenticationFilter extracts and validates the Bearer token
+-> 3️⃣ SecurityFilterChain checks URL rules — /graphql is permitAll()
+-> 4️⃣ DispatcherServlet routes to the GraphQL handler
+-> 5️⃣ GraphQL engine parses the query against a typed schema
+-> 6️⃣ @PreAuthorize("isAuthenticated()") blocks anonymous users at the resolver level
+-> 7️⃣ @Valid triggers bean validation on the input record
+-> 8️⃣ CoachService fetches data from Neo4j, builds a prompt, calls AI
+-> 9️⃣ AiClient wraps the blocking call in a reactive Mono on boundedElastic
+-> 🔟 GraphQLExceptionHandler maps domain exceptions to GraphQL ErrorType
+-> ✅ Response: always HTTP 200, data or errors in JSON body
 
 REST would need 16+ endpoints for this app. GraphQL needs one.
 
-Full breakdown with request lifecycle diagrams, REST vs GraphQL comparison, and production hardening:
+Full article in the comments 👇
 
-The code is open source: github.com/ando7555/ai-coach
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
 
-#GraphQL #SpringBoot #REST #WebDevelopment #HTTP #SoftwareEngineering #LearningInPublic
+#GraphQL #SpringBoot #REST #HTTP #SpringSecurity #JWT #SoftwareEngineering #LearningInPublic
 
 ---
 ---

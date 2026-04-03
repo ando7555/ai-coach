@@ -1,26 +1,26 @@
-# TEASER POST (copy-paste into LinkedIn post composer)
+# TEASER POST (copy-paste into LinkedIn post composer — attach diagram screenshots as carousel images)
 
 I just tried to add Java 9 modularity to my Spring Boot app.
 
-It broke the build in three increasingly painful rounds.
+It broke the build in three increasingly painful rounds. 💥
 
-Round 1 → jjwt has no module descriptor
-Round 2 → Dozens of transitive deps lack module info
-Round 3 → Lombok, Servlet API splits, and Spring AI all collapse
+-> 🔴 Round 1 — jjwt has no module descriptor
+-> 🔴 Round 2 — Dozens of transitive deps lack module info
+-> 🔴 Round 3 — Lombok, Servlet API splits, and Spring AI all collapse
 
 Here's the thing most guides won't tell you — JPMS adoption isn't all-or-nothing. There are three levels:
 
-↳ Level 1: Automatic-Module-Name (one line in your manifest)
-↳ Level 2: Full module-info.java (strict compile-time enforcement)
-↳ Level 3: Strong encapsulation (minimum API surface)
+-> 🟢 Level 1: Automatic-Module-Name (one line in your manifest)
+-> 🟡 Level 2: Full module-info.java (strict compile-time enforcement)
+-> 🔵 Level 3: Strong encapsulation (minimum API surface)
 
 Most Spring Boot apps today should sit at Level 1. That's not a compromise — it's pragmatic engineering.
 
 I wrote up the full breakdown: what failed, why, and the three-level strategy every Java developer should know.
 
-📎 Full article in the comments 👇
+Full article in the comments 👇
 
-The code is open source: github.com/ando7555/ai-coach
+🔗 The code is open source: [github.com/ando7555/ai-coach](https://github.com/ando7555/ai-coach)
 
 #Java #SpringBoot #JPMS #Modularity #SoftwareEngineering #LearningInPublic
 
