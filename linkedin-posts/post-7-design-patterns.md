@@ -25,7 +25,7 @@ Full article in the comments 👇
 
 # FULL LINKEDIN ARTICLE (paste into LinkedIn Article editor)
 
-**Title:** 15 Design Patterns Hiding in My Spring Boot App — A Pattern Safari Through Real Code
+**Title:** AI Coach — Post 7: Design Patterns
 
 ---
 
