@@ -73,7 +73,7 @@ public class TrainingPlanService {
                 .map(entry -> TrainingSession.builder()
                         .date(start.plusDays(entry.dayOffset()).atStartOfDay().atOffset(ZoneOffset.UTC))
                         .focusArea(parseFocusArea(entry.focusArea(), input.primaryFocus()))
-                        .intensity(normalizeIntensity(entry.intensity()))
+                        .intensity(normalizeIntensity(entry.intensity(), input.intensity()))
                         .durationMinutes(entry.durationMinutes() > 0 ? entry.durationMinutes() : 90)
                         .notes(entry.notes())
                         .build())
@@ -91,19 +91,20 @@ public class TrainingPlanService {
         return trainingPlanRepository.save(plan);
     }
 
-    private FocusArea parseFocusArea(String value, String fallback) {
+    private FocusArea parseFocusArea(String value, FocusArea fallback) {
         if (value != null) {
             FocusArea result = FOCUS_AREA_MAP.get(value.toUpperCase());
             if (result != null) return result;
         }
-        FocusArea fallbackResult = FOCUS_AREA_MAP.get(fallback.toUpperCase());
-        return fallbackResult != null ? fallbackResult : FocusArea.BUILD_UP;
+        return fallback != null ? fallback : FocusArea.BUILD_UP;
     }
 
-    private TrainingIntensity normalizeIntensity(String intensity) {
-        if (intensity == null) return TrainingIntensity.MEDIUM;
-        TrainingIntensity result = INTENSITY_MAP.get(intensity.toUpperCase());
-        return result != null ? result : TrainingIntensity.MEDIUM;
+    private TrainingIntensity normalizeIntensity(String aiValue, TrainingIntensity inputIntensity) {
+        if (aiValue != null) {
+            TrainingIntensity result = INTENSITY_MAP.get(aiValue.toUpperCase());
+            if (result != null) return result;
+        }
+        return inputIntensity != null ? inputIntensity : TrainingIntensity.MEDIUM;
     }
 
     private String buildPrompt(Team team, TrainingPlanInput input) {
