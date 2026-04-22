@@ -10,6 +10,7 @@ import com.ai.coach.domain.entity.Team;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.domain.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MatchService {
@@ -29,7 +31,8 @@ public class MatchService {
 
     @Transactional(readOnly = true)
     public Match getMatch(Long id) {
-        return matchRepository.findById(id).orElse(null);
+        return matchRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Match", id));
     }
 
     @Transactional(readOnly = true)
@@ -71,6 +74,7 @@ public class MatchService {
 
     @Transactional
     public Match recordMatch(MatchInput input) {
+        log.debug("Recording match: home={}, away={}", input.homeTeamId(), input.awayTeamId());
         Team home = teamRepository.findById(input.homeTeamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.homeTeamId()));
         Team away = teamRepository.findById(input.awayTeamId())

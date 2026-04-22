@@ -7,12 +7,14 @@ import com.ai.coach.domain.repository.MatchAnalysisRepository;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MatchAnalysisService {
@@ -21,8 +23,14 @@ public class MatchAnalysisService {
     private final MatchAnalysisRepository matchAnalysisRepository;
     private final AiClient aiClient;
 
+    @Transactional(readOnly = true)
+    public List<MatchAnalysis> getByMatch(Long matchId) {
+        return matchAnalysisRepository.findByMatchId(matchId);
+    }
+
     @Transactional
     public MatchAnalysis generateMatchAnalysis(MatchAnalysisInput input) {
+        log.info("Generating match analysis for match {}", input.matchId());
         Match match = matchRepository.findById(input.matchId())
                 .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 

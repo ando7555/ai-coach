@@ -7,12 +7,14 @@ import com.ai.coach.domain.dto.RecommendationContextInput;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.domain.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
@@ -28,6 +30,7 @@ public class RecommendationService {
 
     @Transactional
     public Recommendation generateRecommendation(RecommendationContextInput input) {
+        log.info("Generating recommendation for match {}", input.matchId());
         Match match = matchRepository.findById(input.matchId())
                 .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 

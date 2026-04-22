@@ -9,6 +9,7 @@ import com.ai.coach.domain.repository.TeamRepository;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.service.dto.AiSeasonPlanResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SeasonPlanService {
@@ -29,8 +31,14 @@ public class SeasonPlanService {
     private final AiClient aiClient;
     private final AiResponseParser aiResponseParser;
 
+    @Transactional(readOnly = true)
+    public List<SeasonPlan> getByTeam(Long teamId) {
+        return seasonPlanRepository.findByTeamId(teamId);
+    }
+
     @Transactional
     public SeasonPlan generateSeasonPlan(SeasonPlanInput input) {
+        log.info("Generating season plan for team {} season {}", input.teamId(), input.season());
         Team team = teamRepository.findById(input.teamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 
