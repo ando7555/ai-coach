@@ -1,5 +1,6 @@
 package com.ai.coach.controller;
 
+import com.ai.coach.domain.dto.MatchConnection;
 import com.ai.coach.domain.dto.MatchInput;
 import com.ai.coach.domain.entity.Match;
 import com.ai.coach.service.MatchService;
@@ -9,8 +10,6 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,8 +23,10 @@ public class MatchGraphQLController {
     }
 
     @QueryMapping
-    public List<Match> matchesByTeam(@Argument Long teamId) {
-        return matchService.getMatchesByTeam(teamId);
+    public MatchConnection matchesByTeam(@Argument Long teamId,
+                                         @Argument Integer first,
+                                         @Argument String after) {
+        return matchService.getMatchesByTeam(teamId, first, after);
     }
 
     @MutationMapping

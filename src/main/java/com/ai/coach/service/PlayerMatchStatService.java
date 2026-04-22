@@ -1,8 +1,6 @@
 package com.ai.coach.service;
 
-import com.ai.coach.domain.dto.FormIndicator;
-import com.ai.coach.domain.dto.PlayerMatchStatInput;
-import com.ai.coach.domain.dto.PlayerPerformanceTrend;
+import com.ai.coach.domain.dto.*;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Match;
 import com.ai.coach.domain.entity.Player;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,9 +30,44 @@ public class PlayerMatchStatService {
         return statRepository.findByMatchId(matchId);
     }
 
+    private static final int DEFAULT_PAGE_SIZE = 20;
+
     @Transactional(readOnly = true)
-    public List<PlayerMatchStat> getByPlayer(Long playerId) {
-        return statRepository.findByPlayerId(playerId);
+    public PlayerMatchStatConnection getByPlayer(Long playerId, Integer first, String after) {
+        List<PlayerMatchStat> allStats = statRepository.findByPlayerId(playerId);
+        allStats = allStats.stream()
+                .sorted(Comparator.comparing((PlayerMatchStat s) -> s.getMatch().getDate(),
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed()
+                        .thenComparing(PlayerMatchStat::getId, Comparator.reverseOrder()))
+                .toList();
+
+        int pageSize = first != null && first > 0 ? first : DEFAULT_PAGE_SIZE;
+        Long afterId = decodeCursor(after);
+
+        List<PlayerMatchStat> filtered = allStats;
+        if (afterId != null) {
+            int idx = -1;
+            for (int i = 0; i < allStats.size(); i++) {
+                if (allStats.get(i).getId().equals(afterId)) {
+                    idx = i;
+                    break;
+                }
+            }
+            filtered = idx >= 0 && idx + 1 < allStats.size()
+                    ? allStats.subList(idx + 1, allStats.size())
+                    : List.of();
+        }
+
+        boolean hasNextPage = filtered.size() > pageSize;
+        List<PlayerMatchStat> page = filtered.size() > pageSize ? filtered.subList(0, pageSize) : filtered;
+
+        List<PlayerMatchStatEdge> edges = page.stream()
+                .map(s -> new PlayerMatchStatEdge(s, encodeCursor(s.getId())))
+                .toList();
+
+        String endCursor = edges.isEmpty() ? null : edges.get(edges.size() - 1).cursor();
+
+        return new PlayerMatchStatConnection(edges, new PageInfo(hasNextPage, endCursor), allStats.size());
     }
 
     @Transactional(readOnly = true)
@@ -45,14 +79,12 @@ public class PlayerMatchStatService {
                 .orElseThrow(() -> new EntityNotFoundException("Player", playerId));
 
         List<PlayerMatchStat> allStats = statRepository.findByPlayerId(playerId);
-        List<PlayerMatchStat> chronological = allStats.stream()
+        List<PlayerMatchStat> recent = allStats.stream()
                 .sorted(Comparator.comparing(s -> s.getMatch().getDate()))
+                .skip(Math.max(0, allStats.size() - lastN))
                 .toList();
-        // Take the last N matches (most recent)
-        int fromIndex = Math.max(0, chronological.size() - lastN);
-        chronological = chronological.subList(fromIndex, chronological.size());
 
-        return buildTrend(player, chronological);
+        return buildTrend(player, recent);
     }
 
     @Transactional(readOnly = true)
@@ -75,29 +107,37 @@ public class PlayerMatchStatService {
         return buildTrend(player, stats);
     }
 
+    private record StatAccumulator(int goals, int assists, int minutes, double ratingSum, int ratedCount) {
+        static final StatAccumulator IDENTITY = new StatAccumulator(0, 0, 0, 0.0, 0);
+
+        StatAccumulator add(PlayerMatchStat s) {
+            double r = s.getRating() != null ? s.getRating() : 0.0;
+            int rc = s.getRating() != null ? 1 : 0;
+            return new StatAccumulator(goals + s.getGoals(), assists + s.getAssists(),
+                    minutes + s.getMinutesPlayed(), ratingSum + r, ratedCount + rc);
+        }
+
+        StatAccumulator merge(StatAccumulator other) {
+            return new StatAccumulator(goals + other.goals, assists + other.assists,
+                    minutes + other.minutes, ratingSum + other.ratingSum, ratedCount + other.ratedCount);
+        }
+    }
+
     private PlayerPerformanceTrend buildTrend(Player player, List<PlayerMatchStat> stats) {
         int matchCount = stats.size();
-        int totalGoals = stats.stream().mapToInt(PlayerMatchStat::getGoals).sum();
-        int totalAssists = stats.stream().mapToInt(PlayerMatchStat::getAssists).sum();
+
+        StatAccumulator acc = stats.stream().reduce(
+                StatAccumulator.IDENTITY, StatAccumulator::add, StatAccumulator::merge);
+
+        int totalGoals = acc.goals();
+        int totalAssists = acc.assists();
         int totalGoalContributions = totalGoals + totalAssists;
-        int totalMinutes = stats.stream().mapToInt(PlayerMatchStat::getMinutesPlayed).sum();
+        int totalMinutes = acc.minutes();
 
         double avgGoals = matchCount > 0 ? (double) totalGoals / matchCount : 0.0;
         double avgAssists = matchCount > 0 ? (double) totalAssists / matchCount : 0.0;
         double avgContributions = matchCount > 0 ? (double) totalGoalContributions / matchCount : 0.0;
-
-        Double avgRating = null;
-        if (matchCount > 0) {
-            var ratedStats = stats.stream()
-                    .filter(s -> s.getRating() != null)
-                    .toList();
-            if (!ratedStats.isEmpty()) {
-                avgRating = ratedStats.stream()
-                        .mapToDouble(PlayerMatchStat::getRating)
-                        .average()
-                        .orElse(0.0);
-            }
-        }
+        Double avgRating = acc.ratedCount() > 0 ? acc.ratingSum() / acc.ratedCount() : null;
 
         FormIndicator form = calculateForm(stats);
 
@@ -108,28 +148,37 @@ public class PlayerMatchStatService {
         );
     }
 
+    private static final int RECENT_WINDOW = 5;
+    private static final int PREVIOUS_WINDOW = 5;
+    private static final double GOAL_WEIGHT = 3.0;
+    private static final double ASSIST_WEIGHT = 2.0;
+    private static final double RATING_WEIGHT = 0.1;
+    private static final double FORM_CHANGE_THRESHOLD = 0.15;
+
     private FormIndicator calculateForm(List<PlayerMatchStat> stats) {
         if (stats.size() < 2) {
             return FormIndicator.STABLE;
         }
-        int mid = stats.size() / 2;
-        List<PlayerMatchStat> olderHalf = stats.subList(0, mid);
-        List<PlayerMatchStat> newerHalf = stats.subList(mid, stats.size());
+        int recentSize = Math.min(RECENT_WINDOW, stats.size() / 2);
+        int previousSize = Math.min(PREVIOUS_WINDOW, stats.size() - recentSize);
 
-        double olderScore = averageCompositeScore(olderHalf);
-        double newerScore = averageCompositeScore(newerHalf);
+        List<PlayerMatchStat> recentWindow = stats.subList(stats.size() - recentSize, stats.size());
+        List<PlayerMatchStat> previousWindow = stats.subList(stats.size() - recentSize - previousSize, stats.size() - recentSize);
 
-        if (olderScore == 0 && newerScore == 0) {
+        double previousScore = averageCompositeScore(previousWindow);
+        double recentScore = averageCompositeScore(recentWindow);
+
+        if (previousScore == 0 && recentScore == 0) {
             return FormIndicator.STABLE;
         }
-        if (olderScore == 0) {
+        if (previousScore == 0) {
             return FormIndicator.IMPROVING;
         }
 
-        double changeRatio = (newerScore - olderScore) / olderScore;
-        if (changeRatio > 0.15) {
+        double changeRatio = (recentScore - previousScore) / previousScore;
+        if (changeRatio > FORM_CHANGE_THRESHOLD) {
             return FormIndicator.IMPROVING;
-        } else if (changeRatio < -0.15) {
+        } else if (changeRatio < -FORM_CHANGE_THRESHOLD) {
             return FormIndicator.DECLINING;
         }
         return FormIndicator.STABLE;
@@ -137,9 +186,9 @@ public class PlayerMatchStatService {
 
     private double averageCompositeScore(List<PlayerMatchStat> stats) {
         return stats.stream()
-                .mapToDouble(s -> s.getGoals() * 3.0
-                        + s.getAssists() * 2.0
-                        + (s.getRating() != null ? s.getRating() / 10.0 : 0.0))
+                .mapToDouble(s -> s.getGoals() * GOAL_WEIGHT
+                        + s.getAssists() * ASSIST_WEIGHT
+                        + (s.getRating() != null ? s.getRating() * RATING_WEIGHT : 0.0))
                 .average()
                 .orElse(0.0);
     }
@@ -163,5 +212,15 @@ public class PlayerMatchStatService {
                 .build();
 
         return statRepository.save(stat);
+    }
+
+    static String encodeCursor(Long id) {
+        return Base64.getEncoder().encodeToString(("cursor:" + id).getBytes());
+    }
+
+    static Long decodeCursor(String cursor) {
+        if (cursor == null || cursor.isBlank()) return null;
+        String decoded = new String(Base64.getDecoder().decode(cursor));
+        return Long.valueOf(decoded.substring("cursor:".length()));
     }
 }
