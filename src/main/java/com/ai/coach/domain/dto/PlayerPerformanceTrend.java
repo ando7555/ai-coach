@@ -1,5 +1,6 @@
 package com.ai.coach.domain.dto;
 
+import com.ai.coach.domain.entity.FormIndicator;
 import com.ai.coach.domain.entity.Player;
 import com.ai.coach.domain.entity.PlayerMatchStat;
 

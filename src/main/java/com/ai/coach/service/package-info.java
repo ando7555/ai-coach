@@ -15,9 +15,12 @@
  *       statistics tracking and performance-trend analysis.</li>
  *   <li>{@link com.ai.coach.service.RecommendationService} – AI-driven
  *       tactical recommendations for specific matches.</li>
- *   <li>{@link com.ai.coach.service.CoachService} – core coaching AI
- *       features: match analysis, training-plan, and season-plan
- *       generation.</li>
+ *   <li>{@link com.ai.coach.service.MatchAnalysisService} – AI-driven
+ *       match analysis generation.</li>
+ *   <li>{@link com.ai.coach.service.TrainingPlanService} – AI-driven
+ *       training-plan generation.</li>
+ *   <li>{@link com.ai.coach.service.SeasonPlanService} – AI-driven
+ *       season-plan and workload snapshot generation.</li>
  *   <li>{@link com.ai.coach.service.AiClient} – thin wrapper around
  *       Spring AI that provides three specialised chat clients (tactical,
  *       training, season) with tailored system prompts.</li>
