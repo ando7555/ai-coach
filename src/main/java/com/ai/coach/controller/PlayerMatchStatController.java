@@ -1,5 +1,6 @@
 package com.ai.coach.controller;
 
+import com.ai.coach.domain.dto.PlayerMatchStatConnection;
 import com.ai.coach.domain.dto.PlayerMatchStatInput;
 import com.ai.coach.domain.dto.PlayerPerformanceTrend;
 import com.ai.coach.domain.entity.PlayerMatchStat;
@@ -30,8 +31,10 @@ public class PlayerMatchStatController {
     }
 
     @QueryMapping
-    public List<PlayerMatchStat> statsByPlayer(@Argument Long playerId) {
-        return statService.getByPlayer(playerId);
+    public PlayerMatchStatConnection statsByPlayer(@Argument Long playerId,
+                                                    @Argument Integer first,
+                                                    @Argument String after) {
+        return statService.getByPlayer(playerId, first, after);
     }
 
     @QueryMapping

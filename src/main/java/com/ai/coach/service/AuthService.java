@@ -26,8 +26,9 @@ public class AuthService {
             throw new IllegalArgumentException("Username already taken: " + username);
         }
 
-        String assignedRole = role != null && VALID_ROLES.contains(role.toUpperCase())
-                ? role.toUpperCase() : "COACH";
+        String normalizedRole = role != null ? role.toUpperCase() : null;
+        String assignedRole = normalizedRole != null && VALID_ROLES.contains(normalizedRole)
+                ? normalizedRole : "COACH";
 
         User user = User.builder()
                 .username(username)

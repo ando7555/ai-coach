@@ -17,11 +17,23 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TrainingPlanService {
+
+    private static final Map<String, FocusArea> FOCUS_AREA_MAP =
+            Arrays.stream(FocusArea.values())
+                    .collect(Collectors.toMap(e -> e.name().toUpperCase(), Function.identity()));
+
+    private static final Map<String, TrainingIntensity> INTENSITY_MAP =
+            Arrays.stream(TrainingIntensity.values())
+                    .collect(Collectors.toMap(e -> e.name().toUpperCase(), Function.identity()));
 
     private final TeamRepository teamRepository;
     private final TrainingPlanRepository trainingPlanRepository;
@@ -72,20 +84,18 @@ public class TrainingPlanService {
     }
 
     private FocusArea parseFocusArea(String value, String fallback) {
-        try {
-            return value != null ? FocusArea.valueOf(value.toUpperCase()) : FocusArea.valueOf(fallback.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return FocusArea.valueOf(fallback.toUpperCase());
+        if (value != null) {
+            FocusArea result = FOCUS_AREA_MAP.get(value.toUpperCase());
+            if (result != null) return result;
         }
+        FocusArea fallbackResult = FOCUS_AREA_MAP.get(fallback.toUpperCase());
+        return fallbackResult != null ? fallbackResult : FocusArea.BUILD_UP;
     }
 
     private TrainingIntensity normalizeIntensity(String intensity) {
         if (intensity == null) return TrainingIntensity.MEDIUM;
-        try {
-            return TrainingIntensity.valueOf(intensity.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return TrainingIntensity.MEDIUM;
-        }
+        TrainingIntensity result = INTENSITY_MAP.get(intensity.toUpperCase());
+        return result != null ? result : TrainingIntensity.MEDIUM;
     }
 
     private String buildPrompt(Team team, TrainingPlanInput input) {

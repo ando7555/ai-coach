@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +37,14 @@ public class SeasonPlanService {
         List<Player> players = playerRepository.findByTeamId(team.getId());
         LocalDate cutoff = LocalDate.now().minusDays(28);
 
+        List<Long> playerIds = players.stream().map(Player::getId).toList();
+        Map<Long, List<PlayerMatchStat>> statsByPlayer =
+                playerMatchStatRepository.findByPlayerIdInAndMatchDateAfter(playerIds, cutoff)
+                        .stream()
+                        .collect(Collectors.groupingBy(s -> s.getPlayer().getId()));
+
         List<PlayerWorkloadSnapshot> snapshots = players.stream()
-                .map(p -> buildWorkloadSnapshot(p, cutoff))
+                .map(p -> buildWorkloadSnapshot(p, statsByPlayer.getOrDefault(p.getId(), List.of())))
                 .toList();
 
         String prompt = buildPrompt(team, snapshots, input);
@@ -62,10 +70,7 @@ public class SeasonPlanService {
         return seasonPlanRepository.save(plan);
     }
 
-    private PlayerWorkloadSnapshot buildWorkloadSnapshot(Player player, LocalDate cutoff) {
-        List<PlayerMatchStat> recentStats =
-                playerMatchStatRepository.findByPlayerIdAndMatchDateAfter(player.getId(), cutoff);
-
+    private PlayerWorkloadSnapshot buildWorkloadSnapshot(Player player, List<PlayerMatchStat> recentStats) {
         int matches = recentStats.size();
         int minutes = recentStats.stream().mapToInt(PlayerMatchStat::getMinutesPlayed).sum();
         FatigueLevel fatigue = computeFatigueLevel(minutes);
@@ -120,8 +125,7 @@ public class SeasonPlanService {
                         s.getMinutesLast28Days(),
                         s.getFatigueLevel(),
                         s.getInjuryRisk()))
-                .reduce((a, b) -> a + "\n" + b)
-                .orElse("No player data available");
+                .collect(Collectors.joining("\n"));
 
         return """
                 You are a head coach planning an entire season.

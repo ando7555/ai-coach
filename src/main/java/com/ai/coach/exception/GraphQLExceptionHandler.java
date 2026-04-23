@@ -25,10 +25,10 @@ public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter
         }
 
         if (ex instanceof ConstraintViolationException e) {
-            String message = e.getConstraintViolations().stream()
+            String joined = e.getConstraintViolations().stream()
                     .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                    .reduce((a, b) -> a + "; " + b)
-                    .orElse("Validation failed");
+                    .collect(java.util.stream.Collectors.joining("; "));
+            String message = joined.isEmpty() ? "Validation failed" : joined;
             return buildError(message, ErrorType.BAD_REQUEST, env, Map.of());
         }
 

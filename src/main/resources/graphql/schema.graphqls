@@ -45,7 +45,7 @@ type Query {
   playersByTeam(teamId: ID!): [Player!]!
 
   match(id: ID!): Match
-  matchesByTeam(teamId: ID!): [Match!]!
+  matchesByTeam(teamId: ID!, first: Int, after: String): MatchConnection!
 
   recommendationsByMatch(matchId: ID!): [Recommendation!]!
 }
@@ -192,7 +192,7 @@ extend type Query {
   trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
   seasonPlansByTeam(teamId: ID!): [SeasonPlan!]!
   statsByMatch(matchId: ID!): [PlayerMatchStat!]!
-  statsByPlayer(playerId: ID!): [PlayerMatchStat!]!
+  statsByPlayer(playerId: ID!, first: Int, after: String): PlayerMatchStatConnection!
   playerTrendByLastMatches(playerId: ID!, lastN: Int!): PlayerPerformanceTrend!
   playerTrendByDateRange(playerId: ID!, from: String!, to: String!): PlayerPerformanceTrend!
 }
@@ -206,6 +206,33 @@ type User {
 type AuthPayload {
   token: String!
   user: User!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type MatchEdge {
+  node: Match!
+  cursor: String!
+}
+
+type MatchConnection {
+  edges: [MatchEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PlayerMatchStatEdge {
+  node: PlayerMatchStat!
+  cursor: String!
+}
+
+type PlayerMatchStatConnection {
+  edges: [PlayerMatchStatEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 extend type Mutation {
