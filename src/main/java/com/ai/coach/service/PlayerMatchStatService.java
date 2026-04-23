@@ -1,5 +1,6 @@
 package com.ai.coach.service;
 
+import com.ai.coach.domain.CursorPaginator;
 import com.ai.coach.domain.FormCalculator;
 import com.ai.coach.domain.dto.*;
 import com.ai.coach.domain.entity.FormIndicator;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
@@ -34,8 +34,6 @@ public class PlayerMatchStatService {
         return statRepository.findByMatchId(matchId);
     }
 
-    private static final int DEFAULT_PAGE_SIZE = 20;
-
     @Transactional(readOnly = true)
     public PlayerMatchStatConnection getByPlayer(Long playerId, Integer first, String after) {
         List<PlayerMatchStat> allStats = statRepository.findByPlayerId(playerId);
@@ -45,33 +43,14 @@ public class PlayerMatchStatService {
                         .thenComparing(PlayerMatchStat::getId, Comparator.reverseOrder()))
                 .toList();
 
-        int pageSize = first != null && first > 0 ? first : DEFAULT_PAGE_SIZE;
-        Long afterId = decodeCursor(after);
+        CursorPaginator.Page<PlayerMatchStat> page =
+                CursorPaginator.paginate(allStats, PlayerMatchStat::getId, first, after);
 
-        List<PlayerMatchStat> filtered = allStats;
-        if (afterId != null) {
-            int idx = -1;
-            for (int i = 0; i < allStats.size(); i++) {
-                if (allStats.get(i).getId().equals(afterId)) {
-                    idx = i;
-                    break;
-                }
-            }
-            filtered = idx >= 0 && idx + 1 < allStats.size()
-                    ? allStats.subList(idx + 1, allStats.size())
-                    : List.of();
-        }
-
-        boolean hasNextPage = filtered.size() > pageSize;
-        List<PlayerMatchStat> page = filtered.size() > pageSize ? filtered.subList(0, pageSize) : filtered;
-
-        List<PlayerMatchStatEdge> edges = page.stream()
-                .map(s -> new PlayerMatchStatEdge(s, encodeCursor(s.getId())))
+        List<PlayerMatchStatEdge> edges = page.items().stream()
+                .map(s -> new PlayerMatchStatEdge(s, CursorPaginator.encodeCursor(s.getId())))
                 .toList();
 
-        String endCursor = edges.isEmpty() ? null : edges.get(edges.size() - 1).cursor();
-
-        return new PlayerMatchStatConnection(edges, new PageInfo(hasNextPage, endCursor), allStats.size());
+        return new PlayerMatchStatConnection(edges, page.pageInfo(), page.totalCount());
     }
 
     @Transactional(readOnly = true)
@@ -174,13 +153,4 @@ public class PlayerMatchStatService {
         return statRepository.save(stat);
     }
 
-    static String encodeCursor(Long id) {
-        return Base64.getEncoder().encodeToString(("cursor:" + id).getBytes());
-    }
-
-    static Long decodeCursor(String cursor) {
-        if (cursor == null || cursor.isBlank()) return null;
-        String decoded = new String(Base64.getDecoder().decode(cursor));
-        return Long.valueOf(decoded.substring("cursor:".length()));
-    }
 }

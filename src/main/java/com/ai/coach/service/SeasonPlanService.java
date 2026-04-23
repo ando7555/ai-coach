@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SeasonPlanService {
 
+    private static final int RECENT_WINDOW_DAYS = 28;
+    private static final String DEFAULT_PRIORITY = "Balanced";
+
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
     private final PlayerMatchStatRepository playerMatchStatRepository;
@@ -44,7 +47,7 @@ public class SeasonPlanService {
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 
         List<Player> players = playerRepository.findByTeamId(team.getId());
-        LocalDate cutoff = LocalDate.now().minusDays(28);
+        LocalDate cutoff = LocalDate.now().minusDays(RECENT_WINDOW_DAYS);
 
         List<Long> playerIds = players.stream().map(Player::getId).toList();
         Map<Long, List<PlayerMatchStat>> statsByPlayer =
@@ -85,7 +88,7 @@ public class SeasonPlanService {
         FatigueLevel fatigue = WorkloadCalculator.computeFatigueLevel(minutes);
         InjuryRisk injuryRisk = WorkloadCalculator.computeInjuryRisk(fatigue, matches);
 
-        String comment = "%d matches, %d min in last 28 days".formatted(matches, minutes);
+        String comment = "%d matches, %d min in last %d days".formatted(matches, minutes, RECENT_WINDOW_DAYS);
 
         return PlayerWorkloadSnapshot.builder()
                 .player(player)
@@ -99,6 +102,8 @@ public class SeasonPlanService {
     }
 
     private String buildPrompt(Team team, List<PlayerWorkloadSnapshot> snapshots, SeasonPlanInput input) {
+        String priority = input.priority() != null ? input.priority() : DEFAULT_PRIORITY;
+
         String workloadReport = snapshots.stream()
                 .map(s -> "- %s (%s): %d matches, %d min, fatigue=%s, injury risk=%s".formatted(
                         s.getPlayer().getName(),
@@ -116,7 +121,7 @@ public class SeasonPlanService {
                 Season: %s
                 Priority: %s
 
-                Squad workload (last 28 days):
+                Squad workload (last %d days):
                 %s
 
                 Based on the workload data above, return ONLY valid JSON in this format:
@@ -137,9 +142,10 @@ public class SeasonPlanService {
                 """.formatted(
                 team.getName(),
                 input.season(),
-                input.priority() != null ? input.priority() : "Balanced",
+                priority,
+                RECENT_WINDOW_DAYS,
                 workloadReport,
-                input.priority() != null ? input.priority() : "Balanced"
+                priority
         );
     }
 }

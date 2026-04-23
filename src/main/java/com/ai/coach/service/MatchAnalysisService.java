@@ -57,10 +57,8 @@ public class MatchAnalysisService {
 
     private String buildPrompt(Match match, MatchAnalysisInput input) {
         return """
-                You are an elite football tactical coach.
                 Analyse the upcoming match with the following context:
 
-                Match ID: %d
                 Home Team: %s
                 Away Team: %s
                 Focus Area: %s
@@ -70,7 +68,6 @@ public class MatchAnalysisService {
                 Consider recent form, strengths, weaknesses, and tactical nuances.
                 Provide a concise, coach-ready summary with bullet points.
                 """.formatted(
-                match.getId(),
                 match.getHomeTeam().getName(),
                 match.getAwayTeam().getName(),
                 input.focusArea(),
