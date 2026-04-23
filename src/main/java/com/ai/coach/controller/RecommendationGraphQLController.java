@@ -3,17 +3,20 @@ package com.ai.coach.controller;
 import com.ai.coach.domain.entity.Recommendation;
 import com.ai.coach.domain.dto.RecommendationContextInput;
 import com.ai.coach.service.RecommendationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Validated
 public class RecommendationGraphQLController {
 
     private final RecommendationService recommendationService;
@@ -25,7 +28,7 @@ public class RecommendationGraphQLController {
 
     @MutationMapping
     @PreAuthorize("isAuthenticated()")
-    public Recommendation generateRecommendation(@Argument RecommendationContextInput context) {
+    public Recommendation generateRecommendation(@Argument @Valid RecommendationContextInput context) {
         return recommendationService.generateRecommendation(context);
     }
 }
