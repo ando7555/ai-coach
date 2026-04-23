@@ -4,12 +4,14 @@ import com.ai.coach.domain.entity.User;
 import com.ai.coach.domain.repository.UserRepository;
 import com.ai.coach.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,6 +24,7 @@ public class AuthService {
 
     @Transactional
     public AuthPayload register(String username, String password, String role) {
+        log.debug("Registering user: {}", username);
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already taken: " + username);
         }
@@ -37,12 +40,14 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
+        log.info("User registered: {} with role {}", username, assignedRole);
         String token = tokenProvider.generateToken(user.getUsername(), user.getRole());
         return new AuthPayload(token, user);
     }
 
     @Transactional(readOnly = true)
     public AuthPayload login(String username, String password) {
+        log.debug("Login attempt for user: {}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 

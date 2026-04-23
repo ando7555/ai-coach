@@ -11,6 +11,7 @@ import com.ai.coach.domain.repository.TrainingPlanRepository;
 import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.service.dto.AiTrainingPlanResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrainingPlanService {
@@ -40,8 +42,14 @@ public class TrainingPlanService {
     private final AiClient aiClient;
     private final AiResponseParser aiResponseParser;
 
+    @Transactional(readOnly = true)
+    public List<TrainingPlan> getByTeam(Long teamId) {
+        return trainingPlanRepository.findByTeamId(teamId);
+    }
+
     @Transactional
     public TrainingPlan generateTrainingPlan(TrainingPlanInput input) {
+        log.info("Generating training plan for team {}", input.teamId());
         Team team = teamRepository.findById(input.teamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 

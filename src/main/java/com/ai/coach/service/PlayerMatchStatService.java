@@ -9,6 +9,7 @@ import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.domain.repository.PlayerMatchStatRepository;
 import com.ai.coach.domain.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlayerMatchStatService {
@@ -195,6 +197,7 @@ public class PlayerMatchStatService {
 
     @Transactional
     public PlayerMatchStat record(PlayerMatchStatInput input) {
+        log.debug("Recording stat: player={}, match={}", input.playerId(), input.matchId());
         Player player = playerRepository.findById(input.playerId())
                 .orElseThrow(() -> new EntityNotFoundException("Player", input.playerId()));
 

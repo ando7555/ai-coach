@@ -1,7 +1,6 @@
 package com.ai.coach.controller;
 
 import com.ai.coach.domain.entity.Player;
-import com.ai.coach.exception.EntityNotFoundException;
 import com.ai.coach.domain.entity.Team;
 import com.ai.coach.service.PlayerService;
 import com.ai.coach.service.TeamService;
@@ -51,9 +50,6 @@ public class TeamGraphQLController {
                                @Argument String position,
                                @Argument Double rating) {
         Team team = teamService.getTeam(teamId);
-        if (team == null) {
-            throw new EntityNotFoundException("Team", teamId);
-        }
         Player player = Player.builder()
                 .name(name)
                 .position(position)

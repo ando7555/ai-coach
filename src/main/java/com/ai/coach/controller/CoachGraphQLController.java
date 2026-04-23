@@ -6,9 +6,6 @@ import com.ai.coach.domain.dto.TrainingPlanInput;
 import com.ai.coach.domain.entity.MatchAnalysis;
 import com.ai.coach.domain.entity.SeasonPlan;
 import com.ai.coach.domain.entity.TrainingPlan;
-import com.ai.coach.domain.repository.MatchAnalysisRepository;
-import com.ai.coach.domain.repository.SeasonPlanRepository;
-import com.ai.coach.domain.repository.TrainingPlanRepository;
 import com.ai.coach.service.MatchAnalysisService;
 import com.ai.coach.service.SeasonPlanService;
 import com.ai.coach.service.TrainingPlanService;
@@ -29,25 +26,22 @@ public class CoachGraphQLController {
     private final MatchAnalysisService matchAnalysisService;
     private final TrainingPlanService trainingPlanService;
     private final SeasonPlanService seasonPlanService;
-    private final MatchAnalysisRepository matchAnalysisRepository;
-    private final TrainingPlanRepository trainingPlanRepository;
-    private final SeasonPlanRepository seasonPlanRepository;
 
     // --- Queries ---
 
     @QueryMapping
     public List<MatchAnalysis> matchAnalysis(@Argument Long matchId) {
-        return matchAnalysisRepository.findByMatchId(matchId);
+        return matchAnalysisService.getByMatch(matchId);
     }
 
     @QueryMapping
     public List<TrainingPlan> trainingPlansByTeam(@Argument Long teamId) {
-        return trainingPlanRepository.findByTeamId(teamId);
+        return trainingPlanService.getByTeam(teamId);
     }
 
     @QueryMapping
     public List<SeasonPlan> seasonPlansByTeam(@Argument Long teamId) {
-        return seasonPlanRepository.findByTeamId(teamId);
+        return seasonPlanService.getByTeam(teamId);
     }
 
     // --- Mutations ---

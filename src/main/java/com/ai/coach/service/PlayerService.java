@@ -3,11 +3,13 @@ package com.ai.coach.service;
 import com.ai.coach.domain.entity.Player;
 import com.ai.coach.domain.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
@@ -21,6 +23,7 @@ public class PlayerService {
 
     @Transactional
     public Player createPlayer(Player player) {
+        log.info("Creating player: {}", player.getName());
         return playerRepository.save(player);
     }
 }
