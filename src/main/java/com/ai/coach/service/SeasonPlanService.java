@@ -1,5 +1,6 @@
 package com.ai.coach.service;
 
+import com.ai.coach.domain.WorkloadCalculator;
 import com.ai.coach.domain.dto.SeasonPlanInput;
 import com.ai.coach.domain.entity.*;
 import com.ai.coach.domain.repository.PlayerMatchStatRepository;
@@ -81,8 +82,8 @@ public class SeasonPlanService {
     private PlayerWorkloadSnapshot buildWorkloadSnapshot(Player player, List<PlayerMatchStat> recentStats) {
         int matches = recentStats.size();
         int minutes = recentStats.stream().mapToInt(PlayerMatchStat::getMinutesPlayed).sum();
-        FatigueLevel fatigue = computeFatigueLevel(minutes);
-        InjuryRisk injuryRisk = computeInjuryRisk(fatigue, matches);
+        FatigueLevel fatigue = WorkloadCalculator.computeFatigueLevel(minutes);
+        InjuryRisk injuryRisk = WorkloadCalculator.computeInjuryRisk(fatigue, matches);
 
         String comment = "%d matches, %d min in last 28 days".formatted(matches, minutes);
 
@@ -95,33 +96,6 @@ public class SeasonPlanService {
                 .comment(comment)
                 .createdAt(OffsetDateTime.now())
                 .build();
-    }
-
-    /**
-     * Fatigue level based on minutes played in last 28 days.
-     *   0-180 min (<=2 full matches)  -> FRESH
-     * 181-450 min (3-5 matches)       -> MODERATE
-     * 451-720 min (6-8 matches)       -> TIRED
-     *   720+ min                       -> EXHAUSTED
-     */
-    private FatigueLevel computeFatigueLevel(int minutes) {
-        if (minutes <= 180) return FatigueLevel.FRESH;
-        if (minutes <= 450) return FatigueLevel.MODERATE;
-        if (minutes <= 720) return FatigueLevel.TIRED;
-        return FatigueLevel.EXHAUSTED;
-    }
-
-    /**
-     * Injury risk combines fatigue level with match density.
-     * High density (>=6 matches in 28 days) always -> HIGH.
-     */
-    private InjuryRisk computeInjuryRisk(FatigueLevel fatigueLevel, int matches) {
-        if (matches >= 6) return InjuryRisk.HIGH;
-        return switch (fatigueLevel) {
-            case EXHAUSTED -> InjuryRisk.HIGH;
-            case TIRED -> InjuryRisk.MEDIUM;
-            default -> InjuryRisk.LOW;
-        };
     }
 
     private String buildPrompt(Team team, List<PlayerWorkloadSnapshot> snapshots, SeasonPlanInput input) {
