@@ -64,9 +64,16 @@ input RecommendationContextInput {
   riskLevel: RiskLevel!
 }
 
+input CreatePlayerInput {
+  teamId: ID!
+  name: String!
+  position: String!
+  rating: Float
+}
+
 type Mutation {
   createTeam(name: String!, league: String, formation: String): Team!
-  createPlayer(teamId: ID!, name: String!, position: String!, rating: Float): Player!
+  createPlayer(input: CreatePlayerInput!): Player!
 
   recordMatch(input: MatchInput!): Match!
 

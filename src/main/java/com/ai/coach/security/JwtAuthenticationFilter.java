@@ -1,5 +1,7 @@
 package com.ai.coach.security;
 
+import com.ai.coach.domain.EnumParser;
+import com.ai.coach.domain.entity.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +21,6 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String DEFAULT_ROLE = "COACH";
 
     private final JwtTokenProvider tokenProvider;
 
@@ -33,8 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(BEARER_PREFIX.length());
             if (tokenProvider.isValid(token)) {
                 String username = tokenProvider.getUsername(token);
-                String role = tokenProvider.getRole(token);
-                var authority = new SimpleGrantedAuthority("ROLE_" + (role != null ? role : DEFAULT_ROLE));
+                UserRole role = EnumParser.parse(UserRole.class, tokenProvider.getRole(token), UserRole.COACH);
+                var authority = new SimpleGrantedAuthority("ROLE_" + role.name());
                 var auth = new UsernamePasswordAuthenticationToken(
                         username, null, List.of(authority));
                 SecurityContextHolder.getContext().setAuthentication(auth);

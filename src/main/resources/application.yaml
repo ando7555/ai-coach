@@ -32,6 +32,9 @@ jwt:
   secret: ${JWT_SECRET:ai-coach-default-secret-key-change-in-production-min-32-chars}
   expiration-ms: 86400000
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+
 server:
   port: 8080
 
