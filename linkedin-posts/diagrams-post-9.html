@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 9: Refactoring Patterns Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* ─── Diagram 1: Smell Catalog ─── */
+  .smell-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .smell-table thead tr {
+    background: #1a1a2e;
+    color: white;
+  }
+  .smell-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .smell-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .smell-table thead th:last-child { border-radius: 0 8px 0 0; }
+  .smell-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.1s;
+  }
+  .smell-table tbody tr:hover { background: #f8f9ff; }
+  .smell-table td { padding: 10px 16px; }
+  .smell-table td:first-child { font-weight: 700; color: #6366f1; width: 40px; }
+  .smell-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-red { background: #fee2e2; color: #dc2626; }
+  .badge-orange { background: #ffedd5; color: #ea580c; }
+  .badge-blue { background: #dbeafe; color: #2563eb; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .pr-label {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .pr-a { background: #dbeafe; color: #1d4ed8; }
+  .pr-b { background: #fce7f3; color: #be185d; }
+  .pr-c { background: #dcfce7; color: #15803d; }
+
+  /* ─── Diagram 2: Extract Class ─── */
+  .extract-grid {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    align-items: start;
+    gap: 16px;
+  }
+  .code-panel {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .code-header {
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .before-header { background: #fee2e2; color: #dc2626; }
+  .after-header { background: #dcfce7; color: #16a34a; }
+  .code-body {
+    padding: 16px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-body .kw { color: #cba6f7; }
+  .code-body .str { color: #a6e3a1; }
+  .code-body .type { color: #89b4fa; }
+  .code-body .num { color: #fab387; }
+  .code-body .cmt { color: #6c7086; font-style: italic; }
+  .code-body .fn { color: #89dceb; }
+  .arrow-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+  }
+  .arrow-col svg { width: 40px; height: 40px; }
+  .deleted { background: rgba(220, 38, 38, 0.15); text-decoration: line-through; color: #f87171; }
+  .added { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+
+  /* ─── Diagram 3: Primitive Obsession ─── */
+  .type-flow {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    min-width: 200px;
+    text-align: center;
+  }
+  .flow-box-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .flow-box-code {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #374151;
+    line-height: 1.6;
+  }
+  .flow-danger { background: #fee2e2; border: 2px solid #fca5a5; }
+  .flow-safe { background: #dcfce7; border: 2px solid #86efac; }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    color: #9ca3af;
+  }
+
+  /* ─── Diagram 4: Feature Envy ─── */
+  .layer-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .layer {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .layer-label {
+    font-weight: 700;
+    font-size: 13px;
+    min-width: 80px;
+  }
+  .layer-content {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    flex: 1;
+  }
+  .layer-controller { background: #dbeafe; border-left: 4px solid #3b82f6; }
+  .layer-service { background: #fce7f3; border-left: 4px solid #ec4899; }
+  .layer-domain { background: #dcfce7; border-left: 4px solid #22c55e; }
+  .violation-marker {
+    background: #dc2626;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .check-marker {
+    background: #16a34a;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* ─── Diagram 5: Error Flow ─── */
+  .error-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .flow-step-num {
+    background: #1a1a2e;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .flow-step-text { flex: 1; }
+  .flow-step-code {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: #6b7280;
+  }
+  .step-error { background: #fee2e2; }
+  .step-dead { background: #fef3c7; }
+  .step-active { background: #dcfce7; }
+  .step-neutral { background: #f3f4f6; }
+  .cross { color: #dc2626; font-weight: 700; font-size: 16px; }
+  .check { color: #16a34a; font-weight: 700; font-size: 16px; }
+
+  /* ─── Diagram 6: Refactoring Map ─── */
+  .ref-map {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .ref-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+  }
+  .ref-card-header {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .ref-card-smell {
+    font-size: 11px;
+    color: #dc2626;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .ref-card-fix {
+    font-size: 12px;
+    color: #374151;
+    line-height: 1.5;
+  }
+  .ref-card-pattern {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #6366f1;
+    font-weight: 600;
+  }
+  .ref-card-a { border-top: 3px solid #3b82f6; }
+  .ref-card-b { border-top: 3px solid #ec4899; }
+  .ref-card-c { border-top: 3px solid #22c55e; }
+  .section-label {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 8px 0 0;
+  }
+  .section-label-a { color: #3b82f6; }
+  .section-label-b { color: #ec4899; }
+  .section-label-c { color: #22c55e; }
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 9: Refactoring Patterns Diagrams</h1>
+<p class="instructions">Open in browser, screenshot each diagram at 1200px wide for LinkedIn carousel</p>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 1: The Smell Catalog                           -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-1">
+  <div class="diagram-title">The Smell Catalog</div>
+  <div class="diagram-subtitle">13 named Fowler smells found across 15+ files — each mapped to a refactoring pattern</div>
+  <table class="smell-table">
+    <thead>
+      <tr><th>#</th><th>PR</th><th>Fowler Smell</th><th>Refactoring Pattern</th><th>Target</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>A1</td><td><span class="pr-label pr-a">PR A</span></td><td><span class="smell-badge badge-red">Duplicated Code</span> <span class="smell-badge badge-orange">Shotgun Surgery</span></td><td>Extract Class</td><td><code>CursorPaginator</code></td></tr>
+      <tr><td>A2</td><td><span class="pr-label pr-a">PR A</span></td><td><span class="smell-badge badge-red">Duplicated Code</span> <span class="smell-badge badge-purple">Data Clumps</span></td><td>Extract Method (generic)</td><td><code>EnumParser</code></td></tr>
+      <tr><td>A3</td><td><span class="pr-label pr-a">PR A</span></td><td><span class="smell-badge badge-orange">Magic Number</span></td><td>Replace with Constant</td><td><code>SeasonPlanService</code></td></tr>
+      <tr><td>A4</td><td><span class="pr-label pr-a">PR A</span></td><td><span class="smell-badge badge-orange">Magic Strings</span></td><td>Replace with Constant</td><td><code>AiClient</code> prompts</td></tr>
+      <tr><td>A5</td><td><span class="pr-label pr-a">PR A</span></td><td><span class="smell-badge badge-orange">Magic String/Number</span></td><td>Replace with Constant</td><td>JWT filter + auth</td></tr>
+      <tr><td>B1</td><td><span class="pr-label pr-b">PR B</span></td><td><span class="smell-badge badge-red">Large Class</span> <span class="smell-badge badge-orange">Divergent Change</span></td><td>Extract Class</td><td>Split controller &times;3</td></tr>
+      <tr><td>B2</td><td><span class="pr-label pr-b">PR B</span></td><td><span class="smell-badge badge-purple">Feature Envy</span></td><td>Move Method + Parameter Object</td><td><code>createPlayer</code></td></tr>
+      <tr><td>B3</td><td><span class="pr-label pr-b">PR B</span></td><td><span class="smell-badge badge-purple">Feature Envy</span></td><td>Move Class</td><td><code>StatAggregator</code></td></tr>
+      <tr><td>B4</td><td><span class="pr-label pr-b">PR B</span></td><td><span class="smell-badge badge-blue">Lazy Class</span> <span class="smell-badge badge-blue">Speculative Generality</span></td><td>Remove Dead Code + Activate</td><td><code>AiGenerationException</code></td></tr>
+      <tr><td>C1</td><td><span class="pr-label pr-c">PR C</span></td><td><span class="smell-badge badge-red">Primitive Obsession</span></td><td>Replace Type Code with Class</td><td><code>UserRole</code> enum</td></tr>
+      <tr><td>C2</td><td><span class="pr-label pr-c">PR C</span></td><td><span class="smell-badge badge-blue">Inconsistent Pattern</span></td><td>Introduce Consistent Pattern</td><td><code>AiMatchAnalysisResponse</code></td></tr>
+      <tr><td>C3</td><td><span class="pr-label pr-c">PR C</span></td><td><span class="smell-badge badge-purple">Inappropriate Intimacy</span></td><td>Remove Inappropriate Intimacy</td><td>Match ID in prompt</td></tr>
+      <tr><td>C4</td><td><span class="pr-label pr-c">PR C</span></td><td><span class="smell-badge badge-orange">Config as Code</span></td><td>Externalize Configuration</td><td>CORS origins</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 2: Extract Class — CursorPaginator             -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-2">
+  <div class="diagram-title">Extract Class — CursorPaginator</div>
+  <div class="diagram-subtitle">A1: Duplicated Code + Shotgun Surgery &rarr; single generic utility</div>
+  <div class="extract-grid">
+    <div class="code-panel">
+      <div class="code-header before-header">BEFORE — Duplicated in 2 Services</div>
+      <div class="code-body"><span class="cmt">// MatchService.java</span>
+<span class="kw">private static final int</span> <span class="type">DEFAULT_PAGE_SIZE</span> = <span class="num">20</span>;
+<span class="kw">static</span> <span class="type">String</span> <span class="fn">encodeCursor</span>(<span class="type">Long</span> id) { ... }
+<span class="kw">static</span> <span class="type">Long</span> <span class="fn">decodeCursor</span>(<span class="type">String</span> cursor) { ... }
+<span class="cmt">// + 20-line pagination loop</span>
+
+<span class="cmt">// PlayerMatchStatService.java</span>
+<span class="kw">private static final int</span> <span class="type">DEFAULT_PAGE_SIZE</span> = <span class="num">20</span>;
+<span class="kw">static</span> <span class="type">String</span> <span class="fn">encodeCursor</span>(<span class="type">Long</span> id) { ... }
+<span class="kw">static</span> <span class="type">Long</span> <span class="fn">decodeCursor</span>(<span class="type">String</span> cursor) { ... }
+<span class="cmt">// + identical 20-line pagination loop</span>
+
+<span class="cmt">// ~40 lines of pure duplication</span></div>
+    </div>
+    <div class="arrow-col">
+      <svg viewBox="0 0 40 40" fill="none"><path d="M8 20h20m0 0l-6-6m6 6l-6 6" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="code-panel">
+      <div class="code-header after-header">AFTER — Single Generic Utility</div>
+      <div class="code-body"><span class="cmt">// domain/CursorPaginator.java</span>
+<span class="kw">public final class</span> <span class="type">CursorPaginator</span> {
+  <span class="kw">public static</span> &lt;<span class="type">T</span>&gt; <span class="type">Page</span>&lt;<span class="type">T</span>&gt; <span class="fn">paginate</span>(
+    <span class="type">List</span>&lt;<span class="type">T</span>&gt; items,
+    <span class="type">Function</span>&lt;<span class="type">T</span>, <span class="type">Long</span>&gt; idGetter,
+    <span class="type">Integer</span> first, <span class="type">String</span> after
+  ) { <span class="cmt">/* one implementation */</span> }
+}
+
+<span class="cmt">// MatchService.java — one line</span>
+<span class="type">CursorPaginator</span>.<span class="type">Page</span>&lt;<span class="type">Match</span>&gt; page =
+  <span class="type">CursorPaginator</span>.<span class="fn">paginate</span>(
+    allMatches, <span class="type">Match</span>::getId, first, after);
+
+<span class="cmt">// PlayerMatchStatService.java — one line</span>
+<span class="type">CursorPaginator</span>.<span class="type">Page</span>&lt;<span class="type">PlayerMatchStat</span>&gt; page =
+  <span class="type">CursorPaginator</span>.<span class="fn">paginate</span>(
+    allStats, <span class="type">PlayerMatchStat</span>::getId, first, after);</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 3: Primitive Obsession — String vs Enum        -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-3">
+  <div class="diagram-title">Primitive Obsession &rarr; Replace Type Code with Class</div>
+  <div class="diagram-subtitle">C1: User.role String &rarr; UserRole enum — type safety through the entire call chain</div>
+  <div class="type-flow">
+    <div class="flow-box flow-danger">
+      <div class="flow-box-title">BEFORE: String</div>
+      <div class="flow-box-code">
+        User.role = "COACH"<br>
+        User.role = "ADMIN"<br>
+        User.role = "COCH" <span style="color:#dc2626">// compiles!</span><br>
+        User.role = "" <span style="color:#dc2626">// compiles!</span><br>
+        User.role = null <span style="color:#dc2626">// compiles!</span>
+      </div>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-box flow-safe">
+      <div class="flow-box-title">AFTER: Enum</div>
+      <div class="flow-box-code">
+        User.role = UserRole.COACH<br>
+        User.role = UserRole.ADMIN<br>
+        User.role = UserRole.COCH <span style="color:#dc2626">// won't compile</span><br>
+        <span style="color:#16a34a">// Only valid states exist</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:24px;">
+    <div style="font-weight:700; font-size:14px; margin-bottom:12px; text-align:center;">Validation Chain Comparison</div>
+    <div class="extract-grid">
+      <div class="code-panel">
+        <div class="code-header before-header">BEFORE — Manual String Validation</div>
+        <div class="code-body"><span class="cmt">// AuthService.java</span>
+<span class="kw">Set</span>&lt;<span class="type">String</span>&gt; VALID_ROLES = <span class="type">Set</span>.of(<span class="str">"COACH"</span>, <span class="str">"ADMIN"</span>);
+<span class="type">String</span> normalized = role.toUpperCase();
+<span class="type">String</span> assigned = VALID_ROLES.contains(normalized)
+  ? normalized : <span class="str">"COACH"</span>;
+
+<span class="cmt">// JwtAuthenticationFilter.java</span>
+<span class="str">"ROLE_"</span> + (role != <span class="kw">null</span> ? role : <span class="str">"COACH"</span>)</div>
+      </div>
+      <div class="arrow-col">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M8 20h20m0 0l-6-6m6 6l-6 6" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="code-panel">
+        <div class="code-header after-header">AFTER — Enum + EnumParser</div>
+        <div class="code-body"><span class="cmt">// AuthService.java</span>
+<span class="type">UserRole</span> assigned = <span class="type">EnumParser</span>.<span class="fn">parse</span>(
+  <span class="type">UserRole</span>.<span class="kw">class</span>, role, <span class="type">UserRole</span>.COACH);
+
+<span class="cmt">// JwtAuthenticationFilter.java</span>
+<span class="type">UserRole</span> role = <span class="type">EnumParser</span>.<span class="fn">parse</span>(
+  <span class="type">UserRole</span>.<span class="kw">class</span>, tokenRole, <span class="type">UserRole</span>.COACH);
+<span class="str">"ROLE_"</span> + role.<span class="fn">name</span>()</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 4: Feature Envy — createPlayer                 -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-4">
+  <div class="diagram-title">Feature Envy &rarr; Move Method + Introduce Parameter Object</div>
+  <div class="diagram-subtitle">B2: Controller was building entities — the service's job</div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+    <div>
+      <div style="font-weight:700; font-size:14px; margin-bottom:12px; color:#dc2626;">BEFORE: Controller Envies Service</div>
+      <div class="layer-diagram">
+        <div class="layer layer-controller">
+          <span class="layer-label">Controller</span>
+          <span class="layer-content">
+            teamService.getTeam(teamId) <span class="violation-marker">ENVY</span><br>
+            Player.builder().name(name)... <span class="violation-marker">ENVY</span><br>
+            playerService.createPlayer(player)
+          </span>
+        </div>
+        <div class="layer layer-service">
+          <span class="layer-label">Service</span>
+          <span class="layer-content">playerRepository.save(player) <span style="color:#9ca3af;font-size:11px;">// just saves</span></span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-weight:700; font-size:14px; margin-bottom:12px; color:#16a34a;">AFTER: Clean Layers</div>
+      <div class="layer-diagram">
+        <div class="layer layer-controller">
+          <span class="layer-label">Controller</span>
+          <span class="layer-content">
+            playerService.createPlayer(input) <span class="check-marker">DELEGATE</span>
+          </span>
+        </div>
+        <div class="layer layer-service">
+          <span class="layer-label">Service</span>
+          <span class="layer-content">
+            teamRepository.findById(...) <span class="check-marker">OWN</span><br>
+            Player.builder()... <span class="check-marker">OWN</span><br>
+            playerRepository.save(player) <span class="check-marker">OWN</span>
+          </span>
+        </div>
+        <div class="layer layer-domain">
+          <span class="layer-label">DTO</span>
+          <span class="layer-content">CreatePlayerInput(@NotNull teamId, @NotNull name, @NotNull position, rating)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 5: Dead Code Activation — Error Flow           -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-5">
+  <div class="diagram-title">Dead Code Activation — Error Flow</div>
+  <div class="diagram-subtitle">B4: AiGenerationException existed but was never thrown — errors were silently swallowed</div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+    <div>
+      <div style="font-weight:700; font-size:14px; margin-bottom:12px; color:#dc2626;">BEFORE: Silent Swallow</div>
+      <div class="error-flow">
+        <div class="flow-step step-neutral">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-text"><strong>AI API call fails</strong><br><span class="flow-step-code">API key invalid, rate limited, network error</span></div>
+        </div>
+        <div class="flow-step step-error">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-text"><strong>Error logged</strong><br><span class="flow-step-code">.doOnError(e -> log.error(...))</span></div>
+        </div>
+        <div class="flow-step step-dead">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-text"><strong>Error swallowed</strong> <span class="cross">&times;</span><br><span class="flow-step-code">.onErrorResume(e -> Mono.empty())</span></div>
+        </div>
+        <div class="flow-step step-dead">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-text"><strong>User sees generic text</strong><br><span class="flow-step-code">"No analysis generated."</span></div>
+        </div>
+        <div class="flow-step" style="background:#fff3cd; border:1px dashed #ffc107;">
+          <div style="font-size:12px; color:#856404; text-align:center; width:100%;"><strong>AiGenerationException</strong> + <strong>GraphQLExceptionHandler</strong> — both exist but never reached</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-weight:700; font-size:14px; margin-bottom:12px; color:#16a34a;">AFTER: Fail-Fast</div>
+      <div class="error-flow">
+        <div class="flow-step step-neutral">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-text"><strong>AI API call fails</strong><br><span class="flow-step-code">API key invalid, rate limited, network error</span></div>
+        </div>
+        <div class="flow-step step-error">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-text"><strong>Error logged</strong><br><span class="flow-step-code">.doOnError(e -> log.error(...))</span></div>
+        </div>
+        <div class="flow-step step-active">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-text"><strong>Exception created</strong> <span class="check">&check;</span><br><span class="flow-step-code">.onErrorMap(e -> new AiGenerationException(ctx, e))</span></div>
+        </div>
+        <div class="flow-step step-active">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-text"><strong>Handler catches it</strong> <span class="check">&check;</span><br><span class="flow-step-code">GraphQLExceptionHandler &rarr; INTERNAL_ERROR + operation</span></div>
+        </div>
+        <div class="flow-step step-active">
+          <div class="flow-step-num">5</div>
+          <div class="flow-step-text"><strong>User sees structured error</strong> <span class="check">&check;</span><br><span class="flow-step-code">{ "errors": [{ "message": "AI generation failed for: Tactical advice" }] }</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- DIAGRAM 6: The Complete Refactoring Map                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="diagram" id="diagram-6">
+  <div class="diagram-title">The Complete Refactoring Map</div>
+  <div class="diagram-subtitle">3 PRs, 13 refactorings — organized by theme</div>
+  <div class="ref-map">
+    <div class="section-label section-label-a">PR A: Extract & Consolidate</div>
+    <div class="ref-card ref-card-a">
+      <div class="ref-card-header">CursorPaginator</div>
+      <div class="ref-card-smell">Duplicated Code + Shotgun Surgery</div>
+      <div class="ref-card-fix">Identical pagination code in 2 services &rarr; one generic utility with <code>Function&lt;T, Long&gt;</code></div>
+      <div class="ref-card-pattern">Extract Class</div>
+    </div>
+    <div class="ref-card ref-card-a">
+      <div class="ref-card-header">EnumParser</div>
+      <div class="ref-card-smell">Duplicated Code + Data Clumps</div>
+      <div class="ref-card-fix">2 parallel Map+parse pairs &rarr; one generic <code>parse(Class&lt;E&gt;, String, E)</code></div>
+      <div class="ref-card-pattern">Extract Method</div>
+    </div>
+    <div class="ref-card ref-card-a">
+      <div class="ref-card-header">Named Constants</div>
+      <div class="ref-card-smell">Magic Numbers + Strings</div>
+      <div class="ref-card-fix"><code>28</code>, <code>"Balanced"</code>, <code>"Bearer "</code>, system prompts &rarr; named constants</div>
+      <div class="ref-card-pattern">Replace Magic Number/String</div>
+    </div>
+
+    <div class="section-label section-label-b">PR B: Responsibility Realignment</div>
+    <div class="ref-card ref-card-b">
+      <div class="ref-card-header">Split Controller</div>
+      <div class="ref-card-smell">Large Class + Divergent Change</div>
+      <div class="ref-card-fix">1 controller with 3 domains &rarr; 3 focused controllers, one reason to change each</div>
+      <div class="ref-card-pattern">Extract Class</div>
+    </div>
+    <div class="ref-card ref-card-b">
+      <div class="ref-card-header">createPlayer</div>
+      <div class="ref-card-smell">Feature Envy</div>
+      <div class="ref-card-fix">Controller building entities &rarr; validated DTO + service owns construction</div>
+      <div class="ref-card-pattern">Move Method + Parameter Object</div>
+    </div>
+    <div class="ref-card ref-card-b">
+      <div class="ref-card-header">AiGenerationException</div>
+      <div class="ref-card-smell">Lazy Class + Silent Failure</div>
+      <div class="ref-card-fix">Exception existed but never thrown &rarr; activated, errors now surface properly</div>
+      <div class="ref-card-pattern">Remove Dead Code</div>
+    </div>
+
+    <div class="section-label section-label-c">PR C: Type Safety & Consistency</div>
+    <div class="ref-card ref-card-c">
+      <div class="ref-card-header">UserRole Enum</div>
+      <div class="ref-card-smell">Primitive Obsession</div>
+      <div class="ref-card-fix">String role with manual Set validation &rarr; enum with compile-time safety</div>
+      <div class="ref-card-pattern">Replace Type Code with Class</div>
+    </div>
+    <div class="ref-card ref-card-c">
+      <div class="ref-card-header">AiMatchAnalysisResponse</div>
+      <div class="ref-card-smell">Inconsistent Pattern</div>
+      <div class="ref-card-fix">Split-on-newline parsing &rarr; structured JSON DTO like other 2 AI services</div>
+      <div class="ref-card-pattern">Introduce Consistent Pattern</div>
+    </div>
+    <div class="ref-card ref-card-c">
+      <div class="ref-card-header">CORS + Prompt Cleanup</div>
+      <div class="ref-card-smell">Config as Code + Inappropriate Intimacy</div>
+      <div class="ref-card-fix">Hardcoded origins &rarr; env var. DB ID removed from AI prompt.</div>
+      <div class="ref-card-pattern">Externalize Configuration</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
