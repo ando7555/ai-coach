@@ -2,6 +2,7 @@ package com.ai.coach.service;
 
 import com.ai.coach.domain.CursorPaginator;
 import com.ai.coach.domain.FormCalculator;
+import com.ai.coach.domain.StatAggregator;
 import com.ai.coach.domain.dto.*;
 import com.ai.coach.domain.entity.FormIndicator;
 import com.ai.coach.exception.EntityNotFoundException;
@@ -90,27 +91,11 @@ public class PlayerMatchStatService {
         return buildTrend(player, stats);
     }
 
-    private record StatAccumulator(int goals, int assists, int minutes, double ratingSum, int ratedCount) {
-        static final StatAccumulator IDENTITY = new StatAccumulator(0, 0, 0, 0.0, 0);
-
-        StatAccumulator add(PlayerMatchStat s) {
-            double r = s.getRating() != null ? s.getRating() : 0.0;
-            int rc = s.getRating() != null ? 1 : 0;
-            return new StatAccumulator(goals + s.getGoals(), assists + s.getAssists(),
-                    minutes + s.getMinutesPlayed(), ratingSum + r, ratedCount + rc);
-        }
-
-        StatAccumulator merge(StatAccumulator other) {
-            return new StatAccumulator(goals + other.goals, assists + other.assists,
-                    minutes + other.minutes, ratingSum + other.ratingSum, ratedCount + other.ratedCount);
-        }
-    }
-
     private PlayerPerformanceTrend buildTrend(Player player, List<PlayerMatchStat> stats) {
         int matchCount = stats.size();
 
-        StatAccumulator acc = stats.stream().reduce(
-                StatAccumulator.IDENTITY, StatAccumulator::add, StatAccumulator::merge);
+        StatAggregator acc = stats.stream().reduce(
+                StatAggregator.IDENTITY, StatAggregator::add, StatAggregator::merge);
 
         int totalGoals = acc.goals();
         int totalAssists = acc.assists();
