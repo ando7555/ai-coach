@@ -1,6 +1,8 @@
 package com.ai.coach.service;
 
+import com.ai.coach.domain.EnumParser;
 import com.ai.coach.domain.entity.User;
+import com.ai.coach.domain.entity.UserRole;
 import com.ai.coach.domain.repository.UserRepository;
 import com.ai.coach.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -20,9 +20,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
-    private static final String DEFAULT_ROLE = "COACH";
-    private static final Set<String> VALID_ROLES = Set.of("COACH", "ADMIN");
-
     @Transactional
     public AuthPayload register(String username, String password, String role) {
         log.debug("Registering user: {}", username);
@@ -30,9 +27,7 @@ public class AuthService {
             throw new IllegalArgumentException("Username already taken: " + username);
         }
 
-        String normalizedRole = role != null ? role.toUpperCase() : null;
-        String assignedRole = normalizedRole != null && VALID_ROLES.contains(normalizedRole)
-                ? normalizedRole : DEFAULT_ROLE;
+        UserRole assignedRole = EnumParser.parse(UserRole.class, role, UserRole.COACH);
 
         User user = User.builder()
                 .username(username)
@@ -42,7 +37,7 @@ public class AuthService {
 
         user = userRepository.save(user);
         log.info("User registered: {} with role {}", username, assignedRole);
-        String token = tokenProvider.generateToken(user.getUsername(), user.getRole());
+        String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());
         return new AuthPayload(token, user);
     }
 
@@ -56,7 +51,7 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid username or password");
         }
 
-        String token = tokenProvider.generateToken(user.getUsername(), user.getRole());
+        String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());
         return new AuthPayload(token, user);
     }
 
