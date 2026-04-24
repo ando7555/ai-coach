@@ -10,6 +10,20 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class AiClient {
 
+    private static final String TACTICAL_SYSTEM_PROMPT =
+            "You are an expert football/soccer tactical analyst. "
+                    + "Provide concise, actionable tactical advice based on the match data and context provided.";
+
+    private static final String SEASON_PLAN_SYSTEM_PROMPT =
+            "You are an expert football/soccer season planner and sporting director. "
+                    + "Create structured, phased season plans that cover tactical development, "
+                    + "squad rotation, and periodisation.";
+
+    private static final String TRAINING_PLAN_SYSTEM_PROMPT =
+            "You are an expert football/soccer fitness and training coach. "
+                    + "Design detailed weekly microcycles and training sessions that balance "
+                    + "intensity, recovery, and tactical preparation.";
+
     private final ChatClient tacticalClient;
     private final ChatClient seasonPlanClient;
     private final ChatClient trainingPlanClient;
@@ -17,20 +31,15 @@ public class AiClient {
     // Manual constructor: each ChatClient needs a distinct system prompt via builder.clone()
     public AiClient(ChatClient.Builder builder) {
         this.tacticalClient = builder.clone()
-                .defaultSystem("You are an expert football/soccer tactical analyst. "
-                        + "Provide concise, actionable tactical advice based on the match data and context provided.")
+                .defaultSystem(TACTICAL_SYSTEM_PROMPT)
                 .build();
 
         this.seasonPlanClient = builder.clone()
-                .defaultSystem("You are an expert football/soccer season planner and sporting director. "
-                        + "Create structured, phased season plans that cover tactical development, "
-                        + "squad rotation, and periodisation.")
+                .defaultSystem(SEASON_PLAN_SYSTEM_PROMPT)
                 .build();
 
         this.trainingPlanClient = builder.clone()
-                .defaultSystem("You are an expert football/soccer fitness and training coach. "
-                        + "Design detailed weekly microcycles and training sessions that balance "
-                        + "intensity, recovery, and tactical preparation.")
+                .defaultSystem(TRAINING_PLAN_SYSTEM_PROMPT)
                 .build();
     }
 

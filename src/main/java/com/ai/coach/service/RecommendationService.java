@@ -52,7 +52,6 @@ public class RecommendationService {
 
     private String buildPrompt(Match match, RecommendationContextInput input) {
         return """
-                You are an elite football tactical coach.
                 Analyze the following situation and give detailed tactical recommendations.
 
                 Match:

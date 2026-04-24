@@ -20,6 +20,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
+    private static final String DEFAULT_ROLE = "COACH";
     private static final Set<String> VALID_ROLES = Set.of("COACH", "ADMIN");
 
     @Transactional
@@ -31,7 +32,7 @@ public class AuthService {
 
         String normalizedRole = role != null ? role.toUpperCase() : null;
         String assignedRole = normalizedRole != null && VALID_ROLES.contains(normalizedRole)
-                ? normalizedRole : "COACH";
+                ? normalizedRole : DEFAULT_ROLE;
 
         User user = User.builder()
                 .username(username)

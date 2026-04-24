@@ -1,5 +1,6 @@
 package com.ai.coach.service;
 
+import com.ai.coach.domain.EnumParser;
 import com.ai.coach.domain.dto.TrainingPlanInput;
 import com.ai.coach.domain.entity.FocusArea;
 import com.ai.coach.domain.entity.Team;
@@ -18,24 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrainingPlanService {
-
-    private static final Map<String, FocusArea> FOCUS_AREA_MAP =
-            Arrays.stream(FocusArea.values())
-                    .collect(Collectors.toMap(e -> e.name().toUpperCase(), Function.identity()));
-
-    private static final Map<String, TrainingIntensity> INTENSITY_MAP =
-            Arrays.stream(TrainingIntensity.values())
-                    .collect(Collectors.toMap(e -> e.name().toUpperCase(), Function.identity()));
 
     private final TeamRepository teamRepository;
     private final TrainingPlanRepository trainingPlanRepository;
@@ -92,19 +81,13 @@ public class TrainingPlanService {
     }
 
     private FocusArea parseFocusArea(String value, FocusArea fallback) {
-        if (value != null) {
-            FocusArea result = FOCUS_AREA_MAP.get(value.toUpperCase());
-            if (result != null) return result;
-        }
-        return fallback != null ? fallback : FocusArea.BUILD_UP;
+        return EnumParser.parse(FocusArea.class, value,
+                fallback != null ? fallback : FocusArea.BUILD_UP);
     }
 
     private TrainingIntensity normalizeIntensity(String aiValue, TrainingIntensity inputIntensity) {
-        if (aiValue != null) {
-            TrainingIntensity result = INTENSITY_MAP.get(aiValue.toUpperCase());
-            if (result != null) return result;
-        }
-        return inputIntensity != null ? inputIntensity : TrainingIntensity.MEDIUM;
+        return EnumParser.parse(TrainingIntensity.class, aiValue,
+                inputIntensity != null ? inputIntensity : TrainingIntensity.MEDIUM);
     }
 
     private String buildPrompt(Team team, TrainingPlanInput input) {

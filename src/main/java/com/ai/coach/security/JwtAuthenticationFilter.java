@@ -18,6 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String DEFAULT_ROLE = "COACH";
+
     private final JwtTokenProvider tokenProvider;
 
     @Override
@@ -26,12 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                      FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            String token = header.substring(BEARER_PREFIX.length());
             if (tokenProvider.isValid(token)) {
                 String username = tokenProvider.getUsername(token);
                 String role = tokenProvider.getRole(token);
-                var authority = new SimpleGrantedAuthority("ROLE_" + (role != null ? role : "COACH"));
+                var authority = new SimpleGrantedAuthority("ROLE_" + (role != null ? role : DEFAULT_ROLE));
                 var auth = new UsernamePasswordAuthenticationToken(
                         username, null, List.of(authority));
                 SecurityContextHolder.getContext().setAuthentication(auth);
