@@ -1,5 +1,6 @@
 package com.ai.coach.service;
 
+import com.ai.coach.exception.AiGenerationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
@@ -59,6 +60,6 @@ public class AiClient {
         return Mono.fromCallable(() -> client.prompt().user(prompt).call().content())
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnError(e -> log.error("{} generation failed", context, e))
-                .onErrorResume(e -> Mono.empty());
+                .onErrorMap(e -> new AiGenerationException(context, e));
     }
 }
