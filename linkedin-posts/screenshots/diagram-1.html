@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before vs After Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* --- Shared: Before/After Columns --- */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .ba-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ba-before {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .ba-after {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .ba-side h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ba-before h3 { color: #c62828; }
+  .ba-after h3 { color: #2e7d32; }
+  .ba-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 16px;
+    font-weight: 700;
+  }
+
+  /* --- Diagram 1: Before vs After Architecture --- */
+  .arch-layer {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .arch-layer h4 {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .arch-layer ul {
+    list-style: none;
+    padding: 0;
+  }
+  .arch-layer li {
+    padding-left: 14px;
+    position: relative;
+    font-size: 11px;
+  }
+  .arch-layer li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .ba-before .arch-controller { background: #fce4ec; border-left: 4px solid #c62828; }
+  .ba-before .arch-controller h4 { color: #c62828; }
+  .ba-before .arch-controller li::before { color: #c62828; }
+  .ba-before .arch-service { background: #fff3e0; border-left: 4px solid #e65100; }
+  .ba-before .arch-service h4 { color: #e65100; }
+  .ba-before .arch-service li::before { color: #e65100; }
+  .ba-before .arch-entity { background: #fff8e1; border-left: 4px solid #f9a825; }
+  .ba-before .arch-entity h4 { color: #f9a825; }
+  .ba-before .arch-entity li::before { color: #f9a825; }
+  .ba-before .arch-dto { background: #f3e5f5; border-left: 4px solid #6a1b9a; }
+  .ba-before .arch-dto h4 { color: #6a1b9a; }
+  .ba-before .arch-dto li::before { color: #6a1b9a; }
+
+  .ba-after .arch-controller { background: #e8f5e9; border-left: 4px solid #2e7d32; }
+  .ba-after .arch-controller h4 { color: #2e7d32; }
+  .ba-after .arch-controller li::before { color: #2e7d32; }
+  .ba-after .arch-service { background: #e3f2fd; border-left: 4px solid #1565c0; }
+  .ba-after .arch-service h4 { color: #1565c0; }
+  .ba-after .arch-service li::before { color: #1565c0; }
+  .ba-after .arch-entity { background: #e8f5e9; border-left: 4px solid #388e3c; }
+  .ba-after .arch-entity h4 { color: #388e3c; }
+  .ba-after .arch-entity li::before { color: #388e3c; }
+  .ba-after .arch-dto { background: #f3e5f5; border-left: 4px solid #6a1b9a; }
+  .ba-after .arch-dto h4 { color: #6a1b9a; }
+  .ba-after .arch-dto li::before { color: #6a1b9a; }
+
+  .issue-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    background: #c62828;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .fixed-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    background: #2e7d32;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* --- Diagram 2: Entity Pattern --- */
+  .code-block {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-highlight {
+    background: #fff9c4;
+    display: inline;
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+
+  /* --- Diagram 3: String vs Enum --- */
+  .type-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+  }
+  .type-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    border: 2px solid;
+  }
+  .type-string { background: #fff3f3; border-color: #ffcdd2; }
+  .type-string h4 { color: #c62828; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .type-string p { font-size: 11px; color: #666; }
+  .type-enum { background: #e8f5e9; border-color: #a5d6a7; }
+  .type-enum h4 { color: #2e7d32; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .type-enum p { font-size: 11px; color: #666; }
+  .type-arrow {
+    padding: 0 12px;
+    font-size: 24px;
+    color: #ccc;
+    font-weight: 700;
+    text-align: center;
+  }
+  .type-benefits {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .type-benefit {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+  }
+  .type-danger {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #fff3f3;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+
+  /* --- Diagram 4: God Class Split --- */
+  .god-class-split {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .god-class-box {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .god-before {
+    background: #fff3f3;
+    border: 3px solid #c62828;
+  }
+  .god-before h3 {
+    color: #c62828;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .god-before p {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  .god-responsibility {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .god-resp-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #ffcdd2;
+    color: #b71c1c;
+  }
+  .split-arrow {
+    font-size: 32px;
+    color: #2e7d32;
+    font-weight: 700;
+  }
+  .split-results {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .split-service {
+    border-radius: 10px;
+    padding: 14px;
+    border: 2px solid;
+    text-align: center;
+  }
+  .split-service h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .split-service p {
+    font-size: 11px;
+    color: #666;
+  }
+  .split-service .lines {
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 6px;
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+  }
+  .split-match { background: #e3f2fd; border-color: #90caf9; }
+  .split-match h4 { color: #1565c0; }
+  .split-match .lines { background: #bbdefb; color: #0d47a1; }
+  .split-training { background: #e8f5e9; border-color: #a5d6a7; }
+  .split-training h4 { color: #2e7d32; }
+  .split-training .lines { background: #c8e6c9; color: #1b5e20; }
+  .split-season { background: #f3e5f5; border-color: #ce93d8; }
+  .split-season h4 { color: #6a1b9a; }
+  .split-season .lines { background: #e1bee7; color: #4a148c; }
+  .split-parser { background: #fff3e0; border-color: #ffcc80; }
+  .split-parser h4 { color: #e65100; }
+  .split-parser .lines { background: #ffe0b2; color: #bf360c; }
+
+  /* --- Diagram 5: AiClient DRY --- */
+  .dry-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* --- Diagram 6: Commit Timeline --- */
+  .commit-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .commit-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 760px;
+  }
+  .commit-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .commit-content {
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .commit-info h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .commit-info p {
+    font-size: 11px;
+    color: #666;
+  }
+  .commit-stat {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .commit-connector {
+    width: 3px;
+    height: 10px;
+    background: #ddd;
+    margin-left: 19px;
+  }
+  .c-phase1 .commit-number { background: #1565c0; }
+  .c-phase1 .commit-content { background: #e3f2fd; border-color: #90caf9; }
+  .c-phase1 .commit-info h4 { color: #1565c0; }
+  .c-phase1 .commit-stat { background: #bbdefb; color: #0d47a1; }
+  .c-phase2 .commit-number { background: #2e7d32; }
+  .c-phase2 .commit-content { background: #e8f5e9; border-color: #a5d6a7; }
+  .c-phase2 .commit-info h4 { color: #2e7d32; }
+  .c-phase2 .commit-stat { background: #c8e6c9; color: #1b5e20; }
+  .c-phase3 .commit-number { background: #6a1b9a; }
+  .c-phase3 .commit-content { background: #f3e5f5; border-color: #ce93d8; }
+  .c-phase3 .commit-info h4 { color: #6a1b9a; }
+  .c-phase3 .commit-stat { background: #e1bee7; color: #4a148c; }
+  .c-phase4 .commit-number { background: #e65100; }
+  .c-phase4 .commit-content { background: #fff3e0; border-color: #ffcc80; }
+  .c-phase4 .commit-info h4 { color: #e65100; }
+  .c-phase4 .commit-stat { background: #ffe0b2; color: #bf360c; }
+  .c-phase5 .commit-number { background: #00695c; }
+  .c-phase5 .commit-content { background: #e0f2f1; border-color: #80cbc4; }
+  .c-phase5 .commit-info h4 { color: #00695c; }
+  .c-phase5 .commit-stat { background: #b2dfdb; color: #004d40; }
+  .c-phase6 .commit-number { background: #c62828; }
+  .c-phase6 .commit-content { background: #fce4ec; border-color: #ef9a9a; }
+  .c-phase6 .commit-info h4 { color: #c62828; }
+  .c-phase6 .commit-stat { background: #ffcdd2; color: #b71c1c; }
+  .c-phase7 .commit-number { background: #37474f; }
+  .c-phase7 .commit-content { background: #eceff1; border-color: #b0bec5; }
+  .c-phase7 .commit-info h4 { color: #37474f; }
+  .c-phase7 .commit-stat { background: #cfd8dc; color: #263238; }
+</style>
+</head>
+<body>
+
+<div class="diagram">
+  <div class="diagram-title">Before vs After Architecture</div>
+  <div class="diagram-subtitle">15 issues fixed across 4 layers — same external behavior</div>
+
+  <div class="before-after">
+    <div class="ba-side ba-before">
+      <h3>&#10007; Before</h3>
+
+      <div class="arch-layer arch-controller">
+        <h4>controller/ (6 files)</h4>
+        <ul>
+          <li>CoachGraphql<b>C</b>ontroller <span class="issue-tag">naming</span></li>
+          <li>TeamGraphQLController calls PlayerRepository <span class="issue-tag">layer violation</span></li>
+          <li>3 manual constructors, 3 @RequiredArgsConstructor <span class="issue-tag">inconsistent DI</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-service">
+        <h4>service/ (6 files)</h4>
+        <ul>
+          <li>CoachService = 355 lines, 3 responsibilities <span class="issue-tag">monolithic</span></li>
+          <li>AiClient: 3 copy-pasted methods <span class="issue-tag">DRY</span></li>
+          <li>Duplicate AI response parsing x2 <span class="issue-tag">DRY</span></li>
+          <li>Static ObjectMapper <span class="issue-tag">not testable</span></li>
+          <li>3 manual constructors <span class="issue-tag">inconsistent DI</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-entity">
+        <h4>domain/entity/ (11 entities)</h4>
+        <ul>
+          <li>4 manual getters/setters, 7 Lombok <span class="issue-tag">inconsistent</span></li>
+          <li>FocusArea, TacticalStyle, RiskLevel package-private <span class="issue-tag">visibility</span></li>
+          <li>fatigueLevel, injuryRisk, intensity = String <span class="issue-tag">stringly-typed</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-dto">
+        <h4>domain/dto/ (6 files)</h4>
+        <ul>
+          <li>RecommendationContextInput in entity package <span class="issue-tag">wrong package</span></li>
+          <li>TacticalContextInput unused <span class="issue-tag">dead code</span></li>
+          <li>MatchAnalysisInput uses String for enums <span class="issue-tag">stringly-typed</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ba-arrow">&#10132;</div>
+
+    <div class="ba-side ba-after">
+      <h3>&#10003; After</h3>
+
+      <div class="arch-layer arch-controller">
+        <h4>controller/ (6 files)</h4>
+        <ul>
+          <li>All *GraphQLController naming <span class="fixed-tag">consistent</span></li>
+          <li>Controllers delegate to services only <span class="fixed-tag">layered</span></li>
+          <li>All @RequiredArgsConstructor <span class="fixed-tag">unified DI</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-service">
+        <h4>service/ (10 files)</h4>
+        <ul>
+          <li>MatchAnalysisService (73 lines) <span class="fixed-tag">focused</span></li>
+          <li>TrainingPlanService (129 lines) <span class="fixed-tag">focused</span></li>
+          <li>SeasonPlanService (159 lines) <span class="fixed-tag">focused</span></li>
+          <li>AiResponseParser (shared, generic) <span class="fixed-tag">DRY</span></li>
+          <li>AiClient: callClient() helper <span class="fixed-tag">DRY</span></li>
+          <li>PlayerService (NEW) <span class="fixed-tag">layered</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-entity">
+        <h4>domain/entity/ (11 entities + 6 enums)</h4>
+        <ul>
+          <li>All entities: @Getter @Setter @Builder <span class="fixed-tag">unified</span></li>
+          <li>All enums public <span class="fixed-tag">visible</span></li>
+          <li>FatigueLevel, InjuryRisk, TrainingIntensity <span class="fixed-tag">type-safe</span></li>
+        </ul>
+      </div>
+
+      <div class="arch-layer arch-dto">
+        <h4>domain/dto/ (6 files)</h4>
+        <ul>
+          <li>RecommendationContextInput moved here <span class="fixed-tag">correct package</span></li>
+          <li>TacticalContextInput deleted <span class="fixed-tag">clean</span></li>
+          <li>MatchAnalysisInput uses enum types <span class="fixed-tag">type-safe</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

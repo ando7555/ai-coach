@@ -1,0 +1,156 @@
+TITLE: Anatomy of an Architecture Refactoring — 15 Issues, 7 Commits, Zero Behavior Changes
+
+---
+
+I'm building an AI-powered football coaching app called AI Coach. After shipping 5 features across multiple PRs, the codebase had grown inconsistently — mixed patterns, a God class, stringly-typed fields, and copy-pasted methods. This article walks through the complete refactoring: what was wrong, why it matters, and how each fix works.
+
+The golden rule: refactoring changes structure, never behavior. Every GraphQL query and mutation works exactly the same before and after.
+
+
+1. The Problem — Death by a Thousand Inconsistencies
+
+When you build feature-by-feature, each PR focuses on making one thing work. You don't go back and unify patterns across the whole codebase. Over time, this creates "architectural drift":
+
+- Mixed entity styles: 4 entities manual, 7 Lombok — cognitive overhead
+- Mixed DI styles: 7 @RequiredArgsConstructor, 6 manual constructors — two idioms for the same thing
+- God class: CoachService = 355 lines, 3 responsibilities — hard to test, hard to modify
+- Stringly-typed fields: fatigueLevel = "TRED" compiles fine — bugs hide until runtime
+- Copy-pasted methods: AiClient has 3 identical methods — DRY violation
+- Controller calls repository: TeamGraphQLController calls PlayerRepository directly — breaks layered architecture
+
+None of these are bugs. The app works fine. But each one makes the codebase harder to work with, and they compound over time.
+
+>>> INSERT DIAGRAM 1: diagram-1.png (Before vs After Architecture) <<<
+
+
+2. Phase 1: Quick Fixes (Zero Risk)
+
+SecurityConfig — Duplicate Calls + Dead Code
+
+The original SecurityConfig called .csrf() twice and .sessionManagement() twice — Spring Security's HttpSecurity is a mutable builder, so the second call just overwrites the first with the same value. Not harmful, but confusing. And the code after .build() was completely unreachable dead code.
+
+Fix: Remove duplicates, delete dead code. One clean chain.
+
+Package-Private Enums
+
+Java's default access modifier is package-private — the class is only visible within its own package. Since DTOs and services live in different packages, they couldn't reference FocusArea, TacticalStyle, or RiskLevel. Adding "public" fixes the visibility.
+
+Delete Unused Code
+
+TacticalContextInput was created early on but superseded by RecommendationContextInput. Dead code = noise. Delete it.
+
+
+3. Phase 2: Entity Lombok Unification
+
+Before, 4 entities had manual boilerplate — 49 lines for Team.java with manual getters, setters, and constructors. After, all 11 entities use the same 5-annotation pattern: @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder — reduced to 24 lines.
+
+Why @Builder.Default Matters
+
+Without @Builder.Default, calling Team.builder().name("Arsenal").build() sets players to null (not new HashSet<>()). The annotation tells Lombok to use the field initializer as the default value when building.
+
+Every new Entity(...) call becomes .builder()...build() — builders are more readable (named parameters), more flexible (optional fields), and consistent with the rest of the codebase.
+
+>>> INSERT DIAGRAM 2: diagram-2.png (Entity Pattern — Before vs After) <<<
+
+
+4. Phase 3: DI & Naming Consistency
+
+Constructor Injection — Two Idioms, One Purpose
+
+6 classes had manual constructors, 7 used @RequiredArgsConstructor. Unified to one style. @RequiredArgsConstructor generates a constructor for all final fields. The compiled bytecode is identical — purely a source-level simplification.
+
+The Exception: AiClient
+
+AiClient keeps its manual constructor because it does real initialization work — it clones a ChatClient.Builder three times with different system prompts. @RequiredArgsConstructor can only assign parameters to fields. A comment explains why the exception exists.
+
+Naming Consistency
+
+CoachGraphqlController renamed to CoachGraphQLController — matching the *GraphQLController convention used by all other controllers.
+
+
+5. Phase 4: Type-Safe Enums
+
+The String Problem
+
+fatigueLevel, injuryRisk, and intensity were all String fields. Any value compiles: "FRESH", "TRED", "asdf", "". With enums, only valid values compile.
+
+Why This Matters:
+- Compile-time safety — FatigueLevel.TRED doesn't compile
+- IDE autocomplete — shows you the valid options
+- GraphQL validation — the schema rejects invalid values before they reach Java
+- Switch exhaustiveness — the compiler warns if you miss a case
+
+Neo4j stores enums as their .name() string — FatigueLevel.FRESH is stored as "FRESH" in the database. Existing data already uses these exact strings, so no migration is needed.
+
+MatchAnalysisInput also moved from @NotBlank String fields to @NotNull enum types. RecommendationContextInput was moved from domain.entity to domain.dto — it's an input DTO, not an entity.
+
+>>> INSERT DIAGRAM 3: diagram-3.png (Type Safety — String vs Enum) <<<
+
+
+6. Phase 5: Extract PlayerService
+
+The Layered Architecture Violation
+
+TeamGraphQLController was directly calling PlayerRepository — controllers should delegate to services, not implement business logic. Even if the logic is trivial today, it won't stay trivial.
+
+The PlayerService is thin today — just playerRepository.save(player). But when you add validation, audit logging, or event publishing, the service layer is already in place.
+
+
+7. Phase 6: Split the God Class
+
+CoachService was 355 lines with 3 unrelated responsibilities:
+1. Match analysis — build prompt, call AI, parse response, save to Neo4j
+2. Training plans — build prompt, call AI, parse JSON response, create sessions, save
+3. Season plans — compute player workload snapshots, build prompt, call AI, parse JSON, save
+
+The Split:
+- MatchAnalysisService (73 lines) — match analysis generation
+- TrainingPlanService (129 lines) — training plan generation
+- SeasonPlanService (159 lines) — season plan + workload snapshots
+- AiResponseParser (38 lines) — shared JSON parsing utility
+
+AiResponseParser uses a generic method: parseAiResponse(String aiResponse, Class<T> type, T fallback) — handles any response type. Before, the parsing logic was duplicated for training plans and season plans.
+
+ObjectMapper is now injected by Spring instead of being a static instance. Spring Boot auto-configures an ObjectMapper with sensible defaults. A static instance misses all that configuration and can't be mocked in tests.
+
+>>> INSERT DIAGRAM 4: diagram-4.png (God Class Split — CoachService Decomposition) <<<
+
+
+8. Phase 7: DRY AiClient
+
+Before: 3 copy-pasted methods with identical structure — generateTacticalAdvice, generateSeasonPlan, generateTrainingPlan. Each wrapped a ChatClient call in Mono.fromCallable with error handling.
+
+After: One private callClient(ChatClient client, String prompt, String context) helper. Each public method is now a one-liner: return callClient(tacticalClient, prompt, "Tactical advice");
+
+The difference: when you need to add retry logic, timeout, or metrics, you change one method instead of three.
+
+>>> INSERT DIAGRAM 5: diagram-5.png (AiClient — DRY Refactoring) <<<
+
+
+9. The Final Architecture
+
+controller/ — 6 controllers, all @RequiredArgsConstructor
+service/ — 10 services, all @RequiredArgsConstructor (except AiClient)
+domain/entity/ — All entities use Lombok, all enums public, 3 new type-safe enums
+domain/dto/ — All input DTOs here, MatchAnalysisInput uses enum types
+
+Stats:
+- 7 commits, each builds independently
+- 576 lines added, 575 removed — same total, completely restructured
+- 15 issues fixed, 0 behavior changes
+- 34 files touched
+
+>>> INSERT DIAGRAM 6: diagram-6.png (Refactoring Timeline — 7 Commits) <<<
+
+
+10. Principles Applied
+
+1. Single Responsibility Principle — one class, one reason to change. CoachService split into 3 focused services.
+2. DRY (Don't Repeat Yourself) — AiClient helper, AiResponseParser generic method.
+3. Layered Architecture — controllers delegate to services delegate to repositories. No shortcuts.
+4. Type Safety — enums over strings. Catch errors at compile time, not runtime.
+5. Consistency — one way to do each thing. One entity pattern, one DI style, one naming convention.
+6. Behavioral Preservation — refactoring changes structure, never behavior.
+
+
+The code is open source: github.com/ando7555/ai-coach
