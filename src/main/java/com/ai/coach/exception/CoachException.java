@@ -8,7 +8,7 @@ package com.ai.coach.exception;
  * making the exception hierarchy explicit and compiler-enforced.</p>
  */
 public sealed class CoachException extends RuntimeException
-        permits EntityNotFoundException, AiGenerationException {
+        permits EntityNotFoundException, AiGenerationException, GithubIntegrationException {
 
     protected CoachException(String message) {
         super(message);

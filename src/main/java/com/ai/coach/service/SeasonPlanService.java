@@ -40,6 +40,25 @@ public class SeasonPlanService {
         return seasonPlanRepository.findByTeamId(teamId);
     }
 
+    @Transactional(readOnly = true)
+    public List<PlayerWorkloadSnapshot> getPlayerWorkloadSnapshots(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("Team", teamId));
+
+        List<Player> players = playerRepository.findByTeamId(team.getId());
+        LocalDate cutoff = LocalDate.now().minusDays(RECENT_WINDOW_DAYS);
+
+        List<Long> playerIds = players.stream().map(Player::getId).toList();
+        Map<Long, List<PlayerMatchStat>> statsByPlayer =
+                playerMatchStatRepository.findByPlayerIdInAndMatchDateAfter(playerIds, cutoff)
+                        .stream()
+                        .collect(Collectors.groupingBy(s -> s.getPlayer().getId()));
+
+        return players.stream()
+                .map(p -> buildWorkloadSnapshot(p, statsByPlayer.getOrDefault(p.getId(), List.of())))
+                .toList();
+    }
+
     @Transactional
     public SeasonPlan generateSeasonPlan(SeasonPlanInput input) {
         log.info("Generating season plan for team {} season {}", input.teamId(), input.season());

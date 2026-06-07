@@ -46,6 +46,11 @@ public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter
                     Map.of("operation", e.getOperation()));
         }
 
+        if (ex instanceof GithubIntegrationException e) {
+            log.error("GitHub integration error: {}", e.getMessage(), e);
+            return buildError(e.getMessage(), ErrorType.INTERNAL_ERROR, env, Map.of());
+        }
+
         log.error("Unexpected error in GraphQL resolver", ex);
         return buildError("Internal server error", ErrorType.INTERNAL_ERROR, env, Map.of());
     }

@@ -250,5 +250,31 @@ extend type Mutation {
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
   generateSeasonPlan(input: SeasonPlanInput!): SeasonPlan!
   recordPlayerMatchStat(input: PlayerMatchStatInput!): PlayerMatchStat!
+
+  exportMatchAnalysisToGithub(
+    analysisId: ID!
+    repoOwner: String!
+    repoName: String!
+    filePath: String!
+    commitMessage: String
+  ): GithubCommit!
+
+  createGithubIssueFromWorkload(
+    teamId: ID!
+    repoOwner: String!
+    repoName: String!
+  ): GithubIssue!
+}
+
+type GithubCommit {
+  sha: String
+  message: String
+  htmlUrl: String
+}
+
+type GithubIssue {
+  number: Int!
+  title: String!
+  htmlUrl: String!
 }
 

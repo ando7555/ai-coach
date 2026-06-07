@@ -49,3 +49,8 @@ management:
       probes:
         enabled: true
 
+github:
+  api-url: ${GITHUB_API_URL:https://api.github.com}
+  token: ${GITHUB_TOKEN:}
+
+

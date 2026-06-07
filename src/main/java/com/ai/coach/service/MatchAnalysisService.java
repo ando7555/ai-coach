@@ -30,6 +30,37 @@ public class MatchAnalysisService {
         return matchAnalysisRepository.findByMatchId(matchId);
     }
 
+    @Transactional(readOnly = true)
+    public MatchAnalysis getById(Long id) {
+        return matchAnalysisRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("MatchAnalysis", id));
+    }
+
+    public String formatAsMarkdown(MatchAnalysis analysis) {
+        Match match = analysis.getMatch();
+        String homeTeamName = match != null && match.getHomeTeam() != null ? match.getHomeTeam().getName() : "Home Team";
+        String awayTeamName = match != null && match.getAwayTeam() != null ? match.getAwayTeam().getName() : "Away Team";
+        String dateStr = match != null && match.getDate() != null ? match.getDate().toString() : "N/A";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("# Tactical Match Analysis: ").append(homeTeamName).append(" vs ").append(awayTeamName).append("\n\n");
+        sb.append("- **Date:** ").append(dateStr).append("\n");
+        sb.append("- **Focus Area:** ").append(analysis.getFocusArea()).append("\n");
+        sb.append("- **Tactical Style:** ").append(analysis.getStyle()).append("\n");
+        sb.append("- **Risk Level:** ").append(analysis.getRiskLevel()).append("\n\n");
+
+        sb.append("## Tactical Overview\n");
+        sb.append(analysis.getSummary()).append("\n\n");
+
+        sb.append("## Key Actionable Factors\n");
+        if (analysis.getKeyFactors() != null) {
+            for (String factor : analysis.getKeyFactors()) {
+                sb.append("- ").append(factor).append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
     @Transactional
     public MatchAnalysis generateMatchAnalysis(MatchAnalysisInput input) {
         log.info("Generating match analysis for match {}", input.matchId());
