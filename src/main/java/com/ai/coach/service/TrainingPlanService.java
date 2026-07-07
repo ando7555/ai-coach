@@ -10,6 +10,7 @@ import com.ai.coach.domain.entity.TrainingSession;
 import com.ai.coach.domain.repository.TeamRepository;
 import com.ai.coach.domain.repository.TrainingPlanRepository;
 import com.ai.coach.exception.EntityNotFoundException;
+import com.ai.coach.exception.AiGenerationException;
 import com.ai.coach.service.dto.AiTrainingPlanResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -42,23 +46,38 @@ public class TrainingPlanService {
         Team team = teamRepository.findById(input.teamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
 
-        LocalDate start = LocalDate.parse(input.weekStart());
-        LocalDate end = LocalDate.parse(input.weekEnd());
+        LocalDate start = parseDate(input.weekStart(), "weekStart");
+        LocalDate end = parseDate(input.weekEnd(), "weekEnd");
+        long days = ChronoUnit.DAYS.between(start, end);
+        if (days < 0) {
+            throw new IllegalArgumentException("weekEnd must not be before weekStart");
+        }
+        if (days > 7) {
+            throw new IllegalArgumentException("Training plan range must not exceed 7 days");
+        }
 
         String prompt = buildPrompt(team, input);
 
-        String aiResponse = aiClient.generateTrainingPlan(prompt)
-                .blockOptional()
-                .orElse("No training plan generated.");
+        AiTrainingPlanResponse fallback = buildFallback(team, input, days);
+        AiTrainingPlanResponse parsed;
+        try {
+            String aiResponse = aiClient.generateTrainingPlan(prompt).blockOptional().orElse("");
+            parsed = aiResponseParser.parseAiResponse(aiResponse, AiTrainingPlanResponse.class, fallback);
+        } catch (AiGenerationException e) {
+            log.warn("AI unavailable; using deterministic training plan for team {}", team.getName());
+            parsed = fallback;
+        }
 
-        AiTrainingPlanResponse fallback = new AiTrainingPlanResponse(
-                aiResponse,
-                List.of(new AiTrainingPlanResponse.SessionEntry(0, "BUILD_UP", "MEDIUM", 90, aiResponse))
-        );
-        AiTrainingPlanResponse parsed = aiResponseParser.parseAiResponse(
-                aiResponse, AiTrainingPlanResponse.class, fallback);
+        List<AiTrainingPlanResponse.SessionEntry> entries = parsed.sessions() == null || parsed.sessions().isEmpty()
+                ? fallback.sessions() : parsed.sessions();
+        List<AiTrainingPlanResponse.SessionEntry> validEntries = entries.stream()
+                .filter(entry -> entry.dayOffset() >= 0 && entry.dayOffset() <= days)
+                .toList();
+        if (validEntries.isEmpty()) {
+            validEntries = fallback.sessions();
+        }
 
-        List<TrainingSession> sessions = parsed.sessions().stream()
+        List<TrainingSession> sessions = validEntries.stream()
                 .map(entry -> TrainingSession.builder()
                         .date(start.plusDays(entry.dayOffset()).atStartOfDay().atOffset(ZoneOffset.UTC))
                         .focusArea(parseFocusArea(entry.focusArea(), input.primaryFocus()))
@@ -73,11 +92,37 @@ public class TrainingPlanService {
                 .weekStart(start.atStartOfDay().atOffset(ZoneOffset.UTC))
                 .weekEnd(end.atStartOfDay().atOffset(ZoneOffset.UTC))
                 .sessions(sessions)
-                .summary(parsed.summary())
+                .summary(parsed.summary() == null || parsed.summary().isBlank() ? fallback.summary() : parsed.summary())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
         return trainingPlanRepository.save(plan);
+    }
+
+    private LocalDate parseDate(String value, String field) {
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(field + " must use ISO format YYYY-MM-DD");
+        }
+    }
+
+    private AiTrainingPlanResponse buildFallback(Team team, TrainingPlanInput input, long days) {
+        String focus = (input.primaryFocus() != null ? input.primaryFocus() : FocusArea.BUILD_UP).name();
+        String overall = (input.intensity() != null ? input.intensity() : TrainingIntensity.MEDIUM).name();
+        String[] intensities = {"LOW", overall, "HIGH", overall, "LOW", "LOW"};
+        List<AiTrainingPlanResponse.SessionEntry> sessions = new ArrayList<>();
+        int sessionCount = (int) Math.min(days + 1, 6);
+        for (int day = 0; day < sessionCount; day++) {
+            sessions.add(new AiTrainingPlanResponse.SessionEntry(
+                    day, focus, intensities[day], day == 2 ? 90 : 75,
+                    day == 0 ? "Recovery, mobility, and light technical work"
+                            : day == sessionCount - 1 ? "Tactical walkthrough and set pieces"
+                            : "Progressive tactical session with monitored workload"));
+        }
+        return new AiTrainingPlanResponse(
+                "Provider-independent weekly microcycle for %s, balancing %s development with recovery."
+                        .formatted(team.getName(), focus), sessions);
     }
 
     private FocusArea parseFocusArea(String value, FocusArea fallback) {

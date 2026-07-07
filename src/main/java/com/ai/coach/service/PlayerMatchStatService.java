@@ -125,6 +125,17 @@ public class PlayerMatchStatService {
         Match match = matchRepository.findById(input.matchId())
                 .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
 
+        Long playerTeamId = player.getTeam() != null ? player.getTeam().getId() : null;
+        if (playerTeamId == null || (!playerTeamId.equals(match.getHomeTeam().getId())
+                && !playerTeamId.equals(match.getAwayTeam().getId()))) {
+            throw new IllegalArgumentException("Player must belong to one of the teams in the match");
+        }
+        if (input.goals() != null && input.goals() < 0
+                || input.assists() != null && input.assists() < 0
+                || input.yellowCards() != null && (input.yellowCards() < 0 || input.yellowCards() > 2)) {
+            throw new IllegalArgumentException("Goals and assists must be non-negative; yellow cards must be between 0 and 2");
+        }
+
         PlayerMatchStat stat = PlayerMatchStat.builder()
                 .player(player)
                 .match(match)

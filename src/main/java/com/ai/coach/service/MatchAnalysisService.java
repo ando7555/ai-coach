@@ -6,6 +6,7 @@ import com.ai.coach.domain.entity.MatchAnalysis;
 import com.ai.coach.domain.repository.MatchAnalysisRepository;
 import com.ai.coach.domain.repository.MatchRepository;
 import com.ai.coach.exception.EntityNotFoundException;
+import com.ai.coach.exception.AiGenerationException;
 import com.ai.coach.service.dto.AiMatchAnalysisResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,22 +39,29 @@ public class MatchAnalysisService {
 
         String prompt = buildPrompt(match, input);
 
-        String aiResponse = aiClient.generateTacticalAdvice(prompt)
-                .blockOptional()
-                .orElse("No analysis generated.");
-
         AiMatchAnalysisResponse fallback = new AiMatchAnalysisResponse(
-                aiResponse, List.of("See summary for details"));
-        AiMatchAnalysisResponse parsed = aiResponseParser.parseAiResponse(
-                aiResponse, AiMatchAnalysisResponse.class, fallback);
+                "Use a compact shape, protect central areas, and adapt pressing triggers to the selected risk level.",
+                List.of(
+                        "Keep rest defence organised when committing players forward",
+                        "Use the selected %s focus as the primary coaching cue".formatted(input.focusArea()),
+                        "Review the game state before increasing tactical risk"));
+        AiMatchAnalysisResponse parsed;
+        try {
+            String aiResponse = aiClient.generateTacticalAdvice(prompt).blockOptional().orElse("");
+            parsed = aiResponseParser.parseAiResponse(aiResponse, AiMatchAnalysisResponse.class, fallback);
+        } catch (AiGenerationException e) {
+            log.warn("AI unavailable; using deterministic match analysis for match {}", match.getId());
+            parsed = fallback;
+        }
 
         MatchAnalysis analysis = MatchAnalysis.builder()
                 .match(match)
                 .focusArea(input.focusArea())
                 .style(input.style())
                 .riskLevel(input.riskLevel())
-                .summary(parsed.summary())
-                .keyFactors(parsed.keyFactors())
+                .summary(parsed.summary() == null || parsed.summary().isBlank() ? fallback.summary() : parsed.summary())
+                .keyFactors(parsed.keyFactors() == null || parsed.keyFactors().isEmpty()
+                        ? fallback.keyFactors() : parsed.keyFactors())
                 .createdAt(OffsetDateTime.now())
                 .build();
 

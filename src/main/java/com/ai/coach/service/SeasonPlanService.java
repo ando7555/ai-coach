@@ -8,6 +8,7 @@ import com.ai.coach.domain.repository.PlayerRepository;
 import com.ai.coach.domain.repository.SeasonPlanRepository;
 import com.ai.coach.domain.repository.TeamRepository;
 import com.ai.coach.exception.EntityNotFoundException;
+import com.ai.coach.exception.AiGenerationException;
 import com.ai.coach.service.dto.AiSeasonPlanResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,10 +51,11 @@ public class SeasonPlanService {
         LocalDate cutoff = LocalDate.now().minusDays(RECENT_WINDOW_DAYS);
 
         List<Long> playerIds = players.stream().map(Player::getId).toList();
-        Map<Long, List<PlayerMatchStat>> statsByPlayer =
-                playerMatchStatRepository.findByPlayerIdInAndMatchDateAfter(playerIds, cutoff)
-                        .stream()
-                        .collect(Collectors.groupingBy(s -> s.getPlayer().getId()));
+        Map<Long, List<PlayerMatchStat>> statsByPlayer = playerIds.isEmpty()
+                ? Map.of()
+                : playerMatchStatRepository.findByPlayerIdInAndMatchDateAfter(playerIds, cutoff)
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.getPlayer().getId()));
 
         List<PlayerWorkloadSnapshot> snapshots = players.stream()
                 .map(p -> buildWorkloadSnapshot(p, statsByPlayer.getOrDefault(p.getId(), List.of())))
@@ -61,21 +63,29 @@ public class SeasonPlanService {
 
         String prompt = buildPrompt(team, snapshots, input);
 
-        String aiResponse = aiClient.generateSeasonPlan(prompt)
-                .blockOptional()
-                .orElse("No season plan generated.");
-
         AiSeasonPlanResponse fallback = new AiSeasonPlanResponse(
-                aiResponse, List.of("See summary for details"));
-        AiSeasonPlanResponse parsed = aiResponseParser.parseAiResponse(
-                aiResponse, AiSeasonPlanResponse.class, fallback);
+                "Structured season plan for %s with preparation, competition, and transition phases."
+                        .formatted(team.getName()),
+                List.of(
+                        "Build a measurable tactical identity during preparation",
+                        "Rotate players using 28-day match and minute loads",
+                        "Schedule recovery blocks around congested fixtures"));
+        AiSeasonPlanResponse parsed;
+        try {
+            String aiResponse = aiClient.generateSeasonPlan(prompt).blockOptional().orElse("");
+            parsed = aiResponseParser.parseAiResponse(aiResponse, AiSeasonPlanResponse.class, fallback);
+        } catch (AiGenerationException e) {
+            log.warn("AI unavailable; using deterministic season plan for team {}", team.getName());
+            parsed = fallback;
+        }
 
         SeasonPlan plan = SeasonPlan.builder()
                 .team(team)
                 .season(input.season())
-                .objectives(parsed.objectives())
+                .objectives(parsed.objectives() == null || parsed.objectives().isEmpty()
+                        ? fallback.objectives() : parsed.objectives())
                 .workloadSnapshots(snapshots)
-                .summary(parsed.summary())
+                .summary(parsed.summary() == null || parsed.summary().isBlank() ? fallback.summary() : parsed.summary())
                 .createdAt(OffsetDateTime.now())
                 .build();
 

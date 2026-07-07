@@ -22,7 +22,7 @@ public class Team {
     private String league;
     private String formation;
 
-    @Relationship(type = "HAS_PLAYER")
+    @Relationship(type = "PLAYS_FOR", direction = Relationship.Direction.INCOMING)
     @Builder.Default
     private Set<Player> players = new HashSet<>();
 }

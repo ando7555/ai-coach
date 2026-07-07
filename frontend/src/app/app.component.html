@@ -1,0 +1,614 @@
+<!-- Alert Notifications -->
+<div *ngIf="successMessage" class="alert-popup alert-success fade-in">
+  <span>✅</span> {{ successMessage }}
+</div>
+<div *ngIf="errorMessage" class="alert-popup alert-danger fade-in">
+  <span>❌</span> {{ errorMessage }}
+</div>
+
+<!-- Loading Overlay -->
+<div *ngIf="isLoading" class="loading-overlay">
+  <span class="loader-spinner"></span>
+  <span class="loading-text">Consulting Football AI Engine...</span>
+</div>
+
+<!-- ================= AUTHENTICATION VIEW ================= -->
+<div *ngIf="!isLoggedIn" class="auth-wrapper">
+  <div class="auth-card fade-in">
+    <img src="logo-ai-coach.svg" alt="AI Coach Logo">
+    <h2>AI Coaching Portal</h2>
+    <p>Sign in to configure tactics, squad rotations, and training microcycles.</p>
+
+    <form (submit)="handleAuth(); $event.preventDefault()">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" [(ngModel)]="authUsername" class="form-control" required placeholder="Enter username">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" [(ngModel)]="authPassword" class="form-control" required placeholder="Enter password">
+      </div>
+
+      <div class="form-group" *ngIf="authMode === 'register'">
+        <label>Role</label>
+        <select name="role" [(ngModel)]="authRole" class="form-control">
+          <option value="COACH">Tactical Coach</option>
+          <option value="FITNESS_COACH">Fitness/Workload Coach</option>
+          <option value="ADMIN">Administrator</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        {{ authMode === 'login' ? 'Login to Portal' : 'Create Account' }}
+      </button>
+    </form>
+
+    <div class="auth-mode-switch">
+      <span *ngIf="authMode === 'login'" (click)="authMode = 'register'">Create an account</span>
+      <span *ngIf="authMode === 'register'" (click)="authMode = 'login'">Sign in with existing credentials</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LOGGED IN VIEWS ================= -->
+<div *ngIf="isLoggedIn" class="app-container">
+
+  <!-- Navigation Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo-ai-coach.svg" alt="AI Coach logo">
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name">Coach {{ user.username }}</div>
+      <div class="role">{{ user.role }}</div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'; loadInitialData()">
+        <span>📊</span> Dashboard
+      </div>
+      <div class="nav-item" [class.active]="activeTab === 'teams'" (click)="activeTab = 'teams'; loadTeams()">
+        <span>👥</span> Teams & Squads
+      </div>
+      <div class="nav-item" [class.active]="activeTab === 'matches'" (click)="activeTab = 'matches'; loadTeams()">
+        <span>⚽</span> Matches & Stats
+      </div>
+      <div class="nav-item" [class.active]="activeTab === 'aicoach'" (click)="activeTab = 'aicoach'; loadTeams()">
+        <span>🤖</span> AI Coaching Studio
+      </div>
+
+      <button class="btn btn-secondary logout-btn" (click)="logout()">
+        <span>🔓</span> Log Out
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main Content Frame -->
+  <main class="main-content">
+
+    <!-- TAB: DASHBOARD -->
+    <div *ngIf="activeTab === 'dashboard'" class="fade-in">
+      <div class="header-row">
+        <div>
+          <h1>Dashboard Overview</h1>
+          <p class="text-secondary" style="font-size: 14px; margin-top: 4px;">Tactical summary and quick alerts for your selected squad.</p>
+        </div>
+        <div>
+          <select class="form-control" [ngModel]="selectedTeam" (ngModelChange)="selectTeam($event)" style="min-width: 200px;">
+            <option *ngFor="let t of teams" [ngValue]="t">{{ t.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="label">Selected Team</span>
+          <span class="value" style="font-size: 22px;">{{ selectedTeam ? selectedTeam.name : 'None' }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Roster Size</span>
+          <span class="value">{{ totalPlayersCount }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Recorded Fixtures</span>
+          <span class="value">{{ recentMatchesCount }}</span>
+        </div>
+      </div>
+
+      <div class="split-grid">
+        <!-- Recent Matches -->
+        <div class="panel-card">
+          <h3>Recent Matches</h3>
+          <div class="table-container" *ngIf="matches.length > 0; else noMatches">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Opponent</th>
+                  <th>Result</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of matches | slice:0:5">
+                  <td>
+                    {{ m.homeTeam.id === selectedTeam.id ? m.awayTeam.name : m.homeTeam.name }}
+                    <span class="text-muted" style="font-size: 11px;">
+                      ({{ m.homeTeam.id === selectedTeam.id ? 'Away' : 'Home' }})
+                    </span>
+                  </td>
+                  <td style="font-weight: 700;">
+                    <span [style.color]="m.homeGoals === m.awayGoals ? '#ffab00' :
+                      ((m.homeTeam.id === selectedTeam.id && m.homeGoals > m.awayGoals) ||
+                       (m.awayTeam.id === selectedTeam.id && m.awayGoals > m.homeGoals) ? '#00e676' : '#ef4444')">
+                      {{ m.homeGoals }} - {{ m.awayGoals }}
+                    </span>
+                  </td>
+                  <td>{{ formatDate(m.date) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noMatches>
+            <p class="text-muted" style="font-size: 14px;">No match fixtures recorded yet.</p>
+          </ng-template>
+        </div>
+
+        <!-- System Recommendations Alert Box -->
+        <div class="panel-card">
+          <h3>Quick AI Workload Alert</h3>
+          <p class="text-secondary" style="font-size: 13px; margin-bottom: 16px;">
+            Go to the **AI Coaching Studio** tab to run a complete season periodisation audit or check workloads.
+          </p>
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--card-border); border-radius: 12px; padding: 24px; text-align: center;">
+            <p style="font-size: 14px; margin-bottom: 12px;">📊 Run squad rotation analysis to audit player fatigue and injury risks.</p>
+            <button class="btn btn-secondary" style="width: auto;" (click)="activeTab = 'aicoach'">Open Coaching Studio</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: TEAMS & ROSTERS -->
+    <div *ngIf="activeTab === 'teams'" class="fade-in">
+      <div class="header-row">
+        <h1>Squads & Roster Management</h1>
+      </div>
+
+      <div class="split-grid">
+        <!-- Teams List & Create Team -->
+        <div class="panel-card">
+          <h3>Register Team</h3>
+          <form (submit)="createTeam(); $event.preventDefault()" style="margin-bottom: 30px;">
+            <div class="form-group">
+              <label>Team Name</label>
+              <input type="text" [(ngModel)]="teamName" name="name" class="form-control" placeholder="e.g. Manchester City" required>
+            </div>
+            <div class="form-group">
+              <label>League</label>
+              <input type="text" [(ngModel)]="teamLeague" name="league" class="form-control" placeholder="e.g. Premier League" required>
+            </div>
+            <div class="form-group">
+              <label>Tactical Formation</label>
+              <select [(ngModel)]="teamFormation" name="formation" class="form-control">
+                <option value="4-3-3">4-3-3</option>
+                <option value="4-4-2">4-4-2</option>
+                <option value="3-5-2">3-5-2</option>
+                <option value="4-2-3-1">4-2-3-1</option>
+                <option value="5-3-2">5-3-2</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Team</button>
+          </form>
+
+          <h3>Registered Teams</h3>
+          <div class="table-container">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>League</th>
+                  <th>Formation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of teams" (click)="selectTeam(t)" [style.background]="selectedTeam?.id === t.id ? 'rgba(0, 229, 255, 0.05)' : ''" style="cursor: pointer;">
+                  <td><strong>{{ t.name }}</strong></td>
+                  <td>{{ t.league }}</td>
+                  <td><span class="badge" style="background: rgba(255,255,255,0.06);">{{ t.formation }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Roster / Players for Selected Team -->
+        <div class="panel-card">
+          <h3>Squad Roster: {{ selectedTeam ? selectedTeam.name : 'None' }}</h3>
+
+          <form *ngIf="selectedTeam" (submit)="createPlayer(); $event.preventDefault()" style="margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 24px;">
+            <h4 style="font-size: 14px; margin-bottom: 16px; color: var(--accent-primary);">Add Player to Roster</h4>
+            <div class="form-group" style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 12px; margin-bottom: 0;">
+              <div>
+                <label>Player Name</label>
+                <input type="text" [(ngModel)]="playerName" name="playerName" class="form-control" placeholder="e.g. Erling Haaland" required>
+              </div>
+              <div>
+                <label>Position</label>
+                <select [(ngModel)]="playerPosition" name="playerPosition" class="form-control">
+                  <option value="Goalkeeper">Goalkeeper</option>
+                  <option value="Defender">Defender</option>
+                  <option value="Midfielder">Midfielder</option>
+                  <option value="Forward">Forward</option>
+                </select>
+              </div>
+              <div>
+                <label>Rating (1-10)</label>
+                <input type="number" step="0.1" min="1" max="10" [(ngModel)]="playerRating" name="playerRating" class="form-control" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 16px;">Add Player</button>
+          </form>
+
+          <div class="table-container" *ngIf="players.length > 0; else noRoster">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Position</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of players">
+                  <td>{{ p.name }}</td>
+                  <td>{{ p.position }}</td>
+                  <td><span style="font-weight: 700; color: var(--accent-secondary);">{{ p.rating }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noRoster>
+            <p class="text-muted" style="font-size: 14px;">No players registered in this squad roster.</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: MATCHES & STATS -->
+    <div *ngIf="activeTab === 'matches'" class="fade-in">
+      <div class="header-row">
+        <h1>Match Fixtures & Player Statistics</h1>
+      </div>
+
+      <div class="split-grid">
+        <!-- Record Match -->
+        <div class="panel-card">
+          <h3>Record Match Result</h3>
+          <form (submit)="recordMatch(); $event.preventDefault()" style="margin-bottom: 30px;">
+            <div class="form-group">
+              <label>Home Team</label>
+              <select [(ngModel)]="matchHomeId" name="homeId" class="form-control" required>
+                <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Away Team</label>
+              <select [(ngModel)]="matchAwayId" name="awayId" class="form-control" required>
+                <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>Home Goals</label>
+                <input type="number" min="0" [(ngModel)]="matchHomeGoals" name="homeGoals" class="form-control">
+              </div>
+              <div>
+                <label>Away Goals</label>
+                <input type="number" min="0" [(ngModel)]="matchAwayGoals" name="awayGoals" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Match Date</label>
+              <input type="date" [(ngModel)]="matchDate" name="date" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Record Match</button>
+          </form>
+
+          <h3>Match History</h3>
+          <div class="table-container" *ngIf="matches.length > 0; else noMatchesList">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Fixture</th>
+                  <th>Goals</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of matches">
+                  <td>{{ m.homeTeam.name }} vs {{ m.awayTeam.name }}</td>
+                  <td style="font-weight: 700;">{{ m.homeGoals }} - {{ m.awayGoals }}</td>
+                  <td>{{ formatDate(m.date) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noMatchesList>
+            <p class="text-muted" style="font-size: 14px;">No matches recorded.</p>
+          </ng-template>
+        </div>
+
+        <!-- Record Player Performance Stats -->
+        <div class="panel-card">
+          <h3>Record Player Match Performance</h3>
+          <form (submit)="recordPlayerStat(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Select Match</label>
+              <select [(ngModel)]="statMatchId" name="statMatchId" class="form-control" required>
+                <option *ngFor="let m of matches" [value]="m.id">
+                  {{ m.homeTeam.name }} vs {{ m.awayTeam.name }} ({{ formatDate(m.date) }})
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Select Player</label>
+              <select [(ngModel)]="statPlayerId" name="statPlayerId" class="form-control" required>
+                <option *ngFor="let p of players" [value]="p.id">{{ p.name }} ({{ p.position }})</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>Minutes Played</label>
+                <input type="number" min="1" max="120" [(ngModel)]="statMinutes" name="statMinutes" class="form-control" required>
+              </div>
+              <div>
+                <label>Goals Scored</label>
+                <input type="number" min="0" [(ngModel)]="statGoals" name="statGoals" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>Assists</label>
+                <input type="number" min="0" [(ngModel)]="statAssists" name="statAssists" class="form-control" required>
+              </div>
+              <div>
+                <label>Yellow Cards</label>
+                <input type="number" min="0" max="2" [(ngModel)]="statYellow" name="statYellow" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" id="redCardCheck" [(ngModel)]="statRed" name="statRed" style="width: 18px; height: 18px;">
+              <label for="redCardCheck" style="margin-bottom: 0; cursor: pointer;">Red Card Received</label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Save Performance Stat</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: AI COACHING STUDIO -->
+    <div *ngIf="activeTab === 'aicoach'" class="fade-in">
+      <div class="header-row">
+        <h1>AI Coaching Studio</h1>
+      </div>
+
+      <div class="split-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+
+        <!-- 1. Generate Match Analysis -->
+        <div class="panel-card">
+          <h3>AI Match Day Tactics</h3>
+          <form (submit)="generateMatchAnalysis(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Select Match</label>
+              <select [(ngModel)]="aiMatchId" name="aiMatchId" class="form-control" required>
+                <option *ngFor="let m of matches" [value]="m.id">
+                  {{ m.homeTeam.name }} vs {{ m.awayTeam.name }} ({{ formatDate(m.date) }})
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tactical Focus Area</label>
+              <select [(ngModel)]="aiFocus" name="aiFocus" class="form-control">
+                <option value="PRESSING">Pressing Strategy</option>
+                <option value="BUILD_UP">Build-up Phase</option>
+                <option value="DEFENCE">Low-block / Defensive Solidity</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Playing Style</label>
+              <select [(ngModel)]="aiStyle" name="aiStyle" class="form-control">
+                <option value="POSSESSION">Possession Based</option>
+                <option value="DIRECT">Direct Counter-attacking</option>
+                <option value="BALANCED">Balanced</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Risk Tolerance</label>
+              <select [(ngModel)]="aiRisk" name="aiRisk" class="form-control">
+                <option value="LOW">Conservative (Low)</option>
+                <option value="MEDIUM">Balanced (Medium)</option>
+                <option value="HIGH">Aggressive (High)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Tactics</button>
+          </form>
+        </div>
+
+        <!-- 2. Generate Training Plan -->
+        <div class="panel-card">
+          <h3>AI Weekly Training Microcycle</h3>
+          <form (submit)="generateTrainingPlan(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Select Team</label>
+              <select [(ngModel)]="aiTrainTeamId" name="aiTrainTeamId" class="form-control" required>
+                <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>Week Start Date</label>
+                <input type="date" [(ngModel)]="aiTrainStart" name="aiTrainStart" class="form-control" required>
+              </div>
+              <div>
+                <label>Week End Date</label>
+                <input type="date" [(ngModel)]="aiTrainEnd" name="aiTrainEnd" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Primary Focus</label>
+              <select [(ngModel)]="aiTrainFocus" name="aiTrainFocus" class="form-control">
+                <option value="PRESSING">Pressing Strategy</option>
+                <option value="BUILD_UP">Build-up Phase</option>
+                <option value="DEFENCE">Low-block / Defensive Solidity</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Overall Intensity</label>
+              <select [(ngModel)]="aiTrainIntensity" name="aiTrainIntensity" class="form-control">
+                <option value="LOW">Recovery (Low)</option>
+                <option value="MEDIUM">Standard (Medium)</option>
+                <option value="HIGH">Intense (High)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Training Schedule</button>
+          </form>
+        </div>
+
+        <!-- 3. Generate Season Plan -->
+        <div class="panel-card">
+          <h3>AI Season Workload Auditor</h3>
+          <form (submit)="generateSeasonPlan(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Select Team</label>
+              <select [(ngModel)]="aiSeasonTeamId" name="aiSeasonTeamId" class="form-control" required>
+                <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>Season Year</label>
+                <input type="text" [(ngModel)]="aiSeasonYear" name="aiSeasonYear" class="form-control" placeholder="e.g. 2026/27" required>
+              </div>
+              <div>
+                <label>Periodisation Priority</label>
+                <select [(ngModel)]="aiSeasonPriority" name="aiSeasonPriority" class="form-control">
+                  <option value="Balanced">Balanced Strategy</option>
+                  <option value="Rotation">Heavy Rotation</option>
+                  <option value="Fitness">Conditioning Bias</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Season Plan & Audit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- AI Response Displays -->
+      <div *ngIf="aiResponse" class="ai-output-container fade-in">
+
+        <!-- CASE A: Match Analysis -->
+        <div *ngIf="aiResponseType === 'analysis'">
+          <div class="ai-output-header">
+            <h3>AI Tactical Advice</h3>
+            <span class="badge badge-medium">Focus: {{ aiResponse.focusArea }} | Style: {{ aiResponse.style }}</span>
+          </div>
+          <div class="ai-output-body">
+            <div class="ai-output-summary">
+              "{{ aiResponse.summary }}"
+            </div>
+            <h4 style="margin-bottom: 12px;">Key Actionable Factors:</h4>
+            <ul class="ai-output-factors">
+              <li *ngFor="let f of aiResponse.keyFactors">{{ f }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CASE B: Training Plan -->
+        <div *ngIf="aiResponseType === 'training'">
+          <div class="ai-output-header">
+            <h3>Weekly Microcycle Schedule</h3>
+            <span class="badge badge-fresh">Active Week</span>
+          </div>
+          <div class="ai-output-body">
+            <div class="ai-output-summary">
+              "{{ aiResponse.summary }}"
+            </div>
+            <h4 style="margin-bottom: 16px;">Daily Sessions:</h4>
+            <div class="session-grid">
+              <div class="session-card" *ngFor="let s of aiResponse.sessions">
+                <div class="session-card-header">
+                  <span>{{ formatDate(s.date) }}</span>
+                  <span class="badge badge-moderate">{{ s.intensity }}</span>
+                </div>
+                <h4>{{ s.focusArea }} Session</h4>
+                <p style="margin-bottom: 8px;"><strong>Duration:</strong> {{ s.durationMinutes }} mins</p>
+                <p>{{ s.notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE C: Season Plan & Workloads -->
+        <div *ngIf="aiResponseType === 'season'">
+          <div class="ai-output-header">
+            <h3>Season Objectives & Workload Audit ({{ aiResponse.season }})</h3>
+            <span class="badge badge-exhausted">Workload Flagged</span>
+          </div>
+          <div class="ai-output-body">
+            <div class="ai-output-summary">
+              "{{ aiResponse.summary }}"
+            </div>
+
+            <h4 style="margin-bottom: 12px;">Primary Phased Objectives:</h4>
+            <ul class="ai-output-factors" style="margin-bottom: 24px;">
+              <li *ngFor="let o of aiResponse.objectives">{{ o }}</li>
+            </ul>
+
+            <h4 style="margin-bottom: 16px;">Squad Fatigue & Injury Audit (Last 28 Days):</h4>
+            <div class="table-container">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Position</th>
+                    <th>Matches Played</th>
+                    <th>Total Minutes</th>
+                    <th>Fatigue Level</th>
+                    <th>Injury Risk</th>
+                    <th>Assessment Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of aiResponse.workloadSnapshots">
+                    <td><strong>{{ s.player.name }}</strong></td>
+                    <td>{{ s.player.position }}</td>
+                    <td>{{ s.matchesLast28Days }}</td>
+                    <td>{{ s.minutesLast28Days }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'badge-fresh': s.fatigueLevel === 'FRESH',
+                        'badge-moderate': s.fatigueLevel === 'MODERATE',
+                        'badge-tired': s.fatigueLevel === 'TIRED',
+                        'badge-exhausted': s.fatigueLevel === 'EXHAUSTED'
+                      }">{{ s.fatigueLevel }}</span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'badge-low': s.injuryRisk === 'LOW',
+                        'badge-medium': s.injuryRisk === 'MEDIUM',
+                        'badge-high': s.injuryRisk === 'HIGH'
+                      }">{{ s.injuryRisk }}</span>
+                    </td>
+                    <td>{{ s.comment }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

@@ -1,7 +1,7 @@
 spring:
   ai:
     openai:
-      api-key: ${GOOGLE_GEMINI_API_KEY}
+      api-key: ${GOOGLE_GEMINI_API_KEY:disabled}
       base-url: https://generativelanguage.googleapis.com/v1beta/openai
       chat:
         completions-path: /chat/completions
@@ -17,7 +17,7 @@ spring:
       on-client-errors: false
 
   neo4j:
-    uri: bolt://localhost:7687
+    uri: ${NEO4J_URI:bolt://127.0.0.1:7687}
     authentication:
       username: neo4j
       password: ai-coach   # change this
