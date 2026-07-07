@@ -35,12 +35,27 @@ public class TeamService {
     @CacheEvict(value = {"teams", "team"}, allEntries = true)
     @Transactional
     public Team createTeam(String name, String league, String formation) {
-        log.info("Creating team: {}", name);
+        String normalizedName = requireText(name, "Team name");
+        if (teamRepository.existsByNameIgnoreCase(normalizedName)) {
+            throw new IllegalArgumentException("A team named '%s' already exists".formatted(normalizedName));
+        }
+        log.info("Creating team: {}", normalizedName);
         Team team = Team.builder()
-                .name(name)
-                .league(league)
-                .formation(formation)
+                .name(normalizedName)
+                .league(normalizeOptional(league))
+                .formation(normalizeOptional(formation))
                 .build();
         return teamRepository.save(team);
+    }
+
+    private String requireText(String value, String field) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return value.strip();
+    }
+
+    private String normalizeOptional(String value) {
+        return value == null || value.isBlank() ? null : value.strip();
     }
 }

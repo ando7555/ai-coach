@@ -2,6 +2,7 @@ package com.ai.coach.service;
 
 import com.ai.coach.exception.AiGenerationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -28,9 +29,12 @@ public class AiClient {
     private final ChatClient tacticalClient;
     private final ChatClient seasonPlanClient;
     private final ChatClient trainingPlanClient;
+    private final boolean enabled;
 
     // Manual constructor: each ChatClient needs a distinct system prompt via builder.clone()
-    public AiClient(ChatClient.Builder builder) {
+    public AiClient(ChatClient.Builder builder,
+                    @Value("${spring.ai.openai.api-key:}") String apiKey) {
+        this.enabled = apiKey != null && !apiKey.isBlank() && !"disabled".equalsIgnoreCase(apiKey);
         this.tacticalClient = builder.clone()
                 .defaultSystem(TACTICAL_SYSTEM_PROMPT)
                 .build();
@@ -57,6 +61,10 @@ public class AiClient {
     }
 
     private Mono<String> callClient(ChatClient client, String prompt, String context) {
+        if (!enabled) {
+            return Mono.error(new AiGenerationException(
+                    context, new IllegalStateException("AI provider is not configured")));
+        }
         return Mono.fromCallable(() -> client.prompt().user(prompt).call().content())
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnError(e -> log.error("{} generation failed", context, e))

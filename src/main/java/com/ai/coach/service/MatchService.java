@@ -52,14 +52,22 @@ public class MatchService {
     @Transactional
     public Match recordMatch(MatchInput input) {
         log.debug("Recording match: home={}, away={}", input.homeTeamId(), input.awayTeamId());
+        if (input.homeTeamId().equals(input.awayTeamId())) {
+            throw new IllegalArgumentException("Home and away teams must be different");
+        }
         Team home = teamRepository.findById(input.homeTeamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.homeTeamId()));
         Team away = teamRepository.findById(input.awayTeamId())
                 .orElseThrow(() -> new EntityNotFoundException("Team", input.awayTeamId()));
 
-        LocalDate date = input.date() != null
-                ? LocalDate.parse(input.date())
-                : LocalDate.now();
+        LocalDate date;
+        try {
+            date = input.date() == null || input.date().isBlank()
+                    ? LocalDate.now()
+                    : LocalDate.parse(input.date());
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new IllegalArgumentException("Match date must use ISO format YYYY-MM-DD");
+        }
 
         Match match = Match.builder()
                 .homeTeam(home)
