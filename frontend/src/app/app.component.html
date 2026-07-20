@@ -9,15 +9,15 @@
 <!-- Loading Overlay -->
 <div *ngIf="isLoading" class="loading-overlay">
   <span class="loader-spinner"></span>
-  <span class="loading-text">Consulting Football AI Engine...</span>
+  <span class="loading-text">Consulting PitchMind intelligence engine...</span>
 </div>
 
 <!-- ================= AUTHENTICATION VIEW ================= -->
 <div *ngIf="!isLoggedIn" class="auth-wrapper">
   <div class="auth-card fade-in">
-    <img src="logo-ai-coach.svg" alt="AI Coach Logo">
-    <h2>AI Coaching Portal</h2>
-    <p>Sign in to configure tactics, squad rotations, and training microcycles.</p>
+    <img src="logo-ai-coach.svg" alt="PitchMind logo">
+    <h2>PitchMind Intelligence Portal</h2>
+    <p>Sign in to manage squads, tactical intelligence, workload plans, and transparent prediction previews.</p>
 
     <form (submit)="handleAuth(); $event.preventDefault()">
       <div class="form-group">
@@ -33,8 +33,8 @@
       <div class="form-group" *ngIf="authMode === 'register'">
         <label>Role</label>
         <select name="role" [(ngModel)]="authRole" class="form-control">
-          <option value="COACH">Tactical Coach</option>
-          <option value="FITNESS_COACH">Fitness/Workload Coach</option>
+          <option value="COACH">Analyst / Coach</option>
+          <option value="FITNESS_COACH">Workload Specialist</option>
           <option value="ADMIN">Administrator</option>
         </select>
       </div>
@@ -57,11 +57,11 @@
   <!-- Navigation Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img src="logo-ai-coach.svg" alt="AI Coach logo">
+      <img src="logo-ai-coach.svg" alt="PitchMind logo">
     </div>
 
     <div class="sidebar-user">
-      <div class="name">Coach {{ user.username }}</div>
+      <div class="name">{{ user.username }}</div>
       <div class="role">{{ user.role }}</div>
     </div>
 
@@ -75,8 +75,11 @@
       <div class="nav-item" [class.active]="activeTab === 'matches'" (click)="activeTab = 'matches'; loadTeams()">
         <span>⚽</span> Matches & Stats
       </div>
+      <div class="nav-item" [class.active]="activeTab === 'prediction'" (click)="activeTab = 'prediction'; loadTeams()">
+        <span>%</span> Prediction Lab
+      </div>
       <div class="nav-item" [class.active]="activeTab === 'aicoach'" (click)="activeTab = 'aicoach'; loadTeams()">
-        <span>🤖</span> AI Coaching Studio
+        <span>AI</span> Intelligence Studio
       </div>
 
       <button class="btn btn-secondary logout-btn" (click)="logout()">
@@ -93,7 +96,7 @@
       <div class="header-row">
         <div>
           <h1>Dashboard Overview</h1>
-          <p class="text-secondary" style="font-size: 14px; margin-top: 4px;">Tactical summary and quick alerts for your selected squad.</p>
+          <p class="text-secondary" style="font-size: 14px; margin-top: 4px;">Football intelligence, squad context, and transparent prediction readiness.</p>
         </div>
         <div>
           <select class="form-control" [ngModel]="selectedTeam" (ngModelChange)="selectTeam($event)" style="min-width: 200px;">
@@ -114,6 +117,10 @@
         <div class="stat-card">
           <span class="label">Recorded Fixtures</span>
           <span class="value">{{ recentMatchesCount }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Prediction Status</span>
+          <span class="value" style="font-size: 22px;">Preview</span>
         </div>
       </div>
 
@@ -157,13 +164,13 @@
 
         <!-- System Recommendations Alert Box -->
         <div class="panel-card">
-          <h3>Quick AI Workload Alert</h3>
+          <h3>Intelligence Readiness</h3>
           <p class="text-secondary" style="font-size: 13px; margin-bottom: 16px;">
-            Go to the **AI Coaching Studio** tab to run a complete season periodisation audit or check workloads.
+            Current workflows support tactical analysis, training microcycles, and workload review. Production predictions and betting intelligence are roadmap items.
           </p>
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--card-border); border-radius: 12px; padding: 24px; text-align: center;">
-            <p style="font-size: 14px; margin-bottom: 12px;">📊 Run squad rotation analysis to audit player fatigue and injury risks.</p>
-            <button class="btn btn-secondary" style="width: auto;" (click)="activeTab = 'aicoach'">Open Coaching Studio</button>
+          <div class="notice-box">
+            <p style="font-size: 14px; margin-bottom: 12px;">Use the Prediction Lab for local fair-odds and expected-value math. It is not a trained model and does not promise any result.</p>
+            <button class="btn btn-secondary" style="width: auto;" (click)="activeTab = 'prediction'">Open Prediction Lab</button>
           </div>
         </div>
       </div>
@@ -387,17 +394,188 @@
       </div>
     </div>
 
-    <!-- TAB: AI COACHING STUDIO -->
+    <!-- TAB: PREDICTION LAB -->
+    <div *ngIf="activeTab === 'prediction'" class="fade-in">
+      <div class="header-row">
+        <div>
+          <h1>Prediction Lab</h1>
+          <p class="text-secondary" style="font-size: 14px; margin-top: 4px;">Transparent statistical baseline predictions from completed pre-match history.</p>
+        </div>
+      </div>
+
+      <div class="responsible-banner">
+        Football outcomes are uncertain. PitchMind shows model probabilities, uncertainty and value math; it does not promise any result or return.
+      </div>
+
+      <div class="split-grid">
+        <div class="panel-card">
+          <h3>Generate Match Prediction</h3>
+          <div class="form-group">
+            <label>Select Match</label>
+            <select [(ngModel)]="predictionMatchId" name="predictionMatchId" class="form-control" required>
+              <option *ngFor="let m of matches" [value]="m.id">
+                {{ m.homeTeam.name }} vs {{ m.awayTeam.name }} ({{ formatDate(m.date) }})
+              </option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" style="width: auto;" (click)="generateMatchPrediction()">Generate Prediction</button>
+            <button type="button" class="btn btn-secondary" style="width: auto;" (click)="loadMatchPrediction()">Load Latest</button>
+          </div>
+          <p *ngIf="matches.length === 0" class="text-muted" style="font-size: 14px; margin-top: 16px;">Record or select a team with matches before generating a prediction.</p>
+        </div>
+
+        <div class="panel-card">
+          <h3>Market Evaluation</h3>
+          <div class="form-group">
+            <label>Market</label>
+            <select [(ngModel)]="predictionMarket" name="predictionMarket" class="form-control">
+              <option value="HOME_WIN">Home Win</option>
+              <option value="DRAW">Draw</option>
+              <option value="AWAY_WIN">Away Win</option>
+              <option value="OVER_2_5">Over 2.5 Goals</option>
+              <option value="UNDER_2_5">Under 2.5 Goals</option>
+              <option value="BOTH_TEAMS_TO_SCORE">Both Teams To Score</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bookmaker Decimal Odds</label>
+            <input type="number" min="1.01" step="0.01" [(ngModel)]="predictionDecimalOdds" name="predictionDecimalOdds" class="form-control">
+          </div>
+          <button type="button" class="btn btn-primary" (click)="evaluateMarketValue()">Evaluate Market Value</button>
+          <p class="text-secondary" style="font-size: 12px; margin-top: 14px;">
+            Selected model probability:
+            <span *ngIf="selectedMarketProbability === null">Unavailable</span>
+            <span *ngIf="selectedMarketProbability !== null">{{ (selectedMarketProbability || 0) * 100 | number:'1.1-1' }}%</span>
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="predictionResponse" class="ai-output-container fade-in">
+        <div class="ai-output-header">
+          <h3>Prediction v{{ predictionResponse.predictionVersion }}</h3>
+          <span class="badge" [ngClass]="{
+            'badge-fresh': predictionResponse.dataQualityStatus === 'SUFFICIENT',
+            'badge-moderate': predictionResponse.dataQualityStatus === 'LIMITED',
+            'badge-high': predictionResponse.dataQualityStatus === 'INSUFFICIENT'
+          }">{{ predictionResponse.dataQualityStatus }}</span>
+        </div>
+
+        <div *ngIf="predictionResponse.dataQualityStatus !== 'INSUFFICIENT'; else insufficientPrediction">
+          <div class="formula-grid prediction-grid">
+            <div>
+              <span class="label">Home Win</span>
+              <strong>{{ predictionResponse.homeWinProbability * 100 | number:'1.1-1' }}%</strong>
+            </div>
+            <div>
+              <span class="label">Draw</span>
+              <strong>{{ predictionResponse.drawProbability * 100 | number:'1.1-1' }}%</strong>
+            </div>
+            <div>
+              <span class="label">Away Win</span>
+              <strong>{{ predictionResponse.awayWinProbability * 100 | number:'1.1-1' }}%</strong>
+            </div>
+            <div>
+              <span class="label">Expected Goals</span>
+              <strong>{{ predictionResponse.expectedHomeGoals | number:'1.2-2' }} - {{ predictionResponse.expectedAwayGoals | number:'1.2-2' }}</strong>
+            </div>
+            <div>
+              <span class="label">BTTS</span>
+              <strong>{{ predictionResponse.bothTeamsToScoreProbability * 100 | number:'1.1-1' }}%</strong>
+            </div>
+            <div>
+              <span class="label">Over / Under 2.5</span>
+              <strong>{{ predictionResponse.over25GoalsProbability * 100 | number:'1.1-1' }}% / {{ predictionResponse.under25GoalsProbability * 100 | number:'1.1-1' }}%</strong>
+            </div>
+            <div>
+              <span class="label">Likely Score</span>
+              <strong>{{ predictionResponse.mostLikelyScore }}</strong>
+            </div>
+            <div>
+              <span class="label">Confidence / Uncertainty</span>
+              <strong>{{ predictionResponse.confidenceLevel }} / {{ predictionResponse.uncertaintyLevel }}</strong>
+            </div>
+          </div>
+
+          <h4 style="margin: 24px 0 12px;">Explanation Factors</h4>
+          <ul class="ai-output-factors">
+            <li *ngFor="let factor of predictionResponse.explanationFactors">{{ factor }}</li>
+          </ul>
+        </div>
+
+        <ng-template #insufficientPrediction>
+          <div class="ai-output-summary">
+            Historical data is insufficient for a probability prediction. Add completed matches before this fixture date for both teams.
+          </div>
+        </ng-template>
+
+        <div *ngIf="predictionResponse.warnings?.length" style="margin-top: 20px;">
+          <h4 style="margin-bottom: 12px;">Warnings</h4>
+          <ul class="ai-output-factors">
+            <li *ngFor="let warning of predictionResponse.warnings">{{ warning }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div *ngIf="marketEvaluation" class="ai-output-container fade-in">
+        <div class="ai-output-header">
+          <h3>Market Value Result</h3>
+          <span class="badge badge-medium">{{ marketEvaluation.classification }}</span>
+        </div>
+        <div class="formula-grid">
+          <div>
+            <span class="label">Model Probability</span>
+            <strong>{{ marketEvaluation.modelProbability * 100 | number:'1.1-1' }}%</strong>
+          </div>
+          <div>
+            <span class="label">Bookmaker Implied</span>
+            <strong>{{ marketEvaluation.rawImpliedProbability * 100 | number:'1.1-1' }}%</strong>
+          </div>
+          <div>
+            <span class="label">Fair Odds</span>
+            <strong>{{ marketEvaluation.fairOdds | number:'1.2-2' }}</strong>
+          </div>
+          <div>
+            <span class="label">Expected Value</span>
+            <strong [style.color]="marketEvaluation.expectedValue > 0 ? 'var(--accent-secondary)' : '#ef4444'">{{ marketEvaluation.expectedValue * 100 | number:'1.1-1' }}%</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>Roadmap Workspace</h3>
+        <div class="roadmap-list">
+            <div>
+              <strong>Match centre</strong>
+              <span>Filters, search, sortable fixtures, confidence indicators, and expandable match cards.</span>
+            </div>
+            <div>
+              <strong>Prediction model</strong>
+              <span>Home/draw/away probabilities, confidence, uncertainty, and immutable model-versioned records.</span>
+            </div>
+            <div>
+              <strong>Betting intelligence</strong>
+              <span>Odds import, fair-odds comparison, expected value, risk labels, and watchlists.</span>
+            </div>
+            <div>
+              <strong>Model performance</strong>
+              <span>Brier score, log loss, calibration, ROI simulation, drawdown, and out-of-sample tracking.</span>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: INTELLIGENCE STUDIO -->
     <div *ngIf="activeTab === 'aicoach'" class="fade-in">
       <div class="header-row">
-        <h1>AI Coaching Studio</h1>
+        <h1>Intelligence Studio</h1>
       </div>
 
       <div class="split-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
 
         <!-- 1. Generate Match Analysis -->
         <div class="panel-card">
-          <h3>AI Match Day Tactics</h3>
+          <h3>Match Intelligence</h3>
           <form (submit)="generateMatchAnalysis(); $event.preventDefault()">
             <div class="form-group">
               <label>Select Match</label>
@@ -431,13 +609,13 @@
                 <option value="HIGH">Aggressive (High)</option>
               </select>
             </div>
-            <button type="submit" class="btn btn-primary">Generate Tactics</button>
+            <button type="submit" class="btn btn-primary">Generate Tactical Analysis</button>
           </form>
         </div>
 
         <!-- 2. Generate Training Plan -->
         <div class="panel-card">
-          <h3>AI Weekly Training Microcycle</h3>
+          <h3>Weekly Training Microcycle</h3>
           <form (submit)="generateTrainingPlan(); $event.preventDefault()">
             <div class="form-group">
               <label>Select Team</label>
@@ -477,7 +655,7 @@
 
         <!-- 3. Generate Season Plan -->
         <div class="panel-card">
-          <h3>AI Season Workload Auditor</h3>
+          <h3>Season Workload Auditor</h3>
           <form (submit)="generateSeasonPlan(); $event.preventDefault()">
             <div class="form-group">
               <label>Select Team</label>
@@ -510,7 +688,7 @@
         <!-- CASE A: Match Analysis -->
         <div *ngIf="aiResponseType === 'analysis'">
           <div class="ai-output-header">
-            <h3>AI Tactical Advice</h3>
+            <h3>Tactical Advice</h3>
             <span class="badge badge-medium">Focus: {{ aiResponse.focusArea }} | Style: {{ aiResponse.style }}</span>
           </div>
           <div class="ai-output-body">

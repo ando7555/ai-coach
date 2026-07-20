@@ -56,6 +56,11 @@ enum RiskLevel { LOW, MEDIUM, HIGH }
 enum FatigueLevel { FRESH, MODERATE, TIRED, EXHAUSTED }
 enum InjuryRisk { LOW, MEDIUM, HIGH }
 enum TrainingIntensity { LOW, MEDIUM, HIGH }
+enum ConfidenceLevel { LOW, MEDIUM, HIGH }
+enum UncertaintyLevel { LOW, MEDIUM, HIGH }
+enum DataQualityStatus { SUFFICIENT, LIMITED, INSUFFICIENT }
+enum PredictionMarket { HOME_WIN, DRAW, AWAY_WIN, OVER_2_5, UNDER_2_5, BOTH_TEAMS_TO_SCORE }
+enum ValueClassification { POTENTIAL_VALUE, WEAK_VALUE, NO_VALUE, INSUFFICIENT_DATA, HIGH_UNCERTAINTY }
 
 input RecommendationContextInput {
   matchId: ID!
@@ -194,6 +199,53 @@ type PlayerPerformanceTrend {
   matches: [PlayerMatchStat!]!
 }
 
+type MatchPrediction {
+  id: ID!
+  matchId: ID!
+  homeTeamId: ID!
+  awayTeamId: ID!
+  homeWinProbability: Float
+  drawProbability: Float
+  awayWinProbability: Float
+  expectedHomeGoals: Float
+  expectedAwayGoals: Float
+  bothTeamsToScoreProbability: Float
+  over25GoalsProbability: Float
+  under25GoalsProbability: Float
+  mostLikelyScore: String
+  confidenceLevel: ConfidenceLevel!
+  uncertaintyLevel: UncertaintyLevel!
+  dataQualityStatus: DataQualityStatus!
+  explanationFactors: [String!]!
+  warnings: [String!]!
+  modelName: String!
+  modelVersion: String!
+  predictionVersion: Int!
+  featureCutoffTimestamp: String!
+  featureSummary: String!
+  generatedAt: String!
+}
+
+input MarketValueInput {
+  predictionId: ID
+  market: PredictionMarket!
+  modelProbability: Float!
+  decimalOdds: Float!
+}
+
+type MarketValueResult {
+  predictionId: ID
+  market: PredictionMarket!
+  modelProbability: Float!
+  decimalOdds: Float!
+  fairOdds: Float!
+  rawImpliedProbability: Float!
+  expectedValue: Float!
+  classification: ValueClassification!
+  validationWarnings: [String!]!
+  evaluatedAt: String!
+}
+
 extend type Query {
   matchAnalysis(matchId: ID!): [MatchAnalysis!]!
   trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
@@ -202,6 +254,8 @@ extend type Query {
   statsByPlayer(playerId: ID!, first: Int, after: String): PlayerMatchStatConnection!
   playerTrendByLastMatches(playerId: ID!, lastN: Int!): PlayerPerformanceTrend!
   playerTrendByDateRange(playerId: ID!, from: String!, to: String!): PlayerPerformanceTrend!
+  matchPrediction(matchId: ID!): MatchPrediction
+  matchPredictionHistory(matchId: ID!): [MatchPrediction!]!
 }
 
 type User {
@@ -250,5 +304,7 @@ extend type Mutation {
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
   generateSeasonPlan(input: SeasonPlanInput!): SeasonPlan!
   recordPlayerMatchStat(input: PlayerMatchStatInput!): PlayerMatchStat!
+  generateMatchPrediction(matchId: ID!): MatchPrediction!
+  evaluateMarketValue(input: MarketValueInput!): MarketValueResult!
 }
 

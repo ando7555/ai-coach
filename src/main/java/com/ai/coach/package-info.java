@@ -1,11 +1,12 @@
 /**
- * Root package of the AI Coach application.
+ * Root package of the PitchMind application.
  *
- * <p>AI Coach is a Spring Boot service that helps football coaches with
- * tactical analysis, training-plan generation, and season planning.
- * It combines a Neo4j graph database with Google Gemini AI to turn
- * raw match data into actionable coaching insights exposed through a
- * GraphQL API.</p>
+ * <p>PitchMind is a Spring Boot service for football intelligence,
+ * tactical analysis, workload planning, and future transparent prediction
+ * and betting decision support. Current production code focuses on
+ * coaching workflows; prediction and betting-market evaluation are
+ * documented as roadmap capabilities until implemented in dedicated
+ * services.</p>
  *
  * <h2>Package layout</h2>
  * <ul>

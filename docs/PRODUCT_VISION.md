@@ -2,126 +2,175 @@
 
 ## Vision
 
-Make professional-quality football intelligence accessible to every coach and club, not only organizations with large analytics departments.
+Make professional-quality football intelligence, explainable prediction, and responsible betting decision support accessible to analysts, coaches, bettors, clubs, academies, and data-driven football fans.
 
-## Problem
+## Core Positioning
 
-Football staff often receive either too little information or too much unprioritized data. Existing tools commonly focus on video storage, raw statistics, scouting databases, or fan predictions. Coaches still need to translate that information into decisions under time pressure.
+PitchMind transforms football data into explainable match predictions, betting intelligence, and interactive decision support.
 
-PitchMind closes that gap by converting football context into ranked, explainable actions.
+PitchMind is not:
 
-## Positioning
+- a guaranteed-bet product
+- a guaranteed-result predictor
+- a black-box tipster
+- an automatic bet-placement tool in the current milestone
+- a replacement for analyst, coach, or user judgement
 
-PitchMind is an **AI football intelligence and decision-support platform**.
+The platform should help users understand probability, uncertainty, data quality, and potential market value. It should never claim that a football outcome or betting return is certain.
 
-It is not:
+## Target Users
 
-- a betting product;
-- a generic chatbot;
-- a score-only prediction engine;
-- a replacement for the head coach;
-- an unexplained black-box recommendation service.
+- football bettors who want transparent reasoning rather than tips
+- professional analysts preparing match and market views
+- coaches and clubs using team, player, and workload intelligence
+- football academies tracking development and availability
+- data-driven football fans exploring probabilities and scenarios
+- future sportsbook or betting-platform operators, subject to regulation
 
-It assists coaching staff by combining structured football data, tactical context, historical patterns, and generative AI.
+## Implemented Today
 
-## Core user journey
+The current application supports:
 
-### Before the match
+- team and player management
+- match recording
+- player match statistics
+- player workload and form calculations
+- tactical match analysis
+- weekly training microcycles
+- season planning and workload review
+- GraphQL authentication and authorization
+- an Angular portal for the above workflows
+- a transparent statistical baseline predictor for match probabilities
+- backend betting-market value evaluation for decimal odds and expected value
+- immutable prediction history for audit
 
-1. Select the fixture and available squad.
-2. Review recent form, workload, and opponent patterns.
-3. Generate an opponent report.
-4. Compare tactical plans and risk levels.
-5. Export a concise match plan.
+## Partial Prediction Foundation
 
-### During the match
+The product has useful football data foundations and a transparent statistical baseline predictor. It does not yet include a trained machine-learning prediction model.
 
-1. Capture game state and key events.
-2. Detect tactical or workload risks.
-3. Rank possible interventions.
-4. Explain the expected benefit and downside of each intervention.
-5. Preserve the coach's final decision for later review.
+Partially available foundations:
 
-### After the match
+- historical match records
+- home and away teams
+- goals scored and conceded
+- player participation and performance stats
+- player workload snapshots
+- AI-generated tactical explanations
+- deterministic fallback behavior when AI is disabled
+- Poisson-based score matrix for 1X2, BTTS, over/under 2.5, and likely-score output
+- deterministic cutoff rules that exclude target and future matches
 
-1. Identify turning points.
-2. Compare planned and actual execution.
-3. Review player trends and workload.
-4. Generate actionable training priorities.
-5. Feed lessons into the next fixture.
+Missing for production prediction:
 
-## Decision model
+- feature-engineering pipeline
+- model training pipeline
+- feature versioning
+- out-of-sample evaluation
+- calibration metrics
+- market-specific probability outputs
+- odds provider integration
 
-Every recommendation should contain:
+## Planned Prediction Output
 
-- **Observation** — what the system detected;
-- **Evidence** — the data or relationships supporting it;
-- **Action** — the recommended coaching intervention;
-- **Expected impact** — the intended tactical or workload outcome;
-- **Risk** — the downside or uncertainty;
-- **Confidence** — how strongly the available evidence supports it.
+Production prediction outputs should eventually support:
 
-## Differentiation
+- home win, draw, and away win probabilities
+- double chance
+- draw no bet
+- over/under goals
+- both teams to score
+- likely score ranges
+- team and player-related markets when sufficient data exists
+- confidence level
+- uncertainty level
+- fair odds calculated from model probability
+- bookmaker-implied probability
+- expected value
+- value-bet indication
+- risk rating
+- prediction explanation
+- factors supporting and opposing the prediction
 
-### Action-first design
+## Accuracy Policy
 
-Dashboards are secondary. The primary output is a prioritized decision with evidence.
+PitchMind should guarantee transparency, not winning outcomes.
 
-### Connected football graph
+Every production prediction should include:
 
-Neo4j represents relationships among teams, players, matches, positions, events, tactical patterns, workloads, and recommendations.
+- probability
+- confidence
+- uncertainty
+- input-data quality
+- missing-input warnings
+- model version
+- feature version
+- prediction timestamp
+- immutable prediction record
+- historical outcome once available
+- evaluation status
 
-### Human-in-the-loop coaching
+Models should be evaluated using historical out-of-sample data. Accuracy, probability calibration, Brier score, log loss, and performance by competition and market should be tracked after completed matches.
 
-The coach accepts, rejects, or modifies recommendations. Those choices become product feedback and future learning signals.
+## Betting Intelligence Policy
 
-### Explainability
+Betting-market evaluation must be separated from football prediction.
 
-The system must distinguish observed facts, derived metrics, and AI-generated interpretations.
+The predictor produces probabilities. A betting-intelligence layer compares those probabilities with bookmaker odds and explains whether there may be value.
 
-### Accessible market entry
+For decimal odds:
 
-The first target is amateur, academy, and semi-professional football, where analytics resources are limited but the need for preparation and player development is real.
+```text
+fairOdds = 1 / modelProbability
+rawImpliedProbability = 1 / bookmakerOdds
+expectedValue = (modelProbability * bookmakerOdds) - 1
+```
 
-## Initial commercial package
+Allowed labels:
 
-### Coach Starter
+- potential value
+- weak value
+- no value detected
+- insufficient data
+- high uncertainty
 
-- One team
-- Match preparation reports
-- Post-match reviews
-- Weekly training plans
+Disallowed labels:
 
-### Club Pro
+- sure win
+- guaranteed bet
+- risk-free
+- guaranteed result
 
-- Multiple teams
-- Player workload and development
-- Shared coaching workspace
-- Historical tactical trends
+## Decision Model
 
-### Analyst Workspace
+Every recommendation or prediction should distinguish:
 
-- Advanced filtering
-- Comparative opponent analysis
-- Exportable reports
-- Recommendation audit trail
+- observation: what the system detected
+- evidence: the data or relationships supporting it
+- probability: the model output, when a prediction model is available
+- uncertainty: what may make the output unreliable
+- action: the possible user or coach response
+- expected impact: the expected tactical, workload, or market implication
+- risk: the downside or uncertainty
+- confidence: how strongly the available evidence supports it
 
-## Success metrics
+## Responsible Product Guardrails
 
-The MVP should measure:
+PitchMind must:
 
-- time saved preparing a match report;
-- percentage of recommendations reviewed by coaches;
-- percentage accepted, modified, or rejected;
-- weekly active coaching staff;
-- number of completed fixture workflows;
-- user-rated usefulness of generated actions;
-- retention across consecutive fixtures.
+- display an uncertainty disclaimer
+- clearly label incomplete or low-confidence data
+- keep facts, calculated metrics, AI interpretation, and market evaluation separate
+- avoid gambling-guarantee language
+- protect player and user data
+- record prediction and recommendation provenance
+- require licensing, age verification, jurisdiction checks, privacy controls, and responsible-gambling controls before real-money functionality
 
-## Guardrails
+## Future Commercial Direction
 
-- Do not present medical or injury-risk output as diagnosis.
-- Clearly label incomplete or low-confidence data.
-- Keep source data and AI interpretation distinguishable.
-- Do not optimize the product for gambling use cases.
-- Protect player data with role-based access and appropriate retention rules.
+Initial packages may include:
+
+- analyst workspace for match intelligence and prediction review
+- coaching workspace for squad, workload, and training intelligence
+- bettor decision-support workspace for odds comparison and watchlists
+- club workspace for multi-team development and historical trends
+- future regulated sportsbook or betting-platform integrations only after legal, licensing, payments, wallet, and responsible-gambling requirements are satisfied

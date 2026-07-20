@@ -1,5 +1,5 @@
 /**
- * JWT-based authentication and authorization for the AI Coach API.
+ * JWT-based authentication and authorization for the PitchMind API.
  *
  * <p>This package implements stateless security using JSON Web Tokens.
  * On every request the {@link com.ai.coach.security.JwtAuthenticationFilter}
