@@ -1,7 +1,7 @@
 package com.ai.coach.exception;
 
 /**
- * Sealed base class for all domain-specific exceptions in AI Coach.
+ * Sealed base class for all domain-specific exceptions in PitchMind.
  * Only {@link EntityNotFoundException} and {@link AiGenerationException} are permitted subtypes.
  *
  * <p>Sealed classes (Java 17) restrict which classes can extend a type,

@@ -1,5 +1,5 @@
 /**
- * Domain layer of the AI Coach application.
+ * Domain layer of the PitchMind application.
  *
  * <p>This package groups the core domain model into three sub-packages:</p>
  *

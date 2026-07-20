@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'AI Coach Portal';
+  title = 'PitchMind Intelligence Portal';
 
   // Auth State
   isLoggedIn = false;
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
   authMode: 'login' | 'register' = 'login';
 
   // Navigation State
-  activeTab = 'dashboard'; // 'dashboard', 'teams', 'matches', 'aicoach'
+  activeTab = 'dashboard';
 
   // Data Lists
   teams: any[] = [];
@@ -72,6 +72,13 @@ export class AppComponent implements OnInit {
   aiSeasonTeamId = '';
   aiSeasonYear = '2026/2027';
   aiSeasonPriority = 'Balanced';
+
+  // Prediction Lab
+  predictionMatchId = '';
+  predictionResponse: any = null;
+  predictionMarket = 'HOME_WIN';
+  predictionDecimalOdds: number | null = 2.1;
+  marketEvaluation: any = null;
 
   // UI Status
   isLoading = false;
@@ -172,7 +179,7 @@ export class AppComponent implements OnInit {
           localStorage.setItem('jwt_token', this.token);
           localStorage.setItem('jwt_user', JSON.stringify(this.user));
           this.isLoggedIn = true;
-          this.showSuccess(`Welcome back, Coach ${this.user.username}!`);
+          this.showSuccess(`Welcome back, ${this.user.username}!`);
           this.loadInitialData();
         })
         .catch(() => {});
@@ -260,7 +267,10 @@ export class AppComponent implements OnInit {
     this.queryGql(q, { teamId }).then(data => {
       this.players = data.playersByTeam;
       this.totalPlayersCount = this.players.length;
-      this.statPlayerId ||= this.players[0]?.id || '';
+      const playerIds = new Set(this.players.map((player: any) => player.id));
+      if (!this.statPlayerId || !playerIds.has(this.statPlayerId)) {
+        this.statPlayerId = this.players[0]?.id || '';
+      }
     }).catch(() => {});
   }
 
@@ -285,8 +295,19 @@ export class AppComponent implements OnInit {
     this.queryGql(q, { teamId }).then(data => {
       this.matches = data.matchesByTeam.edges.map((e: any) => e.node);
       this.recentMatchesCount = data.matchesByTeam.totalCount;
-      this.aiMatchId ||= this.matches[0]?.id || '';
-      this.statMatchId ||= this.matches[0]?.id || '';
+      const matchIds = new Set(this.matches.map((match: any) => match.id));
+      const firstMatchId = this.matches[0]?.id || '';
+      if (!this.aiMatchId || !matchIds.has(this.aiMatchId)) {
+        this.aiMatchId = firstMatchId;
+      }
+      if (!this.statMatchId || !matchIds.has(this.statMatchId)) {
+        this.statMatchId = firstMatchId;
+      }
+      if (!this.predictionMatchId || !matchIds.has(this.predictionMatchId)) {
+        this.predictionMatchId = firstMatchId;
+      }
+      this.predictionResponse = null;
+      this.marketEvaluation = null;
     }).catch(() => {});
   }
 
@@ -438,7 +459,7 @@ export class AppComponent implements OnInit {
       .then(data => {
         this.aiResponse = data.generateMatchAnalysis;
         this.aiResponseType = 'analysis';
-        this.showSuccess('AI Tactical Analysis generated successfully!');
+        this.showSuccess('PitchMind tactical analysis generated successfully!');
       })
       .catch(() => {});
   }
@@ -487,7 +508,7 @@ export class AppComponent implements OnInit {
       .then(data => {
         this.aiResponse = data.generateTrainingPlan;
         this.aiResponseType = 'training';
-        this.showSuccess('AI Training Microcycle generated successfully!');
+        this.showSuccess('Training microcycle generated successfully!');
       })
       .catch(() => {});
   }
@@ -528,7 +549,141 @@ export class AppComponent implements OnInit {
       .then(data => {
         this.aiResponse = data.generateSeasonPlan;
         this.aiResponseType = 'season';
-        this.showSuccess('AI Season Plan & Workload Report generated successfully!');
+        this.showSuccess('Season plan and workload report generated successfully!');
+      })
+      .catch(() => {});
+  }
+
+  loadMatchPrediction() {
+    if (!this.predictionMatchId) {
+      this.showError('Select a match before loading a prediction.');
+      return;
+    }
+    const q = `
+      query($matchId: ID!) {
+        matchPrediction(matchId: $matchId) {
+          id
+          matchId
+          homeTeamId
+          awayTeamId
+          homeWinProbability
+          drawProbability
+          awayWinProbability
+          expectedHomeGoals
+          expectedAwayGoals
+          bothTeamsToScoreProbability
+          over25GoalsProbability
+          under25GoalsProbability
+          mostLikelyScore
+          confidenceLevel
+          uncertaintyLevel
+          dataQualityStatus
+          explanationFactors
+          warnings
+          modelName
+          modelVersion
+          predictionVersion
+          featureCutoffTimestamp
+          featureSummary
+          generatedAt
+        }
+      }
+    `;
+    this.queryGql(q, { matchId: this.predictionMatchId })
+      .then(data => {
+        this.predictionResponse = data.matchPrediction;
+        this.marketEvaluation = null;
+        if (!this.predictionResponse) {
+          this.showSuccess('No prediction has been generated for this match yet.');
+        }
+      })
+      .catch(() => {});
+  }
+
+  generateMatchPrediction() {
+    if (!this.predictionMatchId) {
+      this.showError('Select a match before generating a prediction.');
+      return;
+    }
+    const q = `
+      mutation($matchId: ID!) {
+        generateMatchPrediction(matchId: $matchId) {
+          id
+          matchId
+          homeTeamId
+          awayTeamId
+          homeWinProbability
+          drawProbability
+          awayWinProbability
+          expectedHomeGoals
+          expectedAwayGoals
+          bothTeamsToScoreProbability
+          over25GoalsProbability
+          under25GoalsProbability
+          mostLikelyScore
+          confidenceLevel
+          uncertaintyLevel
+          dataQualityStatus
+          explanationFactors
+          warnings
+          modelName
+          modelVersion
+          predictionVersion
+          featureCutoffTimestamp
+          featureSummary
+          generatedAt
+        }
+      }
+    `;
+    this.queryGql(q, { matchId: this.predictionMatchId })
+      .then(data => {
+        this.predictionResponse = data.generateMatchPrediction;
+        this.marketEvaluation = null;
+        this.showSuccess('Prediction generated with transparent baseline model.');
+      })
+      .catch(() => {});
+  }
+
+  evaluateMarketValue() {
+    if (!this.predictionResponse) {
+      this.showError('Generate or load a prediction before evaluating odds.');
+      return;
+    }
+    const probability = this.selectedMarketProbability;
+    if (!probability || probability <= 0) {
+      this.showError('The selected market has no model probability. Historical data may be insufficient.');
+      return;
+    }
+    if (!this.predictionDecimalOdds || this.predictionDecimalOdds <= 1) {
+      this.showError('Decimal odds must be greater than 1.');
+      return;
+    }
+    const q = `
+      mutation($input: MarketValueInput!) {
+        evaluateMarketValue(input: $input) {
+          predictionId
+          market
+          modelProbability
+          decimalOdds
+          fairOdds
+          rawImpliedProbability
+          expectedValue
+          classification
+          validationWarnings
+          evaluatedAt
+        }
+      }
+    `;
+    const input = {
+      predictionId: this.predictionResponse.id,
+      market: this.predictionMarket,
+      modelProbability: probability,
+      decimalOdds: this.predictionDecimalOdds
+    };
+    this.queryGql(q, { input })
+      .then(data => {
+        this.marketEvaluation = data.evaluateMarketValue;
+        this.showSuccess('Market value evaluated by backend service.');
       })
       .catch(() => {});
   }
@@ -541,5 +696,20 @@ export class AppComponent implements OnInit {
     } catch {
       return dateStr;
     }
+  }
+
+  get selectedMarketProbability() {
+    if (!this.predictionResponse) {
+      return null;
+    }
+    const probabilityByMarket: Record<string, number | null> = {
+      HOME_WIN: this.predictionResponse.homeWinProbability,
+      DRAW: this.predictionResponse.drawProbability,
+      AWAY_WIN: this.predictionResponse.awayWinProbability,
+      OVER_2_5: this.predictionResponse.over25GoalsProbability,
+      UNDER_2_5: this.predictionResponse.under25GoalsProbability,
+      BOTH_TEAMS_TO_SCORE: this.predictionResponse.bothTeamsToScoreProbability
+    };
+    return probabilityByMarket[this.predictionMarket] ?? null;
   }
 }
