@@ -35,6 +35,29 @@ jwt:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
 
+pitchmind:
+  predictor:
+    model-name: Transparent Poisson Baseline
+    model-version: baseline-poisson-v1
+    min-team-matches: 3
+    min-global-matches: 6
+    min-venue-matches: 2
+    recent-match-window: 5
+    recent-weight: 0.65
+    league-average-fallback-goals: 1.35
+    min-expected-goals: 0.2
+    max-expected-goals: 4.5
+    max-goals: 8
+    normalization-tolerance: 0.000001
+    high-confidence-sample-size: 10
+    medium-confidence-sample-size: 6
+    high-separation-threshold: 0.18
+    medium-separation-threshold: 0.08
+  betting:
+    potential-value-threshold: 0.08
+    weak-value-threshold: 0.0
+    high-uncertainty-probability-threshold: 0.05
+
 server:
   port: 8080
 

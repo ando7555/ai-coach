@@ -1,5 +1,5 @@
 /**
- * Custom exceptions and GraphQL error handling for the AI Coach application.
+ * Custom exceptions and GraphQL error handling for the PitchMind application.
  *
  * <p>This package centralises error semantics so that every failure —
  * whether from a missing entity, an AI generation timeout, or a validation

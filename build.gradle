@@ -69,9 +69,9 @@ jar {
 }
 
 task npmInstall(type: Exec) {
-	workingDir 'frontend'
-	inputs.files 'frontend/package.json', 'frontend/package-lock.json'
-	outputs.dir 'frontend/node_modules'
+	workingDir 'frontend-react'
+	inputs.files 'frontend-react/package.json', 'frontend-react/package-lock.json'
+	outputs.dir 'frontend-react/node_modules'
 	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 		commandLine 'cmd', '/c', 'npm ci'
 	} else {
@@ -79,13 +79,15 @@ task npmInstall(type: Exec) {
 	}
 }
 
-task buildAngular(type: Exec) {
+task buildFrontend(type: Exec) {
 	dependsOn npmInstall
-	workingDir 'frontend'
-	inputs.dir 'frontend/src'
-	inputs.files 'frontend/angular.json', 'frontend/package.json', 'frontend/package-lock.json',
-			'frontend/tsconfig.json', 'frontend/tsconfig.app.json'
-	outputs.dir 'frontend/dist/frontend/browser'
+	workingDir 'frontend-react'
+	inputs.dir 'frontend-react/src'
+	inputs.dir 'frontend-react/public'
+	inputs.files 'frontend-react/index.html', 'frontend-react/package.json', 'frontend-react/package-lock.json',
+			'frontend-react/tsconfig.json', 'frontend-react/tsconfig.app.json', 'frontend-react/tsconfig.node.json',
+			'frontend-react/vite.config.ts'
+	outputs.dir 'frontend-react/dist'
 	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 		commandLine 'cmd', '/c', 'npm run build'
 	} else {
@@ -94,8 +96,8 @@ task buildAngular(type: Exec) {
 }
 
 processResources {
-	dependsOn buildAngular
-	from('frontend/dist/frontend/browser') {
+	dependsOn buildFrontend
+	from('frontend-react/dist') {
 		into 'static'
 	}
 }

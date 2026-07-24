@@ -1,5 +1,5 @@
 /**
- * Spring Data Neo4j repository interfaces for the AI Coach domain.
+ * Spring Data Neo4j repository interfaces for the PitchMind domain.
  *
  * <p>Each repository extends {@code Neo4jRepository} and provides
  * graph-aware CRUD plus custom finder methods. Spring Data generates

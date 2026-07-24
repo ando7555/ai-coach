@@ -1,5 +1,5 @@
 /**
- * GraphQL query and mutation controllers for the AI Coach API.
+ * GraphQL query and mutation controllers for the PitchMind API.
  *
  * <p>Every public endpoint in the application is a GraphQL operation defined
  * in this package. Controllers delegate to the {@code service} layer and are

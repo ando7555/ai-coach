@@ -1,5 +1,5 @@
 /**
- * Business logic and AI integration layer for the AI Coach application.
+ * Business logic and AI integration layer for the PitchMind application.
  *
  * <p>Services orchestrate domain operations, enforce business rules, and
  * delegate to the AI client for content generation. Each service is a

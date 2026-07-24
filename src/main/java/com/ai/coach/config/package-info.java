@@ -1,5 +1,5 @@
 /**
- * Framework and infrastructure configuration for the AI Coach application.
+ * Framework and infrastructure configuration for the PitchMind application.
  *
  * <p>This package contains Spring {@code @Configuration} classes that wire up
  * cross-cutting concerns such as database connectivity and security.</p>

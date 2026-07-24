@@ -1,5 +1,5 @@
 /**
- * Data Transfer Objects for the AI Coach GraphQL API.
+ * Data Transfer Objects for the PitchMind GraphQL API.
  *
  * <p>Input DTOs carry validated client data into service methods, while
  * output DTOs shape the responses returned to callers. Using DTOs keeps
