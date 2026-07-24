@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Safety — String vs Enum</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* --- Diagram 3: String vs Enum --- */
+  .type-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+  }
+  .type-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    border: 2px solid;
+  }
+  .type-string { background: #fff3f3; border-color: #ffcdd2; }
+  .type-string h4 { color: #c62828; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .type-string p { font-size: 11px; color: #666; }
+  .type-enum { background: #e8f5e9; border-color: #a5d6a7; }
+  .type-enum h4 { color: #2e7d32; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .type-enum p { font-size: 11px; color: #666; }
+  .type-arrow {
+    padding: 0 12px;
+    font-size: 24px;
+    color: #ccc;
+    font-weight: 700;
+    text-align: center;
+  }
+  .type-benefits {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .type-benefit {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+  }
+  .type-danger {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #fff3f3;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+</style>
+</head>
+<body>
+
+<div class="diagram">
+  <div class="diagram-title">Type Safety — String vs Enum</div>
+  <div class="diagram-subtitle">Catch invalid values at compile time, not in production</div>
+
+  <div class="type-compare">
+    <div class="type-row">
+      <div class="type-box type-string">
+        <h4>String fatigueLevel</h4>
+        <p><code>"FRESH"</code> <code>"TIRED"</code> <code>"TRED"</code> <code>""</code> <code>"maybe"</code></p>
+        <p style="margin-top:6px">All compile. All valid. Bugs hide until runtime.</p>
+      </div>
+      <div class="type-arrow">&#10132;</div>
+      <div class="type-box type-enum">
+        <h4>FatigueLevel fatigueLevel</h4>
+        <p><code>FRESH</code> <code>MODERATE</code> <code>TIRED</code> <code>EXHAUSTED</code></p>
+        <p style="margin-top:6px">Only 4 valid values. Typos don't compile.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-box type-string">
+        <h4>String injuryRisk</h4>
+        <p><code>"LOW"</code> <code>"MEDIUM"</code> <code>"HIGH"</code> <code>"maybe high"</code></p>
+      </div>
+      <div class="type-arrow">&#10132;</div>
+      <div class="type-box type-enum">
+        <h4>InjuryRisk injuryRisk</h4>
+        <p><code>LOW</code> <code>MEDIUM</code> <code>HIGH</code></p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-box type-string">
+        <h4>String intensity</h4>
+        <p><code>"LOW"</code> <code>"MEDIUM"</code> <code>"HIGH"</code> <code>"very high"</code></p>
+      </div>
+      <div class="type-arrow">&#10132;</div>
+      <div class="type-box type-enum">
+        <h4>TrainingIntensity intensity</h4>
+        <p><code>LOW</code> <code>MEDIUM</code> <code>HIGH</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+    <div class="type-danger">String: "TRED" compiles silently</div>
+    <div class="type-danger">String: no IDE autocomplete</div>
+    <div class="type-danger">String: switch can miss cases</div>
+    <div class="type-benefit">Enum: compile-time safety</div>
+    <div class="type-benefit">Enum: IDE autocomplete</div>
+    <div class="type-benefit">Enum: GraphQL validates input</div>
+    <div class="type-benefit">Enum: switch exhaustiveness</div>
+  </div>
+
+  <div style="margin-top: 16px; padding: 12px 20px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #2e7d32; font-size: 12px; color: #555; text-align: center;">
+    <strong>Neo4j compatibility:</strong> SDN stores enums as their <code>.name()</code> string.
+    <code>FatigueLevel.FRESH</code> &rarr; <code>"FRESH"</code> in DB. Existing data works without migration.
+  </div>
+</div>
+
+</body>
+</html>

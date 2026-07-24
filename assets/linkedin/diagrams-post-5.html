@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 5: Web Tech Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* ─── Diagram 1: HTTP Evolution Timeline ─── */
+  .http-timeline {
+    position: relative;
+    padding: 20px 0 0 0;
+  }
+  .http-versions {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .http-version {
+    flex: 1;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    border: 2px solid;
+    transition: transform 0.2s;
+  }
+  .http-version:hover { transform: translateY(-4px); }
+  .http-v11 { background: #e3f2fd; border-color: #1565c0; }
+  .http-v2 { background: #e8f5e9; border-color: #2e7d32; }
+  .http-v3 { background: #f3e5f5; border-color: #6a1b9a; }
+  .http-version .v-badge {
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .http-v11 .v-badge { background: #1565c0; }
+  .http-v2 .v-badge { background: #2e7d32; }
+  .http-v3 .v-badge { background: #6a1b9a; }
+  .http-version .v-year {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .http-version .v-protocol {
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .http-version .v-features {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.8;
+    text-align: left;
+    padding-left: 8px;
+  }
+  .http-version .v-features li {
+    margin-bottom: 2px;
+    list-style: none;
+    position: relative;
+    padding-left: 14px;
+  }
+  .http-version .v-features li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .http-v11 .v-features li::before { color: #1565c0; }
+  .http-v2 .v-features li::before { color: #2e7d32; }
+  .http-v3 .v-features li::before { color: #6a1b9a; }
+  .http-arrows {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+    padding: 0 80px;
+  }
+  .http-arrow {
+    font-size: 24px;
+    color: #ccc;
+    font-weight: 700;
+  }
+  .http-note {
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #fff3e0;
+    border-radius: 8px;
+    border-left: 4px solid #e65100;
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+  }
+
+  /* ─── Diagram 2: REST vs GraphQL ─── */
+  .rest-vs-gql {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .rvg-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .rvg-rest {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .rvg-gql {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .rvg-side h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rvg-rest h3 { color: #c62828; }
+  .rvg-gql h3 { color: #2e7d32; }
+  .rvg-side .rvg-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .rvg-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 10.5px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .rvg-stat {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  .rvg-rest .rvg-stat { background: #ffcdd2; color: #b71c1c; }
+  .rvg-gql .rvg-stat { background: #c8e6c9; color: #1b5e20; }
+  .rvg-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 12px;
+  }
+  .rvg-problems {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .rvg-problem {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .prob-bad { background: #ffcdd2; color: #b71c1c; border: 1px solid #ef9a9a; }
+  .prob-good { background: #c8e6c9; color: #1b5e20; border: 1px solid #a5d6a7; }
+
+  /* ─── Diagram 3: Spring MVC Request Lifecycle ─── */
+  .lifecycle {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .lc-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 720px;
+  }
+  .lc-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .lc-content {
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid;
+  }
+  .lc-content h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .lc-content p {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .lc-content code {
+    font-size: 10px;
+  }
+  .lc-connector {
+    width: 3px;
+    height: 12px;
+    background: #ddd;
+    margin-left: 17px;
+  }
+  /* Step colors by category */
+  .lc-infra .lc-number { background: #1565c0; }
+  .lc-infra .lc-content { background: #e3f2fd; border-color: #90caf9; }
+  .lc-infra .lc-content h4 { color: #1565c0; }
+
+  .lc-security .lc-number { background: #c62828; }
+  .lc-security .lc-content { background: #fce4ec; border-color: #ef9a9a; }
+  .lc-security .lc-content h4 { color: #c62828; }
+
+  .lc-graphql .lc-number { background: #6a1b9a; }
+  .lc-graphql .lc-content { background: #f3e5f5; border-color: #ce93d8; }
+  .lc-graphql .lc-content h4 { color: #6a1b9a; }
+
+  .lc-business .lc-number { background: #2e7d32; }
+  .lc-business .lc-content { background: #e8f5e9; border-color: #a5d6a7; }
+  .lc-business .lc-content h4 { color: #2e7d32; }
+
+  .lc-error .lc-number { background: #e65100; }
+  .lc-error .lc-content { background: #fff3e0; border-color: #ffcc80; }
+  .lc-error .lc-content h4 { color: #e65100; }
+
+  .lc-response .lc-number { background: #00695c; }
+  .lc-response .lc-content { background: #e0f2f1; border-color: #80cbc4; }
+  .lc-response .lc-content h4 { color: #00695c; }
+
+  .lc-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .lc-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+  }
+  .lc-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  /* ─── Diagram 4: JWT Authentication Flow ─── */
+  .jwt-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .jwt-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 680px;
+  }
+  .jwt-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    color: white;
+    font-weight: 700;
+  }
+  .jwt-box {
+    flex: 1;
+    border-radius: 10px;
+    padding: 14px 18px;
+    border: 2px solid;
+  }
+  .jwt-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .jwt-box p {
+    font-size: 11px;
+    color: #666;
+  }
+  .jwt-connector {
+    width: 3px;
+    height: 12px;
+    background: #ddd;
+    margin-left: 21px;
+  }
+  .jwt-create .jwt-icon { background: #1565c0; }
+  .jwt-create .jwt-box { background: #e3f2fd; border-color: #90caf9; }
+  .jwt-create .jwt-box h4 { color: #1565c0; }
+  .jwt-send .jwt-icon { background: #e65100; }
+  .jwt-send .jwt-box { background: #fff3e0; border-color: #ffcc80; }
+  .jwt-send .jwt-box h4 { color: #e65100; }
+  .jwt-filter .jwt-icon { background: #c62828; }
+  .jwt-filter .jwt-box { background: #fce4ec; border-color: #ef9a9a; }
+  .jwt-filter .jwt-box h4 { color: #c62828; }
+  .jwt-validate .jwt-icon { background: #6a1b9a; }
+  .jwt-validate .jwt-box { background: #f3e5f5; border-color: #ce93d8; }
+  .jwt-validate .jwt-box h4 { color: #6a1b9a; }
+  .jwt-context .jwt-icon { background: #2e7d32; }
+  .jwt-context .jwt-box { background: #e8f5e9; border-color: #a5d6a7; }
+  .jwt-context .jwt-box h4 { color: #2e7d32; }
+
+  .jwt-structure {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+  }
+  .jwt-structure h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .jwt-parts {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .jwt-part {
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .jwt-part-header { background: #ffcdd2; color: #b71c1c; }
+  .jwt-part-payload { background: #c8e6c9; color: #1b5e20; }
+  .jwt-part-sig { background: #bbdefb; color: #0d47a1; }
+  .jwt-dot { display: flex; align-items: center; font-size: 18px; font-weight: 800; color: #999; }
+
+  /* ─── Diagram 5: GraphQL Error vs REST Error ─── */
+  .error-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .ec-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ec-rest {
+    background: #fff3e0;
+    border: 2px solid #ffcc80;
+  }
+  .ec-gql {
+    background: #e3f2fd;
+    border: 2px solid #90caf9;
+  }
+  .ec-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .ec-rest h3 { color: #e65100; }
+  .ec-gql h3 { color: #1565c0; }
+  .ec-side .ec-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .ec-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 10.5px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .ec-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #ccc;
+    padding: 0 8px;
+    font-weight: 700;
+  }
+  .ec-mapping {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .ec-map-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+  }
+  .ec-map-arrow { color: #999; }
+  .ec-map-type { font-family: 'Consolas', monospace; }
+
+  /* ─── Diagram 6: AI Coach API Map ─── */
+  .api-map table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .api-map th {
+    background: #1a1a2e;
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .api-map th:first-child { border-radius: 8px 0 0 0; }
+  .api-map th:last-child { border-radius: 0 8px 0 0; }
+  .api-map td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+  }
+  .api-map tr:hover { background: #f8f9ff; }
+  .api-map .op-type {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+  }
+  .op-query { background: #1565c0; }
+  .op-mutation { background: #c62828; }
+  .api-map .auth-badge {
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+  }
+  .auth-public { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+  .auth-user { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+  .auth-admin { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+  .api-map .ctrl-chip {
+    font-size: 10px;
+    color: #6a1b9a;
+    background: #f3e5f5;
+    border: 1px solid #ce93d8;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-weight: 600;
+    font-family: 'Consolas', monospace;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 5: Web Tech Diagrams</h1>
+<p class="instructions">Open this file in a browser. Screenshot each diagram and embed in your LinkedIn article.</p>
+
+<!-- ─── DIAGRAM 1: HTTP Evolution Timeline ─── -->
+<div class="diagram">
+  <div class="diagram-title">HTTP Evolution Timeline</div>
+  <div class="diagram-subtitle">From text-based HTTP/1.1 to QUIC-powered HTTP/3</div>
+
+  <div class="http-timeline">
+    <div class="http-versions">
+      <div class="http-version http-v11">
+        <div class="v-badge">HTTP/1.1</div>
+        <div class="v-year">1997</div>
+        <div class="v-protocol">TCP + Text</div>
+        <ul class="v-features">
+          <li>Text-based protocol</li>
+          <li>One request per connection</li>
+          <li>Keep-alive for reuse</li>
+          <li>Host header (virtual hosts)</li>
+          <li>Chunked transfer encoding</li>
+        </ul>
+      </div>
+      <div class="http-version http-v2">
+        <div class="v-badge">HTTP/2</div>
+        <div class="v-year">2015</div>
+        <div class="v-protocol">TCP + Binary</div>
+        <ul class="v-features">
+          <li>Binary framing layer</li>
+          <li>Multiplexing (many streams, one connection)</li>
+          <li>Header compression (HPACK)</li>
+          <li>Server push</li>
+          <li>Stream prioritization</li>
+        </ul>
+      </div>
+      <div class="http-version http-v3">
+        <div class="v-badge">HTTP/3</div>
+        <div class="v-year">2022</div>
+        <div class="v-protocol">QUIC over UDP</div>
+        <ul class="v-features">
+          <li>UDP instead of TCP</li>
+          <li>No head-of-line blocking</li>
+          <li>0-RTT connection establishment</li>
+          <li>Built-in encryption (TLS 1.3)</li>
+          <li>Connection migration</li>
+        </ul>
+      </div>
+    </div>
+    <div class="http-arrows">
+      <div class="http-arrow">&#10132;</div>
+      <div class="http-arrow">&#10132;</div>
+    </div>
+    <div class="http-note">
+      <strong>AI Coach uses HTTP/1.1</strong> in development (embedded Tomcat on port 8080).
+      In production behind a reverse proxy (nginx/Cloudflare), HTTP/2 or HTTP/3 terminates at the proxy layer.
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 2: REST vs GraphQL ─── -->
+<div class="diagram">
+  <div class="diagram-title">REST vs GraphQL — Side by Side</div>
+  <div class="diagram-subtitle">16+ endpoints vs 1 endpoint for the same AI Coach API</div>
+
+  <div class="rest-vs-gql">
+    <div class="rvg-side rvg-rest">
+      <h3>&#10007; REST Approach</h3>
+      <div class="rvg-label">Multiple endpoints, HTTP verbs map to CRUD</div>
+      <div class="rvg-code">GET  /api/teams
+GET  /api/teams/1
+GET  /api/teams/1/players
+POST /api/teams
+
+GET  /api/matches/1
+GET  /api/teams/1/matches
+POST /api/matches
+
+POST /api/matches/1/analysis
+GET  /api/matches/1/analysis
+
+POST /api/teams/1/training-plan
+GET  /api/teams/1/training-plans
+
+POST /api/teams/1/season-plan
+POST /api/matches/1/stats
+GET  /api/players/1/stats
+GET  /api/players/1/trend
+
+POST /api/auth/register
+POST /api/auth/login</div>
+      <div class="rvg-stat">18 endpoints, 5 HTTP methods</div>
+    </div>
+
+    <div class="rvg-arrow">vs</div>
+
+    <div class="rvg-side rvg-gql">
+      <h3>&#10003; GraphQL Approach</h3>
+      <div class="rvg-label">Single endpoint, client specifies exact fields</div>
+      <div class="rvg-code">POST /graphql
+
+# Query — read data
+query {
+  team(id: 1) {
+    name
+    formation
+    players {
+      name
+      position
+      rating
+    }
+  }
+}
+
+# Mutation — write data
+mutation {
+  generateMatchAnalysis(
+    input: {
+      matchId: 1
+      focusArea: PRESSING
+      style: POSSESSION
+      riskLevel: MEDIUM
+    }
+  ) {
+    summary
+    keyFactors
+  }
+}</div>
+      <div class="rvg-stat">1 endpoint, exact fields per request</div>
+    </div>
+  </div>
+
+  <div class="rvg-problems">
+    <div class="rvg-problem prob-bad">REST: Over-fetching</div>
+    <div class="rvg-problem prob-bad">REST: Under-fetching</div>
+    <div class="rvg-problem prob-bad">REST: N+1 endpoints</div>
+    <div class="rvg-problem prob-good">GraphQL: Exact fields</div>
+    <div class="rvg-problem prob-good">GraphQL: One round trip</div>
+    <div class="rvg-problem prob-good">GraphQL: Typed schema</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 3: Spring MVC Request Lifecycle ─── -->
+<div class="diagram">
+  <div class="diagram-title">Spring MVC Request Lifecycle — generateMatchAnalysis</div>
+  <div class="diagram-subtitle">11 steps from HTTP POST to JSON response — traced through real code</div>
+
+  <div class="lifecycle">
+    <div class="lc-step lc-infra">
+      <div class="lc-number">1</div>
+      <div class="lc-content">
+        <h4>Tomcat Receives Request</h4>
+        <p>Embedded servlet container accepts TCP connection on port 8080. <code>spring-boot-starter-web</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-security">
+      <div class="lc-number">2</div>
+      <div class="lc-content">
+        <h4>JwtAuthenticationFilter.doFilterInternal()</h4>
+        <p>Extracts <code>Authorization: Bearer &lt;token&gt;</code>, validates JWT, sets SecurityContext. <code>JwtAuthenticationFilter.java:24-42</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-security">
+      <div class="lc-number">3</div>
+      <div class="lc-content">
+        <h4>SecurityFilterChain Authorization</h4>
+        <p><code>/graphql</code> &rarr; <code>permitAll()</code> — authentication deferred to resolver level. <code>SecurityConfig.java:35-38</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-infra">
+      <div class="lc-number">4</div>
+      <div class="lc-content">
+        <h4>DispatcherServlet &rarr; GraphQL Handler</h4>
+        <p>Parses JSON body: <code>{ "query": "mutation { generateMatchAnalysis(...) }", "variables": {...} }</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-graphql">
+      <div class="lc-number">5</div>
+      <div class="lc-content">
+        <h4>GraphQL Engine Parses Query</h4>
+        <p>Validates against <code>schema.graphqls</code> — types, field names, nullability, input coercion to <code>MatchAnalysisInput</code> record</p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-security">
+      <div class="lc-number">6</div>
+      <div class="lc-content">
+        <h4>@PreAuthorize("isAuthenticated()")</h4>
+        <p>Spring Security proxy intercepts before method execution. <code>CoachGraphqlController.java:48</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-graphql">
+      <div class="lc-number">7</div>
+      <div class="lc-content">
+        <h4>@Valid Bean Validation</h4>
+        <p><code>@NotNull</code>, <code>@NotBlank</code> constraints checked on <code>MatchAnalysisInput</code> record fields</p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-business">
+      <div class="lc-number">8</div>
+      <div class="lc-content">
+        <h4>CoachService.generateMatchAnalysis()</h4>
+        <p>Fetch match from Neo4j &rarr; build text block prompt &rarr; call AI &rarr; save analysis. <code>CoachService.java:42-65</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-business">
+      <div class="lc-number">9</div>
+      <div class="lc-content">
+        <h4>AiClient.generateTacticalAdvice()</h4>
+        <p><code>Mono.fromCallable()</code> on <code>Schedulers.boundedElastic()</code> &rarr; <code>.blockOptional()</code>. <code>AiClient.java:36-41</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-error">
+      <div class="lc-number">10</div>
+      <div class="lc-content">
+        <h4>GraphQLExceptionHandler (if error)</h4>
+        <p>Maps domain exceptions to GraphQL <code>ErrorType</code> with extensions. <code>GraphQLExceptionHandler.java:21-51</code></p>
+      </div>
+    </div>
+    <div class="lc-connector"></div>
+
+    <div class="lc-step lc-response">
+      <div class="lc-number">11</div>
+      <div class="lc-content">
+        <h4>HTTP 200 OK &mdash; JSON Response</h4>
+        <p><code>Content-Type: application/json</code> &mdash; <code>{ "data": { "generateMatchAnalysis": {...} } }</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lc-legend">
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#1565c0"></div> Infrastructure</div>
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#c62828"></div> Security</div>
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#6a1b9a"></div> GraphQL</div>
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#2e7d32"></div> Business Logic</div>
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#e65100"></div> Error Handling</div>
+    <div class="lc-legend-item"><div class="lc-legend-dot" style="background:#00695c"></div> Response</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 4: JWT Authentication Flow ─── -->
+<div class="diagram">
+  <div class="diagram-title">JWT Authentication Flow</div>
+  <div class="diagram-subtitle">From login mutation to authenticated GraphQL resolver</div>
+
+  <div class="jwt-flow">
+    <div class="jwt-step jwt-create">
+      <div class="jwt-icon">1</div>
+      <div class="jwt-box">
+        <h4>Login Mutation &rarr; Token Created</h4>
+        <p><code>JwtTokenProvider.generateToken(username, role)</code> &mdash; signs with HMAC-SHA256 secret key, sets 24h expiry</p>
+      </div>
+    </div>
+    <div class="jwt-connector"></div>
+
+    <div class="jwt-step jwt-send">
+      <div class="jwt-icon">2</div>
+      <div class="jwt-box">
+        <h4>Client Stores &amp; Sends Token</h4>
+        <p><code>Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...</code> in every subsequent request header</p>
+      </div>
+    </div>
+    <div class="jwt-connector"></div>
+
+    <div class="jwt-step jwt-filter">
+      <div class="jwt-icon">3</div>
+      <div class="jwt-box">
+        <h4>JwtAuthenticationFilter Intercepts</h4>
+        <p>Extracts token from header, checks <code>header.startsWith("Bearer ")</code>, passes to provider for validation</p>
+      </div>
+    </div>
+    <div class="jwt-connector"></div>
+
+    <div class="jwt-step jwt-validate">
+      <div class="jwt-icon">4</div>
+      <div class="jwt-box">
+        <h4>JwtTokenProvider Validates</h4>
+        <p><code>Jwts.parser().verifyWith(key).parseSignedClaims(token)</code> &mdash; checks signature, expiry, extracts username + role</p>
+      </div>
+    </div>
+    <div class="jwt-connector"></div>
+
+    <div class="jwt-step jwt-context">
+      <div class="jwt-icon">5</div>
+      <div class="jwt-box">
+        <h4>SecurityContext Populated</h4>
+        <p><code>SecurityContextHolder.getContext().setAuthentication(auth)</code> &mdash; <code>@PreAuthorize</code> can now check identity</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="jwt-structure">
+    <h4>JWT Structure (3 base64-encoded parts)</h4>
+    <div class="jwt-parts">
+      <div class="jwt-part jwt-part-header">HEADER<br><span style="font-size:9px;font-weight:400">{"alg":"HS256"}</span></div>
+      <div class="jwt-dot">.</div>
+      <div class="jwt-part jwt-part-payload">PAYLOAD<br><span style="font-size:9px;font-weight:400">{"sub":"coach1","role":"COACH"}</span></div>
+      <div class="jwt-dot">.</div>
+      <div class="jwt-part jwt-part-sig">SIGNATURE<br><span style="font-size:9px;font-weight:400">HMAC-SHA256(header.payload, secret)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 5: GraphQL Error vs REST Error ─── -->
+<div class="diagram">
+  <div class="diagram-title">Error Handling — REST vs GraphQL</div>
+  <div class="diagram-subtitle">HTTP status codes vs response body errors</div>
+
+  <div class="error-comparison">
+    <div class="ec-side ec-rest">
+      <h3>REST Error</h3>
+      <div class="ec-label">Error in HTTP status line</div>
+      <div class="ec-code">HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "error": "Not Found",
+  "message": "Match not found
+              with id: 999",
+  "status": 404,
+  "timestamp": "2025-03-19..."
+}
+
+
+
+</div>
+    </div>
+
+    <div class="ec-arrow">vs</div>
+
+    <div class="ec-side ec-gql">
+      <h3>GraphQL Error</h3>
+      <div class="ec-label">Always HTTP 200, error in body</div>
+      <div class="ec-code">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": null,
+  "errors": [{
+    "message": "Match not found
+                with id: 999",
+    "path": ["generateMatch..."],
+    "extensions": {
+      "classification": "NOT_FOUND",
+      "entityType": "Match",
+      "entityId": "999"
+    }
+  }]
+}</div>
+    </div>
+  </div>
+
+  <div class="ec-mapping">
+    <div class="ec-map-item"><span class="ec-map-type">EntityNotFoundException</span> <span class="ec-map-arrow">&rarr;</span> NOT_FOUND</div>
+    <div class="ec-map-item"><span class="ec-map-type">ConstraintViolation</span> <span class="ec-map-arrow">&rarr;</span> BAD_REQUEST</div>
+    <div class="ec-map-item"><span class="ec-map-type">AccessDeniedException</span> <span class="ec-map-arrow">&rarr;</span> UNAUTHORIZED</div>
+    <div class="ec-map-item"><span class="ec-map-type">AiGenerationException</span> <span class="ec-map-arrow">&rarr;</span> INTERNAL_ERROR</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 6: AI Coach API Map ─── -->
+<div class="diagram">
+  <div class="diagram-title">AI Coach API Map — All Queries &amp; Mutations</div>
+  <div class="diagram-subtitle">13 queries + 9 mutations across 6 controllers</div>
+
+  <div class="api-map">
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Type</th>
+          <th>Auth</th>
+          <th>Controller</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>teams</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">TeamGraphQL</span></td></tr>
+        <tr><td><code>team(id)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">TeamGraphQL</span></td></tr>
+        <tr><td><code>playersByTeam(teamId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">TeamGraphQL</span></td></tr>
+        <tr><td><code>match(id)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">MatchGraphQL</span></td></tr>
+        <tr><td><code>matchesByTeam(teamId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">MatchGraphQL</span></td></tr>
+        <tr><td><code>recommendationsByMatch(matchId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">RecommendationGraphQL</span></td></tr>
+        <tr><td><code>matchAnalysis(matchId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>trainingPlansByTeam(teamId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>seasonPlansByTeam(teamId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>statsByMatch(matchId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">PlayerMatchStat</span></td></tr>
+        <tr><td><code>statsByPlayer(playerId)</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">PlayerMatchStat</span></td></tr>
+        <tr><td><code>playerTrendByLastMatches</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">PlayerMatchStat</span></td></tr>
+        <tr><td><code>playerTrendByDateRange</code></td><td><span class="op-type op-query">Query</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">PlayerMatchStat</span></td></tr>
+
+        <tr style="border-top: 3px solid #eee;"><td><code>register(username, password)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">AuthGraphQL</span></td></tr>
+        <tr><td><code>login(username, password)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-public">Public</span></td><td><span class="ctrl-chip">AuthGraphQL</span></td></tr>
+        <tr><td><code>createTeam(name, league)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-admin">ADMIN</span></td><td><span class="ctrl-chip">TeamGraphQL</span></td></tr>
+        <tr><td><code>createPlayer(teamId, name)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-admin">ADMIN</span></td><td><span class="ctrl-chip">TeamGraphQL</span></td></tr>
+        <tr><td><code>recordMatch(input)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">MatchGraphQL</span></td></tr>
+        <tr><td><code>generateRecommendation</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">RecommendationGraphQL</span></td></tr>
+        <tr><td><code>generateMatchAnalysis(input)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>generateTrainingPlan(input)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>generateSeasonPlan(input)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">CoachGraphQL</span></td></tr>
+        <tr><td><code>recordPlayerMatchStat(input)</code></td><td><span class="op-type op-mutation">Mutation</span></td><td><span class="auth-badge auth-user">Authenticated</span></td><td><span class="ctrl-chip">PlayerMatchStat</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── SUMMARY ARTICLE TEXT ─── -->
+<div class="diagram" style="max-width: 960px; line-height: 1.8;">
+  <div class="diagram-title">HTTP, REST vs GraphQL, and the Spring Request Lifecycle</div>
+
+  <div style="font-size: 15px; color: #444; padding: 0 10px;">
+
+    <p style="margin-bottom: 16px;">
+      I'm building an AI-powered football coaching app called <strong>AI Coach</strong>. Every feature — tactical analysis, training plans, season planning — is exposed through a single GraphQL endpoint. No REST routes. No URL versioning. Just one POST to <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">/graphql</code>.
+    </p>
+
+    <p style="margin-bottom: 24px;">
+      This article traces how the web works, why we chose GraphQL over REST, and what happens to every HTTP request as it flows through 11 layers of the Spring MVC stack.
+    </p>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #1565c0; padding-bottom: 6px; display: inline-block;">HTTP — The Transport Layer</h3>
+    <p style="margin-bottom: 10px;">Every request follows the same path: DNS &rarr; TCP handshake &rarr; TLS (if HTTPS) &rarr; HTTP request.</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>HTTP/1.1 (1997)</strong> — text-based, one request per connection, keep-alive. AI Coach runs on this in development.</li>
+      <li style="margin-bottom: 6px;"><strong>HTTP/2 (2015)</strong> — binary framing, multiplexing, HPACK header compression. Used behind reverse proxies.</li>
+      <li style="margin-bottom: 6px;"><strong>HTTP/3 (2022)</strong> — QUIC over UDP, eliminates head-of-line blocking, 0-RTT connections. The future of web transport.</li>
+      <li style="margin-bottom: 6px;"><strong>GraphQL only uses POST</strong> — the query is in the request body. REST uses GET, POST, PUT, DELETE, PATCH.</li>
+      <li style="margin-bottom: 6px;"><strong>Always HTTP 200</strong> — GraphQL handles errors in the response body, not status codes.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #c62828; padding-bottom: 6px; display: inline-block;">REST vs GraphQL — Why GraphQL Won</h3>
+    <p style="margin-bottom: 10px;">AI Coach is a textbook GraphQL fit: Neo4j graph database + deeply nested relationships + AI-generated content.</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>REST</strong> — 18+ endpoints for AI Coach, over-fetching, under-fetching, N+1 endpoint problem.</li>
+      <li style="margin-bottom: 6px;"><strong>GraphQL</strong> — 1 endpoint, client specifies exact fields, typed schema, one round trip.</li>
+      <li style="margin-bottom: 6px;"><strong>Schema</strong> — 13 queries + 9 mutations + 4 enums + 12 input/output types, all defined in <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">schema.graphqls</code>.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #6a1b9a; padding-bottom: 6px; display: inline-block;">The Request Lifecycle — 11 Steps</h3>
+    <p style="margin-bottom: 10px;">Every <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">generateMatchAnalysis</code> mutation flows through:</p>
+    <ol style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 4px;">Tomcat receives TCP connection on port 8080</li>
+      <li style="margin-bottom: 4px;">JwtAuthenticationFilter extracts + validates Bearer token</li>
+      <li style="margin-bottom: 4px;">SecurityFilterChain: <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">/graphql</code> &rarr; <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">permitAll()</code></li>
+      <li style="margin-bottom: 4px;">DispatcherServlet routes to GraphQL handler</li>
+      <li style="margin-bottom: 4px;">GraphQL engine parses query against typed schema</li>
+      <li style="margin-bottom: 4px;"><code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@PreAuthorize("isAuthenticated()")</code> blocks anonymous users</li>
+      <li style="margin-bottom: 4px;"><code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@Valid</code> triggers bean validation on input record</li>
+      <li style="margin-bottom: 4px;">CoachService: fetch from Neo4j &rarr; build prompt &rarr; call AI &rarr; save</li>
+      <li style="margin-bottom: 4px;">AiClient: reactive Mono on boundedElastic scheduler</li>
+      <li style="margin-bottom: 4px;">GraphQLExceptionHandler maps domain exceptions to ErrorType</li>
+      <li style="margin-bottom: 4px;">HTTP 200 JSON response: data or errors in body</li>
+    </ol>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #2e7d32; padding-bottom: 6px; display: inline-block;">Security — Layered Defense</h3>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>JWT</strong> — HMAC-SHA256 signed tokens with username + role claims, 24h expiry.</li>
+      <li style="margin-bottom: 6px;"><strong>CSRF disabled</strong> — stateless API with Bearer tokens, no cookie-based auth.</li>
+      <li style="margin-bottom: 6px;"><strong>CORS configured</strong> — allows frontend origins (localhost:3000, 5173), preflight caching.</li>
+      <li style="margin-bottom: 6px;"><strong>Method-level security</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@PreAuthorize</code> per resolver, not per URL (necessary for single-endpoint GraphQL).</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #e65100; padding-bottom: 6px; display: inline-block;">Production Hardening — 4 Improvements</h3>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>CORS</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">CorsConfigurationSource</code> bean in SecurityConfig with allowed origins, methods, headers.</li>
+      <li style="margin-bottom: 6px;"><strong>Actuator health</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">/actuator/health</code> for Docker/Kubernetes liveness and readiness probes.</li>
+      <li style="margin-bottom: 6px;"><strong>Profile-specific GraphiQL</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">application-prod.yaml</code> disables GraphiQL and schema introspection.</li>
+      <li style="margin-bottom: 6px;"><strong>Query depth limit</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">max-depth: 10</code> prevents DoS via deeply nested queries.</li>
+    </ul>
+
+    <div style="margin-top: 24px; padding: 20px; background: #f0f4ff; border-radius: 12px; border-left: 4px solid #0077b6;">
+      <p style="margin: 0; font-size: 15px; color: #1a1a2e;">
+        <strong>The bottom line:</strong> HTTP is the transport layer. GraphQL is the query language. Spring MVC is the framework. Security is layered. Every request flows through all four in sequence — understanding each layer separately makes the whole stack predictable and debuggable.
+      </p>
+    </div>
+
+    <div style="margin-top: 24px; text-align: center;">
+      <p style="font-size: 14px; color: #888;">The code is open source:</p>
+      <a href="https://github.com/ando7555/ai-coach" style="font-size: 16px; color: #0077b6; font-weight: 700; text-decoration: none;">github.com/ando7555/ai-coach</a>
+      <p style="margin-top: 12px; font-size: 13px; color: #aaa;">#GraphQL #SpringBoot #REST #HTTP #WebDevelopment #SpringSecurity #JWT #SoftwareEngineering #LearningInPublic</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

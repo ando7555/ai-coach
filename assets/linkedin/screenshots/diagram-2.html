@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entity Pattern — Before vs After</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* --- Shared: Before/After Columns --- */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .ba-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ba-before {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .ba-after {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .ba-side h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ba-before h3 { color: #c62828; }
+  .ba-after h3 { color: #2e7d32; }
+  .ba-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 16px;
+    font-weight: 700;
+  }
+
+  /* --- Diagram 2: Entity Pattern --- */
+  .code-block {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-highlight {
+    background: #fff9c4;
+    display: inline;
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="diagram">
+  <div class="diagram-title">Entity Pattern — Before vs After</div>
+  <div class="diagram-subtitle">49 lines of boilerplate reduced to 24 lines with Lombok</div>
+
+  <div class="before-after">
+    <div class="ba-side ba-before">
+      <h3>&#10007; Manual (4 entities)</h3>
+      <div class="code-block">@Node
+public class Team {
+
+    @Id @GeneratedValue
+    private Long id;
+    private String name;
+    private String league;
+    private String formation;
+
+    @Relationship(type = "HAS_PLAYER")
+    private Set&lt;Player&gt; players
+        = new HashSet&lt;&gt;();
+
+    <span class="code-highlight">public Team() {}</span>
+    <span class="code-highlight">public Team(String name, ...) {</span>
+    <span class="code-highlight">    this.name = name; ... }</span>
+
+    <span class="code-highlight">public Long getId() { return id; }</span>
+    <span class="code-highlight">public String getName() { ... }</span>
+    <span class="code-highlight">public void setName(String n) { ... }</span>
+    <span class="code-highlight">public String getLeague() { ... }</span>
+    <span class="code-highlight">public void setLeague(String l) { ... }</span>
+    <span class="code-highlight">// ... 4 more methods</span>
+}</div>
+    </div>
+
+    <div class="ba-arrow">&#10132;</div>
+
+    <div class="ba-side ba-after">
+      <h3>&#10003; Lombok (all 11 entities)</h3>
+      <div class="code-block">@Node
+<span class="code-highlight">@Getter @Setter</span>
+<span class="code-highlight">@NoArgsConstructor</span>
+<span class="code-highlight">@AllArgsConstructor</span>
+<span class="code-highlight">@Builder</span>
+public class Team {
+
+    @Id @GeneratedValue
+    private Long id;
+    private String name;
+    private String league;
+    private String formation;
+
+    @Relationship(type = "HAS_PLAYER")
+    <span class="code-highlight">@Builder.Default</span>
+    private Set&lt;Player&gt; players
+        = new HashSet&lt;&gt;();
+}
+
+// Call site:
+Team team = <span class="code-highlight">Team.builder()</span>
+    .name("Arsenal")
+    .league("Premier League")
+    <span class="code-highlight">.build();</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

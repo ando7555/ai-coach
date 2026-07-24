@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 8: Algorithms, Data Structures &amp; System Design Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* ─── Diagram 1: Audit Catalog ─── */
+  .audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .audit-table thead tr {
+    background: #1a1a2e;
+    color: white;
+  }
+  .audit-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .audit-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .audit-table thead th:last-child { border-radius: 0 8px 0 0; }
+  .audit-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.1s;
+  }
+  .audit-table tbody tr:last-child { border-bottom: none; }
+  .audit-table tbody tr:nth-child(even) { background: #fafafa; }
+  .audit-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+  }
+  .issue-name {
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 13px;
+  }
+  .issue-location {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .complexity-before {
+    font-family: 'Consolas', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #fce4ec;
+    color: #c62828;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .complexity-after {
+    font-family: 'Consolas', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .fix-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .fix-hashmap { background: #e3f2fd; color: #1565c0; }
+  .fix-stream  { background: #e8f5e9; color: #2e7d32; }
+  .fix-sb      { background: #f3e5f5; color: #6a1b9a; }
+  .fix-cache   { background: #fff3e0; color: #e65100; }
+  .fix-page    { background: #e0f2f1; color: #00695c; }
+  .arrow-right {
+    font-size: 18px;
+    color: #bbb;
+    font-weight: 700;
+    padding: 0 8px;
+    vertical-align: middle;
+  }
+  .audit-summary {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .audit-stat {
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid;
+  }
+  .audit-stat .stat-num {
+    font-size: 20px;
+    font-weight: 800;
+    display: block;
+  }
+  .audit-stat .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* ─── Diagram 2: N+1 Problem ─── */
+  .np1-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .np1-side {
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid;
+  }
+  .np1-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .np1-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    color: white;
+  }
+  .np1-bad { background: #fce4ec; border-color: #ef9a9a; }
+  .np1-bad h3 { color: #c62828; }
+  .np1-bad .np1-badge { background: #c62828; }
+  .np1-good { background: #e8f5e9; border-color: #a5d6a7; }
+  .np1-good h3 { color: #2e7d32; }
+  .np1-good .np1-badge { background: #2e7d32; }
+  .np1-calls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .np1-call {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: rgba(198,40,40,0.07);
+  }
+  .np1-call .db-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .np1-call-text {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    color: #555;
+  }
+  .np1-call-more {
+    font-size: 10px;
+    color: #c62828;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px;
+  }
+  .np1-total-bad {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #c62828;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .np1-solution {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .np1-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(46,125,50,0.07);
+    font-size: 11px;
+  }
+  .np1-step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .np1-step-content strong {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1b5e20;
+    margin-bottom: 2px;
+  }
+  .np1-step-content span {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    color: #666;
+  }
+  .np1-total-good {
+    margin-top: 6px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #2e7d32;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* ─── Diagram 3: HashMap Under the Hood ─── */
+  .hashmap-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+  .hashmap-top {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+  }
+  .hashmap-input-box {
+    background: #e3f2fd;
+    border: 2px solid #90caf9;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .hashmap-input-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1565c0;
+    margin-bottom: 6px;
+  }
+  .hashmap-input-box .key-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .key-chip {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    background: #bbdefb;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: #0d47a1;
+    font-weight: 600;
+  }
+  .hashmap-fn-box {
+    background: #fff3e0;
+    border: 2px solid #ffcc80;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    min-width: 180px;
+  }
+  .hashmap-fn-box h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 6px;
+  }
+  .hashmap-fn-box .fn-code {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    color: #555;
+    background: rgba(0,0,0,0.05);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .hashmap-fn-box .fn-note {
+    font-size: 9px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .hashmap-buckets-section {
+    width: 100%;
+  }
+  .hashmap-buckets-section h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .buckets-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .bucket-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .bucket-idx {
+    font-size: 9px;
+    color: #aaa;
+    font-weight: 700;
+    font-family: 'Consolas', monospace;
+  }
+  .bucket-box {
+    width: 72px;
+    min-height: 38px;
+    border-radius: 6px;
+    border: 2px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px;
+  }
+  .bucket-empty {
+    background: #fafafa;
+    border-color: #e0e0e0;
+  }
+  .bucket-empty span { font-size: 18px; color: #ddd; }
+  .bucket-single {
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+  }
+  .bucket-single span {
+    font-family: 'Consolas', monospace;
+    font-size: 9px;
+    color: #2e7d32;
+    font-weight: 700;
+    text-align: center;
+  }
+  .bucket-chain {
+    background: #fff3e0;
+    border-color: #ffcc80;
+    position: relative;
+  }
+  .bucket-chain span {
+    font-family: 'Consolas', monospace;
+    font-size: 8px;
+    color: #e65100;
+    font-weight: 700;
+    text-align: center;
+  }
+  .chain-link {
+    font-size: 9px;
+    color: #bbb;
+  }
+  .bucket-tree {
+    background: #f3e5f5;
+    border-color: #ce93d8;
+  }
+  .bucket-tree span {
+    font-family: 'Consolas', monospace;
+    font-size: 8px;
+    color: #6a1b9a;
+    font-weight: 700;
+    text-align: center;
+  }
+  .hashmap-facts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .hm-fact {
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 2px solid;
+    text-align: center;
+  }
+  .hm-fact .fact-val {
+    font-size: 18px;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .hm-fact .fact-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #555;
+  }
+  .hm-fact .fact-note {
+    font-size: 9px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .hf-init { background: #e3f2fd; border-color: #90caf9; }
+  .hf-init .fact-val { color: #1565c0; }
+  .hf-load { background: #fff3e0; border-color: #ffcc80; }
+  .hf-load .fact-val { color: #e65100; }
+  .hf-tree { background: #f3e5f5; border-color: #ce93d8; }
+  .hf-tree .fact-val { color: #6a1b9a; }
+  .hf-get { background: #e8f5e9; border-color: #a5d6a7; }
+  .hf-get .fact-val { color: #2e7d32; }
+
+  /* ─── Diagram 4: Stream.reduce() ─── */
+  .reduce-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .reduce-sequential {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+  }
+  .reduce-sequential h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1565c0;
+    margin-bottom: 12px;
+  }
+  .reduce-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .reduce-acc {
+    border-radius: 10px;
+    border: 2px solid;
+    padding: 10px 14px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .reduce-acc .acc-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .reduce-acc .acc-val {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+  .ra-identity {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+  }
+  .ra-identity .acc-val { color: #555; }
+  .ra-step1 { background: #e3f2fd; border-color: #90caf9; }
+  .ra-step1 .acc-val { color: #1565c0; }
+  .ra-step2 { background: #bbdefb; border-color: #64b5f6; }
+  .ra-step2 .acc-val { color: #0d47a1; }
+  .ra-step3 { background: #90caf9; border-color: #42a5f5; }
+  .ra-step3 .acc-val { color: #01579b; }
+  .ra-final {
+    background: #1565c0;
+    border-color: #0d47a1;
+  }
+  .ra-final .acc-label { color: #90caf9; }
+  .ra-final .acc-val { color: white; }
+  .reduce-arrow {
+    font-size: 20px;
+    color: #bbb;
+    font-weight: 700;
+    padding: 0 6px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .reduce-arrow .op-label {
+    font-size: 8px;
+    color: #aaa;
+    font-family: 'Consolas', monospace;
+    white-space: nowrap;
+  }
+  .reduce-code-box {
+    background: #1a1a2e;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #e0e0e0;
+    line-height: 1.7;
+  }
+  .kw { color: #82b1ff; }
+  .fn { color: #69f0ae; }
+  .str { color: #ffcc80; }
+  .cm { color: #546e7a; font-style: italic; }
+  .reduce-parallel {
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    background: #fafafa;
+  }
+  .reduce-parallel h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 14px;
+  }
+  .parallel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .parallel-chunk {
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 2px solid;
+  }
+  .parallel-chunk h5 {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .parallel-chunk .chunk-step {
+    font-size: 10px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+    font-family: 'Consolas', monospace;
+  }
+  .pc-left { background: #fce4ec; border-color: #ef9a9a; }
+  .pc-left h5 { color: #c62828; }
+  .pc-right { background: #e3f2fd; border-color: #90caf9; }
+  .pc-right h5 { color: #1565c0; }
+  .parallel-combine {
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  /* ─── Diagram 5: String Immutability ─── */
+  .string-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .string-bad {
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #ef9a9a;
+    background: #fce4ec;
+  }
+  .string-bad h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c62828;
+    margin-bottom: 14px;
+  }
+  .string-good {
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #a5d6a7;
+    background: #e8f5e9;
+  }
+  .string-good h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 14px;
+  }
+  .copy-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .copy-step .iter-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #c62828;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .copy-bar {
+    height: 22px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ef9a9a, #c62828);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    font-family: 'Consolas', monospace;
+  }
+  .copy-note {
+    font-size: 9px;
+    color: #888;
+    flex-shrink: 0;
+  }
+  .string-complexity-bad {
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(198,40,40,0.15);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #c62828;
+    font-family: 'Consolas', monospace;
+  }
+  .sb-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .sb-step .iter-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sb-bar {
+    height: 22px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #a5d6a7, #2e7d32);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    font-family: 'Consolas', monospace;
+  }
+  .sb-note {
+    font-size: 9px;
+    color: #888;
+    flex-shrink: 0;
+  }
+  .string-complexity-good {
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(46,125,50,0.12);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #2e7d32;
+    font-family: 'Consolas', monospace;
+  }
+  .string-proof-box {
+    margin-top: 20px;
+    padding: 14px 20px;
+    background: #fff3e0;
+    border-radius: 8px;
+    border-left: 4px solid #ff8f00;
+    font-size: 12px;
+    color: #555;
+  }
+  .string-proof-box strong { color: #e65100; }
+
+  /* ─── Diagram 6: End-to-End Big-O Trace ─── */
+  .trace-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .trace-step {
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    width: 100%;
+    max-width: 860px;
+  }
+  .trace-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 36px;
+  }
+  .trace-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .trace-vline {
+    width: 3px;
+    flex: 1;
+    min-height: 8px;
+    background: #e0e0e0;
+    margin: 3px 0;
+    align-self: stretch;
+  }
+  .trace-content {
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .trace-info { flex: 1; }
+  .trace-info strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .trace-info span {
+    font-size: 11px;
+    color: #666;
+    font-family: 'Consolas', monospace;
+  }
+  .trace-complexity {
+    font-family: 'Consolas', monospace;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tc-green  { background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; }
+  .tc-blue   { background: #e3f2fd; color: #1565c0; border: 2px solid #90caf9; }
+  .tc-orange { background: #fff3e0; color: #e65100; border: 2px solid #ffcc80; }
+  .tc-purple { background: #f3e5f5; color: #6a1b9a; border: 2px solid #ce93d8; }
+  .tc-teal   { background: #e0f2f1; color: #00695c; border: 2px solid #80cbc4; }
+  .tc-red    { background: #fce4ec; color: #c62828; border: 2px solid #ef9a9a; }
+
+  .ts1 .trace-num { background: #37474f; }
+  .ts1 .trace-content { background: #eceff1; border-color: #b0bec5; }
+  .ts1 .trace-info strong { color: #263238; }
+
+  .ts2 .trace-num { background: #c62828; }
+  .ts2 .trace-content { background: #fce4ec; border-color: #ef9a9a; }
+  .ts2 .trace-info strong { color: #b71c1c; }
+
+  .ts3 .trace-num { background: #1565c0; }
+  .ts3 .trace-content { background: #e3f2fd; border-color: #90caf9; }
+  .ts3 .trace-info strong { color: #0d47a1; }
+
+  .ts4 .trace-num { background: #2e7d32; }
+  .ts4 .trace-content { background: #e8f5e9; border-color: #a5d6a7; }
+  .ts4 .trace-info strong { color: #1b5e20; }
+
+  .ts5 .trace-num { background: #6a1b9a; }
+  .ts5 .trace-content { background: #f3e5f5; border-color: #ce93d8; }
+  .ts5 .trace-info strong { color: #4a148c; }
+
+  .ts6 .trace-num { background: #e65100; }
+  .ts6 .trace-content { background: #fff3e0; border-color: #ffcc80; }
+  .ts6 .trace-info strong { color: #bf360c; }
+
+  .ts7 .trace-num { background: #00695c; }
+  .ts7 .trace-content { background: #e0f2f1; border-color: #80cbc4; }
+  .ts7 .trace-info strong { color: #004d40; }
+
+  .ts8 .trace-num { background: #4527a0; }
+  .ts8 .trace-content { background: #ede7f6; border-color: #b39ddb; }
+  .ts8 .trace-info strong { color: #311b92; }
+
+  .trace-total {
+    margin-top: 12px;
+    width: 100%;
+    max-width: 860px;
+    border-radius: 12px;
+    padding: 16px 20px;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .trace-total .total-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0e0e0;
+  }
+  .trace-total .total-label span {
+    font-size: 11px;
+    font-weight: 400;
+    color: #888;
+    display: block;
+    margin-top: 2px;
+  }
+  .trace-total .total-complexity {
+    font-family: 'Consolas', monospace;
+    font-size: 18px;
+    font-weight: 800;
+    color: #69f0ae;
+    background: rgba(105,240,174,0.1);
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 2px solid rgba(105,240,174,0.3);
+  }
+
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 8: Algorithms, Data Structures &amp; System Design</h1>
+<p class="instructions">Open this file in a browser. Screenshot each diagram individually at ~1200x628 for LinkedIn.</p>
+
+<!-- ─── DIAGRAM 1: The Audit Catalog ─── -->
+<div class="diagram">
+  <div class="diagram-title">The Audit Catalog</div>
+  <div class="diagram-subtitle">6 performance issues found in a real Spring Boot codebase — before &amp; after complexity</div>
+
+  <table class="audit-table">
+    <thead>
+      <tr>
+        <th style="width: 28%;">Issue Found</th>
+        <th style="width: 20%;">Before</th>
+        <th style="width: 4%; text-align:center;">&nbsp;</th>
+        <th style="width: 20%;">After</th>
+        <th style="width: 16%;">Fix Applied</th>
+        <th style="width: 12%;">Where</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="issue-name">N+1 Batch Query</div>
+          <div class="issue-location">SeasonPlanService</div>
+        </td>
+        <td><span class="complexity-before">O(N roundtrips)</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(1) batch + O(n) group</span></td>
+        <td><span class="fix-pill fix-hashmap">HashMap groupingBy</span></td>
+        <td><code style="font-size:10px;">findAllByPlayerIdIn()</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="issue-name">Multi-Pass Aggregation</div>
+          <div class="issue-location">buildWorkloadSnapshot()</div>
+        </td>
+        <td><span class="complexity-before">O(4n) — 4 stream passes</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(n) — single reduce</span></td>
+        <td><span class="fix-pill fix-stream">Stream.reduce()</span></td>
+        <td><code style="font-size:10px;">WorkloadSnapshot</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="issue-name">String Concatenation Loop</div>
+          <div class="issue-location">buildPrompt()</div>
+        </td>
+        <td><span class="complexity-before">O(n&sup2;&times;L) immutable copies</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(n&times;L) amortized</span></td>
+        <td><span class="fix-pill fix-sb">StringBuilder</span></td>
+        <td><code style="font-size:10px;">buildPrompt()</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="issue-name">Exception-Based Parsing</div>
+          <div class="issue-location">AiResponseParser</div>
+        </td>
+        <td><span class="complexity-before">O(stack trace) on miss</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(1) HashMap lookup</span></td>
+        <td><span class="fix-pill fix-hashmap">HashMap dispatch</span></td>
+        <td><code style="font-size:10px;">parseAiResponse()</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="issue-name">No Caching (Hot Paths)</div>
+          <div class="issue-location">Repository layer</div>
+        </td>
+        <td><span class="complexity-before">O(query) per request</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(1) cache hit</span></td>
+        <td><span class="fix-pill fix-cache">@Cacheable</span></td>
+        <td><code style="font-size:10px;">TeamRepository</code></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="issue-name">No Pagination (Collections)</div>
+          <div class="issue-location">Player / Stats queries</div>
+        </td>
+        <td><span class="complexity-before">O(all records) in memory</span></td>
+        <td style="text-align:center;"><span class="arrow-right">&#8594;</span></td>
+        <td><span class="complexity-after">O(page size) bounded</span></td>
+        <td><span class="fix-pill fix-page">Pageable</span></td>
+        <td><code style="font-size:10px;">findByTeamId()</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="audit-summary">
+    <div class="audit-stat" style="background:#fce4ec; border-color:#ef9a9a;">
+      <span class="stat-num" style="color:#c62828;">6</span>
+      <span class="stat-label" style="color:#c62828;">Issues Found</span>
+    </div>
+    <div class="audit-stat" style="background:#e8f5e9; border-color:#a5d6a7;">
+      <span class="stat-num" style="color:#2e7d32;">6</span>
+      <span class="stat-label" style="color:#2e7d32;">Fixes Applied</span>
+    </div>
+    <div class="audit-stat" style="background:#e3f2fd; border-color:#90caf9;">
+      <span class="stat-num" style="color:#1565c0;">O(n&sup2;)&#8594;O(n)</span>
+      <span class="stat-label" style="color:#1565c0;">Biggest Win</span>
+    </div>
+    <div class="audit-stat" style="background:#fff3e0; border-color:#ffcc80;">
+      <span class="stat-num" style="color:#e65100;">3</span>
+      <span class="stat-label" style="color:#e65100;">Data Structures</span>
+    </div>
+    <div class="audit-stat" style="background:#f3e5f5; border-color:#ce93d8;">
+      <span class="stat-num" style="color:#6a1b9a;">2</span>
+      <span class="stat-label" style="color:#6a1b9a;">Algorithms</span>
+    </div>
+    <div class="audit-stat" style="background:#e0f2f1; border-color:#80cbc4;">
+      <span class="stat-num" style="color:#00695c;">1</span>
+      <span class="stat-label" style="color:#00695c;">System Design</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 2: N+1 Problem → Batch Query ─── -->
+<div class="diagram">
+  <div class="diagram-title">N+1 Problem &#8594; Batch Query</div>
+  <div class="diagram-subtitle">25 players = 25 DB roundtrips (before) vs 1 roundtrip + HashMap grouping (after)</div>
+
+  <div class="np1-layout">
+    <!-- BEFORE -->
+    <div class="np1-side np1-bad">
+      <h3><span class="np1-badge">BEFORE</span> N+1 Queries — O(N roundtrips)</h3>
+      <div class="np1-calls">
+        <div class="np1-call">
+          <span class="db-icon">&#128640;</span>
+          <span class="np1-call-text">SELECT * FROM stats WHERE player_id = <strong>1</strong></span>
+        </div>
+        <div class="np1-call">
+          <span class="db-icon">&#128640;</span>
+          <span class="np1-call-text">SELECT * FROM stats WHERE player_id = <strong>2</strong></span>
+        </div>
+        <div class="np1-call">
+          <span class="db-icon">&#128640;</span>
+          <span class="np1-call-text">SELECT * FROM stats WHERE player_id = <strong>3</strong></span>
+        </div>
+        <div class="np1-call">
+          <span class="db-icon">&#128640;</span>
+          <span class="np1-call-text">SELECT * FROM stats WHERE player_id = <strong>4</strong></span>
+        </div>
+        <div class="np1-call">
+          <span class="db-icon">&#128640;</span>
+          <span class="np1-call-text">SELECT * FROM stats WHERE player_id = <strong>5</strong></span>
+        </div>
+        <div class="np1-call-more">&#8942; &nbsp;+20 more identical roundtrips&#8942;</div>
+      </div>
+      <div style="margin-top: 12px; font-size: 11px; color: #777; background: rgba(198,40,40,0.07); border-radius: 6px; padding: 8px 10px;">
+        <strong style="color:#c62828;">Code pattern:</strong><br>
+        <code style="font-size:10px;">players.forEach(p -&gt; repo.findByPlayerId(p.getId()))</code><br>
+        <span style="font-size:10px;">Each iteration fires a new network roundtrip to Neo4j.</span>
+      </div>
+      <div class="np1-total-bad">25 players = 25 DB roundtrips&nbsp;&nbsp;&#9888;</div>
+    </div>
+
+    <!-- AFTER -->
+    <div class="np1-side np1-good">
+      <h3><span class="np1-badge">AFTER</span> Batch + HashMap — O(1) roundtrip</h3>
+      <div class="np1-solution">
+        <div class="np1-step">
+          <div class="np1-step-num">1</div>
+          <div class="np1-step-content">
+            <strong>Collect all IDs upfront</strong>
+            <span>playerIds = players.stream().map(Player::getId).toList()</span>
+          </div>
+        </div>
+        <div class="np1-step">
+          <div class="np1-step-num">2</div>
+          <div class="np1-step-content">
+            <strong>Single batch query to DB</strong>
+            <span>repo.findAllByPlayerIdIn(playerIds)&nbsp;&nbsp;&#8592; ONE roundtrip</span>
+          </div>
+        </div>
+        <div class="np1-step">
+          <div class="np1-step-num">3</div>
+          <div class="np1-step-content">
+            <strong>Build HashMap index in memory</strong>
+            <span>Collectors.groupingBy(PlayerMatchStat::getPlayerId)</span>
+          </div>
+        </div>
+        <div class="np1-step">
+          <div class="np1-step-num">4</div>
+          <div class="np1-step-content">
+            <strong>O(1) lookup per player</strong>
+            <span>statsMap.getOrDefault(player.getId(), List.of())</span>
+          </div>
+        </div>
+      </div>
+      <div class="np1-total-good">25 players = 1 DB roundtrip + 25 O(1) lookups&nbsp;&nbsp;&#10003;</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+    <div style="padding: 12px; background: #fce4ec; border-radius: 8px; border-left: 4px solid #c62828; font-size: 11px; color: #555;">
+      <strong style="color:#c62828;">Why it hurts:</strong> Each DB roundtrip pays network latency (~1-5ms). 25 players = up to 125ms wasted in I/O alone.
+    </div>
+    <div style="padding: 12px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #2e7d32; font-size: 11px; color: #555;">
+      <strong style="color:#2e7d32;">HashMap win:</strong> After groupingBy, each lookup is O(1) average — hash computed, bucket indexed, value returned.
+    </div>
+    <div style="padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #1565c0; font-size: 11px; color: #555;">
+      <strong style="color:#1565c0;">Net complexity:</strong> O(N roundtrips) + O(N) → <strong>O(1) roundtrip + O(n) linear grouping</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 3: HashMap Under the Hood ─── -->
+<div class="diagram">
+  <div class="diagram-title">HashMap Under the Hood</div>
+  <div class="diagram-subtitle">Array of buckets + hash function + collision handling — how O(1) average lookup works</div>
+
+  <div class="hashmap-layout">
+    <div class="hashmap-top">
+      <div class="hashmap-input-box">
+        <h4>Keys (Player IDs)</h4>
+        <div class="key-examples">
+          <div class="key-chip">"player-uuid-001"</div>
+          <div class="key-chip">"player-uuid-002"</div>
+          <div class="key-chip">"player-uuid-003"</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="font-size:24px; color:#bbb; font-weight:700;">&#8594;</div>
+        <div class="hashmap-fn-box">
+          <h4>hash(key)</h4>
+          <div class="fn-code">key.hashCode()</div>
+          <div class="fn-code">&amp; (n-1)&nbsp;&nbsp;&darr;&nbsp;bucket</div>
+          <div class="fn-note">Powers-of-2 table size: bit-AND replaces slow modulo</div>
+        </div>
+        <div style="font-size:24px; color:#bbb; font-weight:700;">&#8594;</div>
+      </div>
+
+      <div>
+        <div class="hashmap-buckets-section">
+          <h4>Internal Array (default capacity = 16)</h4>
+          <div class="buckets-row">
+            <div class="bucket-cell">
+              <div class="bucket-idx">[0]</div>
+              <div class="bucket-box bucket-empty"><span>&#8709;</span></div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[1]</div>
+              <div class="bucket-box bucket-single"><span>001&#8594;[stats]</span></div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[2]</div>
+              <div class="bucket-box bucket-empty"><span>&#8709;</span></div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[3]</div>
+              <div class="bucket-box bucket-chain">
+                <span>002&#8594;[stats]</span>
+                <div class="chain-link">&#8595;</div>
+                <span>005&#8594;[stats]</span>
+              </div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[4]</div>
+              <div class="bucket-box bucket-single"><span>003&#8594;[stats]</span></div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[5]</div>
+              <div class="bucket-box bucket-empty"><span>&#8709;</span></div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">[6]</div>
+              <div class="bucket-box bucket-tree">
+                <span>008&#8594;</span>
+                <span>&#127795; tree</span>
+                <span>(&#8805;8 nodes)</span>
+              </div>
+            </div>
+            <div class="bucket-cell">
+              <div class="bucket-idx">&#8230;</div>
+              <div class="bucket-box bucket-empty"><span>&#8709;</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3,1fr); gap:14px; width:100%; margin-top:4px;">
+      <div style="background:#fff3e0; border:2px solid #ffcc80; border-radius:10px; padding:14px; font-size:11px;">
+        <strong style="color:#e65100; display:block; margin-bottom:6px;">Linked List (collision &lt; 8)</strong>
+        Entries in same bucket form a linked list.<br>
+        Each node: <code>key</code>, <code>value</code>, <code>next</code> pointer.<br>
+        Lookup: O(k) where k = chain length (usually 1-2).
+      </div>
+      <div style="background:#f3e5f5; border:2px solid #ce93d8; border-radius:10px; padding:14px; font-size:11px;">
+        <strong style="color:#6a1b9a; display:block; margin-bottom:6px;">Red-Black Tree (collision &#8805; 8)</strong>
+        Bucket treeifies when chain hits 8 nodes.<br>
+        Worst-case lookup degrades from O(n) &#8594; O(log n).<br>
+        Untreeifies back at 6 nodes during removal.
+      </div>
+      <div style="background:#e3f2fd; border:2px solid #90caf9; border-radius:10px; padding:14px; font-size:11px;">
+        <strong style="color:#1565c0; display:block; margin-bottom:6px;">Rehashing (load &gt; 0.75)</strong>
+        When entries / capacity &gt; 0.75, table doubles.<br>
+        All entries re-bucketed: O(n) one-time cost.<br>
+        Pre-size: <code>new HashMap&lt;&gt;(n * 4/3 + 1)</code>
+      </div>
+    </div>
+
+    <div class="hashmap-facts">
+      <div class="hm-fact hf-init">
+        <span class="fact-val">16</span>
+        <span class="fact-label">Default capacity</span>
+        <span class="fact-note">Power of 2 — enables bit-AND indexing</span>
+      </div>
+      <div class="hm-fact hf-load">
+        <span class="fact-val">0.75</span>
+        <span class="fact-label">Load factor</span>
+        <span class="fact-note">Resize when 75% full</span>
+      </div>
+      <div class="hm-fact hf-tree">
+        <span class="fact-val">8</span>
+        <span class="fact-label">Treeify threshold</span>
+        <span class="fact-note">Linked list &#8594; red-black tree</span>
+      </div>
+      <div class="hm-fact hf-get">
+        <span class="fact-val">O(1)</span>
+        <span class="fact-label">Average get/put</span>
+        <span class="fact-note">Amortized — assumes good hash distribution</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 4: Stream.reduce() — Single-Pass Fold ─── -->
+<div class="diagram">
+  <div class="diagram-title">Stream.reduce() — Single-Pass Fold</div>
+  <div class="diagram-subtitle">Replaces 4 separate stream passes with one accumulating fold — O(4n) &#8594; O(n)</div>
+
+  <div class="reduce-layout">
+    <div style="background:#1a1a2e; border-radius:10px; padding:16px 20px;">
+      <div style="font-size:11px; font-weight:700; color:#82b1ff; margin-bottom:8px; font-family:'Consolas',monospace;">// BEFORE — 4 separate passes through the same list</div>
+      <div class="reduce-code-box" style="padding: 0; background:transparent;">
+        <span class="kw">double</span> avg = stats.stream().<span class="fn">mapToInt</span>(PlayerMatchStat::getMinutesPlayed).<span class="fn">average</span>();&nbsp;&nbsp;<span class="cm">// pass 1</span><br>
+        <span class="kw">int</span> goals = stats.stream().<span class="fn">mapToInt</span>(PlayerMatchStat::getGoals).<span class="fn">sum</span>();&nbsp;&nbsp;<span class="cm">// pass 2</span><br>
+        <span class="kw">int</span> assists = stats.stream().<span class="fn">mapToInt</span>(PlayerMatchStat::getAssists).<span class="fn">sum</span>();&nbsp;&nbsp;<span class="cm">// pass 3</span><br>
+        <span class="kw">long</span> count = stats.stream().<span class="fn">count</span>();&nbsp;&nbsp;<span class="cm">// pass 4</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <h4 style="font-size:13px; font-weight:700; color:#2e7d32; margin-bottom:0;">AFTER — Single reduce() pass: identity &#8594; fold &#8594; result</h4>
+
+      <div class="reduce-steps">
+        <div class="reduce-acc ra-identity">
+          <div class="acc-label">identity</div>
+          <div class="acc-val">Snapshot(0,0,0,0)</div>
+        </div>
+        <div class="reduce-arrow">
+          &#8594;
+          <div class="op-label">.add(stat1)</div>
+        </div>
+        <div class="reduce-acc ra-step1">
+          <div class="acc-label">after stat 1</div>
+          <div class="acc-val">Snapshot(90,1,0,1)</div>
+        </div>
+        <div class="reduce-arrow">
+          &#8594;
+          <div class="op-label">.add(stat2)</div>
+        </div>
+        <div class="reduce-acc ra-step2">
+          <div class="acc-label">after stat 2</div>
+          <div class="acc-val">Snapshot(165,2,1,2)</div>
+        </div>
+        <div class="reduce-arrow">
+          &#8594;
+          <div class="op-label">.add(stat3)</div>
+        </div>
+        <div class="reduce-acc ra-step3">
+          <div class="acc-label">after stat 3</div>
+          <div class="acc-val">Snapshot(240,2,2,3)</div>
+        </div>
+        <div class="reduce-arrow">
+          &#8594;
+          <div class="op-label">&#8943; n stats</div>
+        </div>
+        <div class="reduce-acc ra-final">
+          <div class="acc-label">final result</div>
+          <div class="acc-val">WorkloadSnapshot</div>
+        </div>
+      </div>
+
+      <div class="reduce-code-box">
+        <span class="cm">// ONE pass — reduce() folds all fields simultaneously</span><br>
+        WorkloadSnapshot snapshot = stats.<span class="fn">stream</span>()<br>
+        &nbsp;&nbsp;.<span class="fn">reduce</span>(<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="fn">WorkloadSnapshot</span>(<span class="str">0</span>, <span class="str">0</span>, <span class="str">0</span>, <span class="str">0</span>),&nbsp;&nbsp;<span class="cm">// identity</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;WorkloadSnapshot::<span class="fn">add</span>,&nbsp;&nbsp;<span class="cm">// accumulator (called once per element)</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;WorkloadSnapshot::<span class="fn">combine</span>&nbsp;&nbsp;<span class="cm">// combiner (used only in parallel streams)</span><br>
+        &nbsp;&nbsp;);
+      </div>
+    </div>
+
+    <div class="reduce-parallel">
+      <h4>Parallel Stream — The Combiner Activates</h4>
+      <div class="parallel-grid">
+        <div class="parallel-chunk pc-left">
+          <h5>Thread 1 — stats[0..12]</h5>
+          <div class="chunk-step">identity &#8594; add(stat0) &#8594; add(stat1) &#8943;</div>
+          <div class="chunk-step">&#8594; Partial: Snapshot(A)</div>
+        </div>
+        <div class="parallel-chunk pc-right">
+          <h5>Thread 2 — stats[13..24]</h5>
+          <div class="chunk-step">identity &#8594; add(stat13) &#8594; add(stat14) &#8943;</div>
+          <div class="chunk-step">&#8594; Partial: Snapshot(B)</div>
+        </div>
+      </div>
+      <div class="parallel-combine">
+        combine(Snapshot(A), Snapshot(B)) &#8594; Final WorkloadSnapshot
+        <div style="font-size:10px; font-weight:400; color:#555; margin-top:4px;">
+          combiner() merges two partial results — must be associative and stateless
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 5: String Immutability — O(n²) Proof ─── -->
+<div class="diagram">
+  <div class="diagram-title">String Immutability — O(n&sup2;) Proof</div>
+  <div class="diagram-subtitle">Every += in a loop creates a brand-new object and copies all previous bytes</div>
+
+  <div class="string-layout">
+    <div class="string-bad">
+      <h3>String += in Loop — O(n&sup2;&times;L)</h3>
+
+      <div class="copy-step">
+        <div class="iter-num">1</div>
+        <div class="copy-bar" style="width:60px;">copy L</div>
+        <div class="copy-note">copies L bytes, new object</div>
+      </div>
+      <div class="copy-step">
+        <div class="iter-num">2</div>
+        <div class="copy-bar" style="width:110px;">copy 2&times;L</div>
+        <div class="copy-note">copies 2L bytes, new object</div>
+      </div>
+      <div class="copy-step">
+        <div class="iter-num">3</div>
+        <div class="copy-bar" style="width:160px;">copy 3&times;L</div>
+        <div class="copy-note">copies 3L bytes, new object</div>
+      </div>
+      <div class="copy-step">
+        <div class="iter-num">4</div>
+        <div class="copy-bar" style="width:210px;">copy 4&times;L</div>
+        <div class="copy-note">copies 4L bytes, new object</div>
+      </div>
+      <div class="copy-step">
+        <div class="iter-num" style="font-size:8px;">&#8943;</div>
+        <div style="font-size:10px; color:#c62828; font-family:'Consolas',monospace;">L + 2L + 3L + &#8943; + nL = L&times;(n&times;(n+1)/2)</div>
+      </div>
+
+      <div style="margin: 10px 0; padding: 8px 10px; background: rgba(198,40,40,0.1); border-radius: 6px; font-family:'Consolas',monospace; font-size:11px; color:#555;">
+        result = "";<br>
+        <span style="color:#c62828;">for</span> (player : players) {<br>
+        &nbsp;&nbsp;result += formatPlayer(player);&nbsp;<span style="color:#c62828; font-style:italic;">// NEW object every iteration!</span><br>
+        }
+      </div>
+
+      <div class="string-complexity-bad">Total copies: O(n&sup2;&times;L)</div>
+    </div>
+
+    <div class="string-good">
+      <h3>StringBuilder — O(n&times;L) Amortized</h3>
+
+      <div class="sb-step">
+        <div class="iter-num">1</div>
+        <div class="sb-bar" style="width:60px;">append L</div>
+        <div class="sb-note">writes into existing buffer</div>
+      </div>
+      <div class="sb-step">
+        <div class="iter-num">2</div>
+        <div class="sb-bar" style="width:60px;">append L</div>
+        <div class="sb-note">same buffer, no copy</div>
+      </div>
+      <div class="sb-step">
+        <div class="iter-num">3</div>
+        <div class="sb-bar" style="width:60px;">append L</div>
+        <div class="sb-note">same buffer, no copy</div>
+      </div>
+      <div class="sb-step">
+        <div class="iter-num">&#9651;</div>
+        <div class="sb-bar" style="width:110px; background:linear-gradient(90deg,#ffcc80,#e65100);">buffer doubles</div>
+        <div class="sb-note">O(n) amortized resize</div>
+      </div>
+      <div class="sb-step">
+        <div class="iter-num" style="font-size:8px;">&#8943;</div>
+        <div style="font-size:10px; color:#2e7d32; font-family:'Consolas',monospace;">L + L + L + &#8943; = n&times;L total writes</div>
+      </div>
+
+      <div style="margin: 10px 0; padding: 8px 10px; background: rgba(46,125,50,0.1); border-radius: 6px; font-family:'Consolas',monospace; font-size:11px; color:#555;">
+        <span style="color:#2e7d32;">var</span> sb = new StringBuilder();<br>
+        <span style="color:#2e7d32;">for</span> (player : players) {<br>
+        &nbsp;&nbsp;sb.append(formatPlayer(player));<span style="color:#2e7d32; font-style:italic;">// in-place write</span><br>
+        }<br>
+        result = sb.toString();&nbsp;&nbsp;<span style="color:#2e7d32; font-style:italic;">// ONE final copy</span>
+      </div>
+
+      <div class="string-complexity-good">Total writes: O(n&times;L) — no quadratic copies</div>
+    </div>
+  </div>
+
+  <div class="string-proof-box">
+    <strong>Why strings are immutable:</strong> Java's <code>String</code> stores a <code>final char[]</code>.
+    Every <code>+=</code> calls <code>new String(old + addition)</code>, allocating a fresh object on the heap and
+    copying all previous bytes into it. With 25 players and prompts averaging ~200 chars (L=200):
+    String concatenation copies ~<strong>62,500 bytes</strong> total. StringBuilder copies just ~<strong>5,000 bytes</strong>. That's a 12x reduction.
+    <code>StringBuilder</code> uses a resizable <code>char[]</code> — it appends in-place and only copies when doubling capacity (amortized O(1) per append).
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 6: End-to-End Big-O Trace ─── -->
+<div class="diagram">
+  <div class="diagram-title">End-to-End Big-O Trace — generateSeasonPlan()</div>
+  <div class="diagram-subtitle">Complexity annotation at every stage of the full request pipeline</div>
+
+  <div class="trace-layout">
+
+    <div class="trace-step ts1">
+      <div class="trace-left">
+        <div class="trace-num">1</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>GraphQL Request Received</strong>
+          <span>CoachGraphQLController.generateSeasonPlan(input) — JWT validated</span>
+        </div>
+        <div class="trace-complexity tc-green">O(1)</div>
+      </div>
+    </div>
+
+    <div class="trace-step ts2">
+      <div class="trace-left">
+        <div class="trace-num">2</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Team + Player Fetch (Batch Query)</strong>
+          <span>teamRepo.findById() + playerRepo.findByTeamId() + statsRepo.findAllByPlayerIdIn(ids)</span>
+        </div>
+        <div class="trace-complexity tc-blue">O(n) DB scan</div>
+      </div>
+    </div>
+
+    <div class="trace-step ts3">
+      <div class="trace-left">
+        <div class="trace-num">3</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>HashMap Index Build — groupingBy(playerId)</strong>
+          <span>Collectors.groupingBy() — one pass over stat records, O(1) amortized put per entry</span>
+        </div>
+        <div class="trace-complexity tc-blue">O(n) build<br><span style="font-size:9px;">then O(1) lookup</span></div>
+      </div>
+    </div>
+
+    <div class="trace-step ts4">
+      <div class="trace-left">
+        <div class="trace-num">4</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Stream.reduce() — buildWorkloadSnapshot()</strong>
+          <span>Single-pass fold over player stats: accumulates minutes, goals, assists, count in O(n)</span>
+        </div>
+        <div class="trace-complexity tc-blue">O(n) per player<br><span style="font-size:9px;">O(n&times;p) total</span></div>
+      </div>
+    </div>
+
+    <div class="trace-step ts5">
+      <div class="trace-left">
+        <div class="trace-num">5</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Enum Switch — FatigueLevel + InjuryRisk</strong>
+          <span>computeFatigueLevel(snapshot) + computeInjuryRisk(snapshot): direct enum switch dispatch</span>
+        </div>
+        <div class="trace-complexity tc-green">O(1) each</div>
+      </div>
+    </div>
+
+    <div class="trace-step ts6">
+      <div class="trace-left">
+        <div class="trace-num">6</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Prompt Build — StringBuilder</strong>
+          <span>buildPrompt() iterates all players/snapshots, StringBuilder.append() — O(n&times;L) amortized</span>
+        </div>
+        <div class="trace-complexity tc-orange">O(n&times;L) amort.</div>
+      </div>
+    </div>
+
+    <div class="trace-step ts7">
+      <div class="trace-left">
+        <div class="trace-num">7</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Gemini API Call (Network I/O)</strong>
+          <span>aiClient.generateSeasonPlan(prompt) — Mono on boundedElastic scheduler, blocks on network</span>
+        </div>
+        <div class="trace-complexity tc-teal">O(1) code<br><span style="font-size:9px;">O(T) network latency</span></div>
+      </div>
+    </div>
+
+    <div class="trace-step ts8">
+      <div class="trace-left">
+        <div class="trace-num">8</div>
+        <div class="trace-vline"></div>
+      </div>
+      <div class="trace-content">
+        <div class="trace-info">
+          <strong>Parse + HashMap Dispatch + Neo4j Save</strong>
+          <span>stripMarkdownFences() O(L) + objectMapper.readValue() O(L) + seasonPlanRepo.save() O(1)</span>
+        </div>
+        <div class="trace-complexity tc-purple">O(L) parse</div>
+      </div>
+    </div>
+
+    <div class="trace-total">
+      <div class="total-label">
+        Dominant Term — Overall Pipeline Complexity
+        <span>n = player count &nbsp;|&nbsp; p = stats per player &nbsp;|&nbsp; L = prompt length &nbsp;|&nbsp; T = network time</span>
+      </div>
+      <div class="total-complexity">O(n&times;p) + O(n&times;L)</div>
+    </div>
+
+    <div style="margin-top: 16px; width: 100%; max-width:860px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+      <div style="padding:12px; background:#e8f5e9; border-radius:8px; border-left:4px solid #2e7d32; font-size:11px; color:#555;">
+        <strong style="color:#2e7d32;">Eliminated:</strong> N+1 O(N roundtrips), O(4n) multi-pass, O(n&sup2;&times;L) string copies. The pipeline is now provably linear.
+      </div>
+      <div style="padding:12px; background:#e3f2fd; border-radius:8px; border-left:4px solid #1565c0; font-size:11px; color:#555;">
+        <strong style="color:#1565c0;">Bottleneck:</strong> Step 7 — Gemini network I/O (O(T)). All in-process steps are fast. Async Mono isolates it.
+      </div>
+      <div style="padding:12px; background:#fff3e0; border-radius:8px; border-left:4px solid #e65100; font-size:11px; color:#555;">
+        <strong style="color:#e65100;">Next lever:</strong> @Cacheable on team/player queries turns O(n) DB scans into O(1) on repeat requests.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

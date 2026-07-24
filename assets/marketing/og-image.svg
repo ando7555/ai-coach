@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.03">
+    <line x1="0" y1="100" x2="1200" y2="100" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="300" x2="1200" y2="300" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="400" x2="1200" y2="400" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="500" x2="1200" y2="500" stroke="white" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="400" y1="0" x2="400" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="600" y1="0" x2="600" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="800" y1="0" x2="800" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="1000" y1="0" x2="1000" y2="630" stroke="white" stroke-width="1"/>
+  </g>
+
+  <!-- Accent line top -->
+  <rect x="0" y="0" width="1200" height="4" fill="#00b4d8"/>
+
+  <!-- AI text -->
+  <text x="600" y="200" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="80" font-weight="300" fill="#00b4d8" letter-spacing="12"
+        text-anchor="middle">AI</text>
+
+  <!-- COACH text -->
+  <text x="600" y="290" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="80" font-weight="700" fill="white" letter-spacing="12"
+        text-anchor="middle">COACH</text>
+
+  <!-- Divider -->
+  <line x1="450" y1="320" x2="750" y2="320" stroke="#00b4d8" stroke-width="2" opacity="0.4"/>
+
+  <!-- Subtitle -->
+  <text x="600" y="370" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="28" font-weight="400" fill="#90e0ef" text-anchor="middle">LinkedIn Post Series</text>
+
+  <!-- Description -->
+  <text x="600" y="420" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="18" font-weight="400" fill="#888" text-anchor="middle">Java  |  Spring Boot  |  GraphQL  |  Architecture  |  Design Patterns</text>
+
+  <!-- Post count pills -->
+  <g transform="translate(600, 480)" text-anchor="middle">
+    <!-- Blue pill -->
+    <rect x="-250" y="-18" width="100" height="36" rx="8" fill="#1565c0" opacity="0.9"/>
+    <text x="-200" y="7" font-family="'Segoe UI', system-ui, sans-serif"
+          font-size="15" font-weight="600" fill="white" text-anchor="middle">7 Posts</text>
+
+    <!-- Green pill -->
+    <rect x="-120" y="-18" width="100" height="36" rx="8" fill="#2e7d32" opacity="0.9"/>
+    <text x="-70" y="7" font-family="'Segoe UI', system-ui, sans-serif"
+          font-size="15" font-weight="600" fill="white" text-anchor="middle">2 Phases</text>
+
+    <!-- Orange pill -->
+    <rect x="10" y="-18" width="120" height="36" rx="8" fill="#e65100" opacity="0.9"/>
+    <text x="70" y="7" font-family="'Segoe UI', system-ui, sans-serif"
+          font-size="15" font-weight="600" fill="white" text-anchor="middle">Real Project</text>
+
+    <!-- Purple pill -->
+    <rect x="160" y="-18" width="100" height="36" rx="8" fill="#6a1b9a" opacity="0.9"/>
+    <text x="210" y="7" font-family="'Segoe UI', system-ui, sans-serif"
+          font-size="15" font-weight="600" fill="white" text-anchor="middle">Open Source</text>
+  </g>
+
+  <!-- URL at bottom -->
+  <text x="600" y="570" font-family="'Segoe UI', system-ui, sans-serif"
+        font-size="16" font-weight="400" fill="#555" text-anchor="middle">ando7555.github.io/ai-coach</text>
+
+  <!-- Bottom accent -->
+  <rect x="0" y="626" width="1200" height="4" fill="#00b4d8"/>
+</svg>

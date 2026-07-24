@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 3: Java Fundamentals Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 860px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+
+  /* ─── Diagram 1: JVM Compilation Flow ─── */
+  .compile-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 20px 0;
+  }
+  .compile-step {
+    text-align: center;
+    min-width: 120px;
+  }
+  .compile-step .step-box {
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .compile-step .step-label {
+    font-size: 11px;
+    color: #888;
+  }
+  .step-source .step-box { background: #e3f2fd; color: #1565c0; border: 2px solid #90caf9; }
+  .step-compiler .step-box { background: #fff3e0; color: #e65100; border: 2px solid #ffcc80; }
+  .step-bytecode .step-box { background: #f3e5f5; color: #6a1b9a; border: 2px solid #ce93d8; }
+  .step-jvm .step-box { background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; }
+  .compile-arrow {
+    font-size: 22px;
+    color: #bbb;
+    padding: 0 8px;
+    margin-bottom: 18px;
+  }
+
+  .jvm-detail {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    justify-content: center;
+  }
+  .jvm-phase {
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: center;
+    flex: 1;
+    max-width: 220px;
+  }
+  .jvm-phase h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .jvm-phase p { font-size: 11px; color: #555; line-height: 1.5; }
+  .phase-interpret { background: #fff8e1; border: 2px solid #ffe082; }
+  .phase-interpret h4 { color: #f57f17; }
+  .phase-jit { background: #fce4ec; border: 2px solid #f48fb1; }
+  .phase-jit h4 { color: #c62828; }
+  .phase-gc { background: #e0f7fa; border: 2px solid #80deea; }
+  .phase-gc h4 { color: #00838f; }
+  .jvm-phase-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    color: #ccc;
+  }
+
+  /* ─── Diagram 2: Dockerfile Stages ─── */
+  .docker-stages {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+  }
+  .docker-stage {
+    flex: 1;
+    max-width: 350px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid;
+  }
+  .docker-stage-header {
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .docker-stage-body {
+    padding: 16px 20px;
+  }
+  .docker-stage-body .docker-line {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    color: #444;
+    line-height: 2;
+  }
+  .docker-stage-body .docker-line span { color: #0077b6; font-weight: 600; }
+  .docker-stage-footer {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .stage-build { border-color: #e65100; }
+  .stage-build .docker-stage-header { background: #e65100; }
+  .stage-build .docker-stage-footer { background: #fff3e0; color: #e65100; }
+  .stage-run { border-color: #2e7d32; }
+  .stage-run .docker-stage-header { background: #2e7d32; }
+  .stage-run .docker-stage-footer { background: #e8f5e9; color: #2e7d32; }
+  .docker-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 28px;
+    color: #ccc;
+  }
+  .docker-size {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .size-badge {
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .size-jdk { background: #ffcdd2; color: #b71c1c; }
+  .size-jre { background: #c8e6c9; color: #1b5e20; }
+
+  /* ─── Diagram 3: Language Features Grid ─── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .feature-card {
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid;
+  }
+  .feature-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feature-card .code-snippet {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    color: #333;
+    line-height: 1.6;
+  }
+  .feature-card .why {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .feat-enums { background: #e3f2fd; border-color: #1565c0; }
+  .feat-enums h3 { color: #1565c0; }
+  .feat-records { background: #e8f5e9; border-color: #2e7d32; }
+  .feat-records h3 { color: #2e7d32; }
+  .feat-generics { background: #f3e5f5; border-color: #6a1b9a; }
+  .feat-generics h3 { color: #6a1b9a; }
+  .feat-annotations { background: #fff3e0; border-color: #e65100; }
+  .feat-annotations h3 { color: #e65100; }
+  .feat-interfaces { background: #fce4ec; border-color: #c62828; }
+  .feat-interfaces h3 { color: #c62828; }
+  .feat-exceptions { background: #e0f7fa; border-color: #00838f; }
+  .feat-exceptions h3 { color: #00838f; }
+
+  /* ─── Diagram 4: Ecosystem Layers ─── */
+  .ecosystem-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .eco-layer {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 16px 24px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .eco-layer .eco-label {
+    position: absolute;
+    top: -11px;
+    left: 20px;
+    background: white;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .eco-layer .eco-items {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .eco-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+  }
+  .eco-item h4 { font-size: 12px; color: #333; font-weight: 700; }
+  .eco-item p { font-size: 10px; color: #888; margin-top: 2px; }
+
+  .eco-build { border-color: #6db33f; }
+  .eco-build .eco-label { color: #6db33f; }
+  .eco-framework { border-color: #0077b6; }
+  .eco-framework .eco-label { color: #0077b6; }
+  .eco-libraries { border-color: #7b2cbf; }
+  .eco-libraries .eco-label { color: #7b2cbf; }
+  .eco-runtime { border-color: #e76f51; }
+  .eco-runtime .eco-label { color: #e76f51; }
+  .eco-deploy { border-color: #2d6a4f; }
+  .eco-deploy .eco-label { color: #2d6a4f; }
+
+  .eco-arrow {
+    text-align: center;
+    font-size: 20px;
+    color: #ccc;
+    margin: 2px 0;
+  }
+
+  /* ─── Diagram 5: Type Safety Comparison ─── */
+  .safety-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .safety-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .safety-java { background: #e8f5e9; border: 2px solid #a5d6a7; }
+  .safety-dynamic { background: #fff3f3; border: 2px solid #ffcdd2; }
+  .safety-side h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .safety-java h3 { color: #2e7d32; }
+  .safety-dynamic h3 { color: #c62828; }
+  .safety-scenario {
+    margin-bottom: 14px;
+  }
+  .safety-scenario .scenario-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .safety-scenario .scenario-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    padding: 8px 12px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .safety-scenario .scenario-result {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .result-good { background: #c8e6c9; color: #1b5e20; }
+  .result-bad { background: #ffcdd2; color: #b71c1c; }
+
+  /* ─── Diagram 6: Annotations Layered ─── */
+  .annotation-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .anno-layer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid;
+  }
+  .anno-layer .anno-tag {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 220px;
+    white-space: nowrap;
+  }
+  .anno-layer .anno-arrow {
+    font-size: 18px;
+    color: #ccc;
+  }
+  .anno-layer .anno-effect {
+    font-size: 12px;
+    color: #555;
+  }
+  .anno-1 { border-color: #1565c0; }
+  .anno-1 .anno-tag { color: #1565c0; }
+  .anno-2 { border-color: #2e7d32; }
+  .anno-2 .anno-tag { color: #2e7d32; }
+  .anno-3 { border-color: #e65100; }
+  .anno-3 .anno-tag { color: #e65100; }
+  .anno-4 { border-color: #6a1b9a; }
+  .anno-4 .anno-tag { color: #6a1b9a; }
+  .anno-5 { border-color: #c62828; }
+  .anno-5 .anno-tag { color: #c62828; }
+  .anno-6 { border-color: #00838f; }
+  .anno-6 .anno-tag { color: #00838f; }
+
+  /* ─── Diagram 7: Interface Magic ─── */
+  .interface-demo {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .interface-side {
+    flex: 1;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .interface-you {
+    background: #e3f2fd;
+    border: 2px solid #90caf9;
+  }
+  .interface-spring {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .interface-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .interface-you h3 { color: #1565c0; }
+  .interface-spring h3 { color: #2e7d32; }
+  .interface-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #333;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 12px;
+    flex: 1;
+  }
+  .interface-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 28px;
+    color: #ccc;
+  }
+  .interface-line-count {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .count-you { color: #1565c0; }
+  .count-spring { color: #2e7d32; }
+
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 3: Java Fundamentals Diagrams</h1>
+<p class="instructions">Open this file in a browser. Screenshot each diagram and embed in your LinkedIn article.</p>
+
+<!-- ─── DIAGRAM 1: JVM Compilation Flow ─── -->
+<div class="diagram">
+  <div class="diagram-title">From .java to Running App</div>
+  <div class="diagram-subtitle">How the JVM compiles and executes your code</div>
+
+  <div class="compile-flow">
+    <div class="compile-step step-source">
+      <div class="step-box">.java</div>
+      <div class="step-label">Source code</div>
+    </div>
+    <div class="compile-arrow">&#10132;</div>
+    <div class="compile-step step-compiler">
+      <div class="step-box">javac</div>
+      <div class="step-label">Compiler</div>
+    </div>
+    <div class="compile-arrow">&#10132;</div>
+    <div class="compile-step step-bytecode">
+      <div class="step-box">.class</div>
+      <div class="step-label">Bytecode</div>
+    </div>
+    <div class="compile-arrow">&#10132;</div>
+    <div class="compile-step step-jvm">
+      <div class="step-box">JVM</div>
+      <div class="step-label">Execution</div>
+    </div>
+  </div>
+
+  <div class="jvm-detail">
+    <div class="jvm-phase phase-interpret">
+      <h4>1. Interpreter</h4>
+      <p>Reads bytecode instruction by instruction. Fast startup, slower execution.</p>
+    </div>
+    <div class="jvm-phase-arrow">&#10132;</div>
+    <div class="jvm-phase phase-jit">
+      <h4>2. JIT Compiler</h4>
+      <p>Profiles hot paths. Compiles frequently-used methods to native machine code.</p>
+    </div>
+    <div class="jvm-phase-arrow">&#10132;</div>
+    <div class="jvm-phase phase-gc">
+      <h4>3. Garbage Collector</h4>
+      <p>Automatically reclaims unused objects. No manual malloc/free.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 2: Dockerfile Multi-Stage Build ─── -->
+<div class="diagram">
+  <div class="diagram-title">Docker Multi-Stage Build</div>
+  <div class="diagram-subtitle">JDK compiles, JRE runs — production image 70% smaller</div>
+
+  <div class="docker-stages">
+    <div class="docker-stage stage-build">
+      <div class="docker-stage-header">Stage 1: Build</div>
+      <div class="docker-stage-body">
+        <div class="docker-line"><span>FROM</span> eclipse-temurin:17-<b>jdk</b></div>
+        <div class="docker-line"><span>COPY</span> src/ build.gradle gradlew</div>
+        <div class="docker-line"><span>RUN</span> ./gradlew bootJar</div>
+        <div class="docker-line" style="margin-top: 8px; color: #888; font-style: italic;">javac compiles .java &rarr; .class</div>
+      </div>
+      <div class="docker-stage-footer">Full JDK: compiler + tools + runtime</div>
+    </div>
+
+    <div class="docker-arrow">&#10132;</div>
+
+    <div class="docker-stage stage-run">
+      <div class="docker-stage-header">Stage 2: Runtime</div>
+      <div class="docker-stage-body">
+        <div class="docker-line"><span>FROM</span> eclipse-temurin:17-<b>jre</b></div>
+        <div class="docker-line"><span>COPY</span> --from=build app.jar</div>
+        <div class="docker-line"><span>ENTRYPOINT</span> java -jar app.jar</div>
+        <div class="docker-line" style="margin-top: 8px; color: #888; font-style: italic;">JVM executes pre-compiled bytecode</div>
+      </div>
+      <div class="docker-stage-footer">JRE only: runtime (no compiler needed)</div>
+    </div>
+  </div>
+
+  <div class="docker-size">
+    <div class="size-badge size-jdk">JDK image ~460 MB</div>
+    <div class="size-badge size-jre">JRE image ~140 MB</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 3: Language Features Grid ─── -->
+<div class="diagram">
+  <div class="diagram-title">Java Language Features in AI Coach</div>
+  <div class="diagram-subtitle">Six features — all from the real codebase</div>
+
+  <div class="features-grid">
+    <div class="feature-card feat-enums">
+      <h3>Enums</h3>
+      <div class="code-snippet">enum FocusArea {<br>&nbsp;&nbsp;PRESSING, BUILD_UP, DEFENCE<br>}</div>
+      <div class="why">Type-safe constants. Misspell a value? Compiler error. Pass wrong enum type? Compiler error.</div>
+    </div>
+
+    <div class="feature-card feat-records">
+      <h3>Records</h3>
+      <div class="code-snippet">record AuthPayload(<br>&nbsp;&nbsp;String token, User user<br>) {}</div>
+      <div class="why">Immutable data in one line. Auto-generates constructor, getters, equals, hashCode, toString.</div>
+    </div>
+
+    <div class="feature-card feat-generics">
+      <h3>Generics</h3>
+      <div class="code-snippet">Neo4jRepository&lt;Player, Long&gt;<br>List&lt;TrainingSession&gt;</div>
+      <div class="why">Compile-time type checking. Can't save a Team through PlayerRepository. Can't add Player to a session list.</div>
+    </div>
+
+    <div class="feature-card feat-annotations">
+      <h3>Annotations</h3>
+      <div class="code-snippet">@Node @Transactional<br>@PreAuthorize("isAuthenticated()")</div>
+      <div class="why">Declarative programming. You write what you want; the framework provides how.</div>
+    </div>
+
+    <div class="feature-card feat-interfaces">
+      <h3>Interfaces</h3>
+      <div class="code-snippet">interface TeamRepository extends<br>&nbsp;&nbsp;Neo4jRepository&lt;Team, Long&gt; {}</div>
+      <div class="why">Zero methods written. Spring generates the full implementation + Cypher queries at runtime.</div>
+    </div>
+
+    <div class="feature-card feat-exceptions">
+      <h3>Pattern Matching</h3>
+      <div class="code-snippet">if (ex instanceof<br>&nbsp;&nbsp;EntityNotFoundException e) {<br>&nbsp;&nbsp;e.getEntityType();<br>}</div>
+      <div class="why">Type check + cast in one expression. Java 16+ eliminates redundant casting.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 4: JVM Ecosystem Layers ─── -->
+<div class="diagram">
+  <div class="diagram-title">The JVM Ecosystem</div>
+  <div class="diagram-subtitle">From build to deploy — everything interoperates through JVM bytecode</div>
+
+  <div class="ecosystem-stack">
+    <div class="eco-layer eco-build">
+      <div class="eco-label">Build</div>
+      <div class="eco-items">
+        <div class="eco-item">
+          <h4>Gradle</h4>
+          <p>Build + dependency management</p>
+        </div>
+        <div class="eco-item">
+          <h4>Spring AI BOM</h4>
+          <p>Compatible version pinning</p>
+        </div>
+        <div class="eco-item">
+          <h4>Java 17 Toolchain</h4>
+          <p>Reproducible compilation</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="eco-arrow">&#9660;</div>
+
+    <div class="eco-layer eco-framework">
+      <div class="eco-label">Framework</div>
+      <div class="eco-items">
+        <div class="eco-item">
+          <h4>Spring Boot 3.5</h4>
+          <p>Auto-configuration</p>
+        </div>
+        <div class="eco-item">
+          <h4>Spring Security</h4>
+          <p>JWT + role-based auth</p>
+        </div>
+        <div class="eco-item">
+          <h4>Spring GraphQL</h4>
+          <p>API layer</p>
+        </div>
+        <div class="eco-item">
+          <h4>Spring AI</h4>
+          <p>AI model integration</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="eco-arrow">&#9660;</div>
+
+    <div class="eco-layer eco-libraries">
+      <div class="eco-label">Libraries</div>
+      <div class="eco-items">
+        <div class="eco-item">
+          <h4>Neo4j Driver</h4>
+          <p>Graph database</p>
+        </div>
+        <div class="eco-item">
+          <h4>Jackson</h4>
+          <p>JSON serialization</p>
+        </div>
+        <div class="eco-item">
+          <h4>jjwt</h4>
+          <p>Token generation</p>
+        </div>
+        <div class="eco-item">
+          <h4>Lombok</h4>
+          <p>Boilerplate reduction</p>
+        </div>
+        <div class="eco-item">
+          <h4>Reactor</h4>
+          <p>Reactive streams</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="eco-arrow">&#9660;</div>
+
+    <div class="eco-layer eco-runtime">
+      <div class="eco-label">Runtime</div>
+      <div class="eco-items">
+        <div class="eco-item">
+          <h4>HotSpot JVM</h4>
+          <p>JIT + Garbage Collection</p>
+        </div>
+        <div class="eco-item">
+          <h4>Eclipse Temurin</h4>
+          <p>OpenJDK distribution</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="eco-arrow">&#9660;</div>
+
+    <div class="eco-layer eco-deploy">
+      <div class="eco-label">Deploy</div>
+      <div class="eco-items">
+        <div class="eco-item">
+          <h4>Docker</h4>
+          <p>Multi-stage build</p>
+        </div>
+        <div class="eco-item">
+          <h4>GitHub Actions</h4>
+          <p>CI/CD pipeline</p>
+        </div>
+        <div class="eco-item">
+          <h4>SonarCloud</h4>
+          <p>Code quality</p>
+        </div>
+        <div class="eco-item">
+          <h4>JaCoCo</h4>
+          <p>Test coverage</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 5: Type Safety — Java vs Dynamic Languages ─── -->
+<div class="diagram">
+  <div class="diagram-title">Type Safety — Compile Time vs Runtime Errors</div>
+  <div class="diagram-subtitle">Java catches bugs before your code runs. Dynamic languages catch them in production.</div>
+
+  <div class="safety-comparison">
+    <div class="safety-side safety-java">
+      <h3>&#10003; Java (Compile Time)</h3>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Enum Misuse</div>
+        <div class="scenario-code">FocusArea.PRESSNG</div>
+        <div class="scenario-result result-good">Compiler error: cannot find symbol</div>
+      </div>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Type Mismatch</div>
+        <div class="scenario-code">new TrainingPlanInput("teamId", ...)</div>
+        <div class="scenario-result result-good">Compiler error: String &ne; Long</div>
+      </div>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Wrong Collection Type</div>
+        <div class="scenario-code">List&lt;TrainingSession&gt;.add(new Player(...))</div>
+        <div class="scenario-result result-good">Compiler error: Player &ne; TrainingSession</div>
+      </div>
+    </div>
+
+    <div class="safety-side safety-dynamic">
+      <h3>&#10007; Python / JavaScript (Runtime)</h3>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Enum Misuse</div>
+        <div class="scenario-code">focus = "PRESSNG"</div>
+        <div class="scenario-result result-bad">No error until AI gets bad prompt</div>
+      </div>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Type Mismatch</div>
+        <div class="scenario-code">{ teamId: "teamId", ... }</div>
+        <div class="scenario-result result-bad">No error until DB query fails</div>
+      </div>
+
+      <div class="safety-scenario">
+        <div class="scenario-label">Wrong Collection Type</div>
+        <div class="scenario-code">sessions.append(Player(...))</div>
+        <div class="scenario-result result-bad">No error until .focusArea crashes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 6: Annotations — What You Write vs What Happens ─── -->
+<div class="diagram">
+  <div class="diagram-title">Annotations — What You Write vs What the Framework Does</div>
+  <div class="diagram-subtitle">Declarative programming: declare intent, the framework provides implementation</div>
+
+  <div class="annotation-flow">
+    <div class="anno-layer anno-1">
+      <div class="anno-tag">@SpringBootApplication</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Scans classpath, auto-configures Neo4j, GraphQL, Security, AI client</div>
+    </div>
+    <div class="anno-layer anno-2">
+      <div class="anno-tag">@Node</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Maps Java class to Neo4j graph node with Cypher CREATE/MATCH</div>
+    </div>
+    <div class="anno-layer anno-3">
+      <div class="anno-tag">@Relationship("PLAYS_FOR")</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Creates directed graph edge between Player and Team nodes</div>
+    </div>
+    <div class="anno-layer anno-4">
+      <div class="anno-tag">@Transactional</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Wraps method in Neo4j transaction with auto begin/commit/rollback</div>
+    </div>
+    <div class="anno-layer anno-5">
+      <div class="anno-tag">@PreAuthorize("isAuthenticated()")</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Proxy checks JWT token before method executes; rejects if invalid</div>
+    </div>
+    <div class="anno-layer anno-6">
+      <div class="anno-tag">@Valid + @NotNull</div>
+      <div class="anno-arrow">&#10132;</div>
+      <div class="anno-effect">Validates all record fields before method body runs</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 7: Interface Magic ─── -->
+<div class="diagram">
+  <div class="diagram-title">You Write an Interface — Spring Writes the Implementation</div>
+  <div class="diagram-subtitle">Zero implementation code. Spring Data generates it at runtime.</div>
+
+  <div class="interface-demo">
+    <div class="interface-side interface-you">
+      <h3>What You Write</h3>
+      <div class="interface-code">
+        interface MatchRepository extends<br>
+        &nbsp;&nbsp;Neo4jRepository&lt;Match, Long&gt; {<br>
+        <br>
+        &nbsp;&nbsp;List&lt;Match&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;findByHomeTeamIdOrAwayTeamId(<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Long homeId, Long awayId);<br>
+        }
+      </div>
+      <div class="interface-line-count count-you">5 lines of code</div>
+    </div>
+
+    <div class="interface-arrow">&#10132;</div>
+
+    <div class="interface-side interface-spring">
+      <h3>What Spring Generates</h3>
+      <div class="interface-code">
+        // Auto-generated at startup:<br>
+        <br>
+        save(Match entity)<br>
+        findById(Long id)<br>
+        findAll()<br>
+        deleteById(Long id)<br>
+        count()<br>
+        existsById(Long id)<br>
+        ...<br>
+        <br>
+        // Parsed from method name:<br>
+        MATCH (m:Match)<br>
+        WHERE m.homeTeamId = $homeId<br>
+        &nbsp;&nbsp;&nbsp;OR m.awayTeamId = $awayId<br>
+        RETURN m
+      </div>
+      <div class="interface-line-count count-spring">CRUD + custom Cypher queries</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SUMMARY ARTICLE TEXT ─── -->
+<div class="diagram" style="max-width: 860px; line-height: 1.8;">
+  <div class="diagram-title">Java Fundamentals — Why the JVM Is Still the Best Platform for Production Software</div>
+
+  <div style="font-size: 15px; color: #444; padding: 0 10px;">
+
+    <p style="margin-bottom: 16px;">
+      I'm building an AI-powered football coaching app called <strong>AI Coach</strong>. It integrates a graph database, a GraphQL API, JWT authentication, AI model calls, and validation — seven libraries from five different organizations, all in one codebase. None of them know about each other. Yet they interoperate perfectly.
+    </p>
+
+    <p style="margin-bottom: 24px;">
+      That's not magic. That's the Java Virtual Machine.
+    </p>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #0077b6; padding-bottom: 6px; display: inline-block;">How the JVM Works</h3>
+    <p style="margin-bottom: 16px;">
+      Your <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">.java</code> source code compiles to platform-independent bytecode. The JVM then executes it — starting with interpretation, then the HotSpot JIT compiler profiles your hot paths and compiles them to native machine code. Your most-used methods eventually run as fast as C. Garbage collection handles memory automatically — no manual malloc/free, no memory leaks, no double-free crashes.
+    </p>
+    <p style="margin-bottom: 24px;">
+      My Dockerfile shows this in practice: Stage 1 uses the full JDK (with the compiler) to build. Stage 2 uses only the JRE (just the runtime) to run — cutting the production image by ~70%.
+    </p>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #2e7d32; padding-bottom: 6px; display: inline-block;">Six Language Features From the Real Codebase</h3>
+    <p style="margin-bottom: 10px;">Every example above comes directly from AI Coach:</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>Enums</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">FocusArea { PRESSING, BUILD_UP, DEFENCE }</code> makes invalid states unrepresentable. No more string typos.</li>
+      <li style="margin-bottom: 6px;"><strong>Records</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">record AuthPayload(String token, User user)</code> gives you immutable data with auto-generated equals, hashCode, and toString — in one line instead of 40.</li>
+      <li style="margin-bottom: 6px;"><strong>Generics</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">Neo4jRepository&lt;Player, Long&gt;</code> locks every inherited method to the correct types. Try to save the wrong entity? Compiler error.</li>
+      <li style="margin-bottom: 6px;"><strong>Annotations</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@Transactional</code>, <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@PreAuthorize</code>, <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">@Node</code> — you write what you want, the framework provides how.</li>
+      <li style="margin-bottom: 6px;"><strong>Interfaces</strong> — You write a method signature like <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">findByHomeTeamIdOrAwayTeamId</code>. Spring parses the name and generates the Cypher query. Zero implementation code.</li>
+      <li style="margin-bottom: 6px;"><strong>Pattern matching</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">instanceof EntityNotFoundException e</code> checks the type and casts in one expression. Java 16+ eliminates redundant casting.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #7b2cbf; padding-bottom: 6px; display: inline-block;">The Ecosystem Advantage</h3>
+    <p style="margin-bottom: 24px;">
+      Seven libraries — Spring Boot, Neo4j, GraphQL, Spring AI, jjwt, Jackson, Lombok — from five different organizations. They interoperate because they all compile to JVM bytecode, use standard Java types, and follow Java conventions. A Bill of Materials (BOM) pins compatible versions. No pip conflicts. No npm version hell.
+    </p>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #c62828; padding-bottom: 6px; display: inline-block;">Why Type Safety Changes Everything</h3>
+    <p style="margin-bottom: 16px;">
+      In Python or JavaScript, a misspelled string, a wrong argument type, or a mixed-up collection are all silent — they surface as runtime errors in production. In Java, all three are compile-time errors. Your IDE catches them before you commit. Java moves bugs from production to compilation. For a system making coaching decisions, that safety net isn't optional.
+    </p>
+
+    <div style="margin-top: 24px; padding: 20px; background: #f0f4ff; border-radius: 12px; border-left: 4px solid #0077b6;">
+      <p style="margin: 0; font-size: 15px; color: #1a1a2e;">
+        <strong>The bottom line:</strong> Java isn't the newest language. It isn't the trendiest. But it has three properties that compound over decades — type safety catches bugs at compile time, the JVM gives you near-native performance with automatic memory management, and the ecosystem offers thousands of battle-tested libraries that just work together. That's not despite using Java. That's because of it.
+      </p>
+    </div>
+
+    <div style="margin-top: 24px; text-align: center;">
+      <p style="font-size: 14px; color: #888;">The code is open source:</p>
+      <a href="https://github.com/ando7555/ai-coach" style="font-size: 16px; color: #0077b6; font-weight: 700; text-decoration: none;">github.com/ando7555/ai-coach</a>
+      <p style="margin-top: 12px; font-size: 13px; color: #aaa;">#Java #JVM #SpringBoot #TypeSafety #SoftwareEngineering #LearningInPublic</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

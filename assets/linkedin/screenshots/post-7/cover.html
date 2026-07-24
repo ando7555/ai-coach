@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 628px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Subtle grid pattern overlay */
+  body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Decorative code brackets */
+  .bracket-left {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 180px;
+    font-weight: 200;
+    color: rgba(100, 200, 255, 0.12);
+    font-family: 'Consolas', monospace;
+    line-height: 1;
+  }
+  .bracket-right {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 180px;
+    font-weight: 200;
+    color: rgba(100, 200, 255, 0.12);
+    font-family: 'Consolas', monospace;
+    line-height: 1;
+  }
+
+  .content {
+    text-align: center;
+    z-index: 1;
+    padding: 40px 100px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #64ffda;
+    margin-bottom: 24px;
+    padding: 6px 20px;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+    border-radius: 20px;
+  }
+
+  h1 {
+    font-size: 44px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  .highlight {
+    color: #64ffda;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+    margin-bottom: 32px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    padding: 10px 22px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(4px);
+  }
+  .stat .number {
+    font-size: 22px;
+    font-weight: 800;
+    color: #64ffda;
+  }
+  .stat .label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* category color accents */
+  .stat.creational .number { color: #42a5f5; }
+  .stat.structural .number { color: #66bb6a; }
+  .stat.behavioral .number { color: #ffa726; }
+  .stat.modern .number { color: #ab47bc; }
+
+  /* Floating code snippets in background */
+  .floating {
+    position: absolute;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: rgba(100, 255, 218, 0.08);
+    white-space: pre;
+    line-height: 1.5;
+  }
+  .float-1 { top: 30px; left: 60px; transform: rotate(-5deg); }
+  .float-2 { bottom: 40px; right: 80px; transform: rotate(3deg); }
+  .float-3 { top: 60px; right: 120px; transform: rotate(-2deg); }
+  .float-4 { bottom: 60px; left: 100px; transform: rotate(4deg); }
+</style>
+</head>
+<body>
+
+<div class="floating float-1">public sealed class CoachException
+    extends RuntimeException
+    permits EntityNotFoundException,
+            AiGenerationException {</div>
+
+<div class="floating float-2">@Component
+public class AiClient {
+    private final ChatClient tacticalClient;
+    private final ChatClient seasonPlanClient;
+}</div>
+
+<div class="floating float-3">seasonPlanService
+  .generateSeasonPlan(input);</div>
+
+<div class="floating float-4">private Mono&lt;String&gt; callClient(
+    ChatClient client,
+    String prompt) {</div>
+
+<div class="bracket-left">{</div>
+<div class="bracket-right">}</div>
+
+<div class="content">
+  <div class="tag">Design Patterns</div>
+  <h1>15 Patterns. 1 App.<br><span class="highlight">A Pattern Safari.</span></h1>
+  <div class="subtitle">GoF and enterprise patterns found in a real Spring Boot codebase</div>
+  <div class="stats">
+    <div class="stat creational">
+      <div class="number">3</div>
+      <div class="label">Creational</div>
+    </div>
+    <div class="stat structural">
+      <div class="number">7</div>
+      <div class="label">Structural</div>
+    </div>
+    <div class="stat behavioral">
+      <div class="number">3</div>
+      <div class="label">Behavioral</div>
+    </div>
+    <div class="stat modern">
+      <div class="number">3</div>
+      <div class="label">Modern Java</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

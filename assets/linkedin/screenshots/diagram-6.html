@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refactoring Timeline — 7 Commits</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* --- Diagram 6: Commit Timeline --- */
+  .commit-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .commit-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 760px;
+  }
+  .commit-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .commit-content {
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .commit-info h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .commit-info p {
+    font-size: 11px;
+    color: #666;
+  }
+  .commit-stat {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .commit-connector {
+    width: 3px;
+    height: 10px;
+    background: #ddd;
+    margin-left: 19px;
+  }
+  .c-phase1 .commit-number { background: #1565c0; }
+  .c-phase1 .commit-content { background: #e3f2fd; border-color: #90caf9; }
+  .c-phase1 .commit-info h4 { color: #1565c0; }
+  .c-phase1 .commit-stat { background: #bbdefb; color: #0d47a1; }
+  .c-phase2 .commit-number { background: #2e7d32; }
+  .c-phase2 .commit-content { background: #e8f5e9; border-color: #a5d6a7; }
+  .c-phase2 .commit-info h4 { color: #2e7d32; }
+  .c-phase2 .commit-stat { background: #c8e6c9; color: #1b5e20; }
+  .c-phase3 .commit-number { background: #6a1b9a; }
+  .c-phase3 .commit-content { background: #f3e5f5; border-color: #ce93d8; }
+  .c-phase3 .commit-info h4 { color: #6a1b9a; }
+  .c-phase3 .commit-stat { background: #e1bee7; color: #4a148c; }
+  .c-phase4 .commit-number { background: #e65100; }
+  .c-phase4 .commit-content { background: #fff3e0; border-color: #ffcc80; }
+  .c-phase4 .commit-info h4 { color: #e65100; }
+  .c-phase4 .commit-stat { background: #ffe0b2; color: #bf360c; }
+  .c-phase5 .commit-number { background: #00695c; }
+  .c-phase5 .commit-content { background: #e0f2f1; border-color: #80cbc4; }
+  .c-phase5 .commit-info h4 { color: #00695c; }
+  .c-phase5 .commit-stat { background: #b2dfdb; color: #004d40; }
+  .c-phase6 .commit-number { background: #c62828; }
+  .c-phase6 .commit-content { background: #fce4ec; border-color: #ef9a9a; }
+  .c-phase6 .commit-info h4 { color: #c62828; }
+  .c-phase6 .commit-stat { background: #ffcdd2; color: #b71c1c; }
+  .c-phase7 .commit-number { background: #37474f; }
+  .c-phase7 .commit-content { background: #eceff1; border-color: #b0bec5; }
+  .c-phase7 .commit-info h4 { color: #37474f; }
+  .c-phase7 .commit-stat { background: #cfd8dc; color: #263238; }
+</style>
+</head>
+<body>
+
+<div class="diagram">
+  <div class="diagram-title">Refactoring Timeline — 7 Commits</div>
+  <div class="diagram-subtitle">Each commit builds independently &bull; 576 added, 575 removed &bull; 34 files touched</div>
+
+  <div class="commit-timeline">
+    <div class="commit-step c-phase1">
+      <div class="commit-number">1</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>Quick Fixes</h4>
+          <p>SecurityConfig cleanup, public enums, delete dead code</p>
+        </div>
+        <div class="commit-stat">6 files, -31 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase2">
+      <div class="commit-number">2</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>Entity Lombok</h4>
+          <p>Team, Player, Match, Recommendation &rarr; @Builder pattern</p>
+        </div>
+        <div class="commit-stat">8 files, -51 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase3">
+      <div class="commit-number">3</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>DI & Naming</h4>
+          <p>@RequiredArgsConstructor everywhere, rename CoachGraphQLController</p>
+        </div>
+        <div class="commit-stat">8 files, -19 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase4">
+      <div class="commit-number">4</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>Type-Safe Enums</h4>
+          <p>FatigueLevel, InjuryRisk, TrainingIntensity + DTO cleanup</p>
+        </div>
+        <div class="commit-stat">14 files, +32 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase5">
+      <div class="commit-number">5</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>Extract PlayerService</h4>
+          <p>Remove repository from controller, add service layer</p>
+        </div>
+        <div class="commit-stat">2 files, +26 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase6">
+      <div class="commit-number">6</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>Split God Class</h4>
+          <p>CoachService &rarr; MatchAnalysis + TrainingPlan + SeasonPlan + AiResponseParser</p>
+        </div>
+        <div class="commit-stat">7 files, +44 lines</div>
+      </div>
+    </div>
+    <div class="commit-connector"></div>
+
+    <div class="commit-step c-phase7">
+      <div class="commit-number">7</div>
+      <div class="commit-content">
+        <div class="commit-info">
+          <h4>DRY AiClient</h4>
+          <p>Extract callClient() helper, 3 methods &rarr; one-liners</p>
+        </div>
+        <div class="commit-stat">1 file, -3 lines</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+    <div style="padding: 10px 20px; background: #e3f2fd; border-radius: 8px; border: 1px solid #90caf9; font-size: 13px; font-weight: 700; color: #1565c0; text-align: center;">7 commits</div>
+    <div style="padding: 10px 20px; background: #e8f5e9; border-radius: 8px; border: 1px solid #a5d6a7; font-size: 13px; font-weight: 700; color: #2e7d32; text-align: center;">15 issues fixed</div>
+    <div style="padding: 10px 20px; background: #f3e5f5; border-radius: 8px; border: 1px solid #ce93d8; font-size: 13px; font-weight: 700; color: #6a1b9a; text-align: center;">34 files touched</div>
+    <div style="padding: 10px 20px; background: #fff3e0; border-radius: 8px; border: 1px solid #ffcc80; font-size: 13px; font-weight: 700; color: #e65100; text-align: center;">576 added, 575 removed</div>
+    <div style="padding: 10px 20px; background: #fce4ec; border-radius: 8px; border: 1px solid #ef9a9a; font-size: 13px; font-weight: 700; color: #c62828; text-align: center;">0 behavior changes</div>
+  </div>
+</div>
+
+</body>
+</html>

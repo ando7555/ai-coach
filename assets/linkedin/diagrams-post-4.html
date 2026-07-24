@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 4: Java 8 to 17 Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 920px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* ─── Diagram 1: Java Evolution Timeline ─── */
+  .timeline {
+    position: relative;
+    padding: 20px 0;
+  }
+  .timeline-line {
+    position: absolute;
+    top: 50%;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #1565c0, #2e7d32, #e65100, #6a1b9a, #c62828);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+  .timeline-nodes {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+    padding: 0 20px;
+  }
+  .timeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 110px;
+  }
+  .timeline-node .node-version {
+    font-size: 14px;
+    font-weight: 800;
+    color: white;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .timeline-node .node-year {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .timeline-node .node-features {
+    font-size: 10px;
+    color: #555;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .timeline-node .node-features strong {
+    display: block;
+    color: #333;
+    font-size: 11px;
+  }
+  .node-j8 .node-version { background: #1565c0; }
+  .node-j9 .node-version { background: #0277bd; }
+  .node-j10 .node-version { background: #00838f; }
+  .node-j11 .node-version { background: #2e7d32; }
+  .node-j14 .node-version { background: #e65100; }
+  .node-j15 .node-version { background: #bf360c; }
+  .node-j16 .node-version { background: #6a1b9a; }
+  .node-j17 .node-version { background: #c62828; }
+
+  .timeline-era {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .era-badge {
+    flex: 1;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .era-functional { background: #e3f2fd; color: #1565c0; border: 2px solid #90caf9; }
+  .era-qol { background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; }
+  .era-modern { background: #fce4ec; color: #c62828; border: 2px solid #ef9a9a; }
+
+  /* ─── Diagram 2: Before/After ─── */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .ba-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ba-before {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .ba-after {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .ba-side h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ba-before h3 { color: #c62828; }
+  .ba-after h3 { color: #2e7d32; }
+  .ba-side .ba-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .ba-side .ba-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .ba-side .ba-stat {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  .ba-before .ba-stat { background: #ffcdd2; color: #b71c1c; }
+  .ba-after .ba-stat { background: #c8e6c9; color: #1b5e20; }
+  .ba-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 12px;
+  }
+
+  /* ─── Diagram 3: Records vs Classes ─── */
+  .records-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .rc-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .rc-write {
+    background: #e3f2fd;
+    border: 2px solid #90caf9;
+  }
+  .rc-generate {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .rc-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .rc-write h3 { color: #1565c0; }
+  .rc-generate h3 { color: #2e7d32; }
+  .rc-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+  }
+  .rc-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 12px;
+  }
+  .rc-stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .rc-stat-badge {
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .stat-you { background: #bbdefb; color: #0d47a1; }
+  .stat-java { background: #c8e6c9; color: #1b5e20; }
+
+  .records-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .record-chip {
+    background: #f3e5f5;
+    color: #6a1b9a;
+    border: 1px solid #ce93d8;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Consolas', 'Monaco', monospace;
+  }
+
+  /* ─── Diagram 4: Text Blocks vs Concatenation ─── */
+  .text-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .tc-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .tc-old {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .tc-new {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .tc-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .tc-old h3 { color: #c62828; }
+  .tc-new h3 { color: #2e7d32; }
+  .tc-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 10.5px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .tc-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 12px;
+  }
+  .tc-benefits {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+  .tc-benefit {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #2e7d32;
+    text-align: center;
+  }
+
+  /* ─── Diagram 5: Feature Map Grid ─── */
+  .feature-map {
+    overflow-x: auto;
+  }
+  .feature-map table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .feature-map th {
+    background: #1a1a2e;
+    color: white;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .feature-map th:first-child {
+    text-align: left;
+    min-width: 160px;
+    border-radius: 8px 0 0 0;
+  }
+  .feature-map th:last-child {
+    border-radius: 0 8px 0 0;
+  }
+  .feature-map td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+  .feature-map td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+  }
+  .feature-map tr:hover {
+    background: #f8f9ff;
+  }
+  .feature-map .java-ver {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    display: inline-block;
+    margin-left: 6px;
+  }
+  .ver-8 { background: #1565c0; }
+  .ver-9 { background: #0277bd; }
+  .ver-10 { background: #00838f; }
+  .ver-11 { background: #2e7d32; }
+  .ver-14 { background: #e65100; }
+  .ver-15 { background: #bf360c; }
+  .ver-16 { background: #6a1b9a; }
+  .ver-17 { background: #c62828; }
+  .fm-yes {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #4caf50;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+  }
+  .fm-no {
+    color: #ddd;
+    font-size: 16px;
+  }
+  .feature-map .row-highlight {
+    background: #f0f7ff;
+  }
+
+  /* ─── Diagram 5b: Sealed Hierarchy ─── */
+  .sealed-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .sealed-parent {
+    background: #fce4ec;
+    border: 3px solid #c62828;
+    border-radius: 12px;
+    padding: 16px 32px;
+    text-align: center;
+    position: relative;
+  }
+  .sealed-parent h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #c62828;
+    font-family: 'Consolas', 'Monaco', monospace;
+  }
+  .sealed-parent .sealed-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    background: #c62828;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .sealed-parent p {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .sealed-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .sealed-connector .vert-line {
+    width: 3px;
+    height: 20px;
+    background: #ccc;
+  }
+  .sealed-connector .horiz-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .sealed-connector .horiz-line {
+    width: 120px;
+    height: 3px;
+    background: #ccc;
+    margin-top: 0;
+  }
+  .sealed-connector .vert-branch {
+    width: 3px;
+    height: 20px;
+    background: #ccc;
+  }
+  .sealed-children {
+    display: flex;
+    gap: 32px;
+    margin-top: 0;
+  }
+  .sealed-child {
+    border-radius: 12px;
+    padding: 14px 20px;
+    text-align: center;
+    border: 2px solid;
+    min-width: 200px;
+  }
+  .sealed-child h4 {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin-bottom: 4px;
+  }
+  .sealed-child p {
+    font-size: 11px;
+    color: #666;
+  }
+  .sealed-child .child-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .child-entity {
+    background: #e3f2fd;
+    border-color: #1565c0;
+  }
+  .child-entity h4 { color: #1565c0; }
+  .child-entity .child-tag { background: #1565c0; }
+  .child-ai {
+    background: #fff3e0;
+    border-color: #e65100;
+  }
+  .child-ai h4 { color: #e65100; }
+  .child-ai .child-tag { background: #e65100; }
+  .sealed-note {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #c62828;
+    font-size: 12px;
+    color: #555;
+    max-width: 600px;
+    text-align: center;
+  }
+
+  /* ─── Diagram 5c: Switch Expression ─── */
+  .switch-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .sw-side {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .sw-old {
+    background: #fff3f3;
+    border: 2px solid #ffcdd2;
+  }
+  .sw-new {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+  }
+  .sw-side h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .sw-old h3 { color: #c62828; }
+  .sw-new h3 { color: #2e7d32; }
+  .sw-code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 14px;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre;
+  }
+  .sw-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+    padding: 0 12px;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 4: Java 8 to 17 Diagrams</h1>
+<p class="instructions">Open this file in a browser. Screenshot each diagram and embed in your LinkedIn article.</p>
+
+<!-- ─── DIAGRAM 1: Java Evolution Timeline ─── -->
+<div class="diagram">
+  <div class="diagram-title">Java Evolution Timeline</div>
+  <div class="diagram-subtitle">From Java 8 to 17 — three waves that transformed the language</div>
+
+  <div class="timeline">
+    <div class="timeline-line"></div>
+    <div class="timeline-nodes">
+      <div class="timeline-node node-j8">
+        <div class="node-year">2014</div>
+        <div class="node-version">8</div>
+        <div class="node-features">
+          <strong>Lambdas</strong>
+          Streams<br>
+          Optional<br>
+          Method refs
+        </div>
+      </div>
+      <div class="timeline-node node-j9">
+        <div class="node-year">2017</div>
+        <div class="node-version">9</div>
+        <div class="node-features">
+          <strong>Set.of</strong>
+          List.of<br>
+          Map.of
+        </div>
+      </div>
+      <div class="timeline-node node-j10">
+        <div class="node-year">2018</div>
+        <div class="node-version">10</div>
+        <div class="node-features">
+          <strong>var</strong>
+          Local type<br>
+          inference
+        </div>
+      </div>
+      <div class="timeline-node node-j11">
+        <div class="node-year">2018</div>
+        <div class="node-version">11</div>
+        <div class="node-features">
+          <strong>strip()</strong>
+          isBlank()<br>
+          HttpClient
+        </div>
+      </div>
+      <div class="timeline-node node-j14">
+        <div class="node-year">2020</div>
+        <div class="node-version">14</div>
+        <div class="node-features">
+          <strong>Records</strong>
+          Switch<br>
+          expressions
+        </div>
+      </div>
+      <div class="timeline-node node-j15">
+        <div class="node-year">2020</div>
+        <div class="node-version">15</div>
+        <div class="node-features">
+          <strong>Text blocks</strong>
+          .formatted()<br>
+          Sealed (preview)
+        </div>
+      </div>
+      <div class="timeline-node node-j16">
+        <div class="node-year">2021</div>
+        <div class="node-version">16</div>
+        <div class="node-features">
+          <strong>Pattern</strong>
+          instanceof<br>
+          .toList()
+        </div>
+      </div>
+      <div class="timeline-node node-j17">
+        <div class="node-year">2021</div>
+        <div class="node-version">17</div>
+        <div class="node-features">
+          <strong>Sealed</strong>
+          classes<br>
+          LTS release
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-era">
+    <div class="era-badge era-functional">Wave 1: Functional Revolution (Java 8)</div>
+    <div class="era-badge era-qol">Wave 2: Quality of Life (9-11)</div>
+    <div class="era-badge era-modern">Wave 3: Modern Data Modeling (14-17)</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 2: Before/After — Imperative vs Functional ─── -->
+<div class="diagram">
+  <div class="diagram-title">Before/After — Imperative vs Functional</div>
+  <div class="diagram-subtitle">PlayerMatchStatService.java — calculating player stats</div>
+
+  <div class="before-after">
+    <div class="ba-side ba-before">
+      <h3>&#10007; Pre-Java 8: For Loops</h3>
+      <div class="ba-label">Manual iteration, manual accumulation</div>
+      <div class="ba-code">int totalGoals = 0;
+for (PlayerMatchStat s : stats) {
+    totalGoals += s.getGoals();
+}
+int totalAssists = 0;
+for (PlayerMatchStat s : stats) {
+    totalAssists += s.getAssists();
+}
+
+List&lt;PlayerMatchStat&gt; rated
+    = new ArrayList&lt;&gt;();
+for (PlayerMatchStat s : stats) {
+    if (s.getRating() != null) {
+        rated.add(s);
+    }
+}
+double sum = 0.0;
+for (PlayerMatchStat s : rated) {
+    sum += s.getRating();
+}
+double avg = rated.isEmpty()
+    ? 0.0 : sum / rated.size();</div>
+      <div class="ba-stat">~20 lines of boilerplate</div>
+    </div>
+
+    <div class="ba-arrow">&#10132;</div>
+
+    <div class="ba-side ba-after">
+      <h3>&#10003; Java 8+: Streams</h3>
+      <div class="ba-label">Declarative, composable, readable</div>
+      <div class="ba-code">int totalGoals = stats.stream()
+    .mapToInt(PlayerMatchStat::getGoals)
+    .sum();
+int totalAssists = stats.stream()
+    .mapToInt(PlayerMatchStat::getAssists)
+    .sum();
+
+var ratedStats = stats.stream()
+    .filter(s -&gt; s.getRating() != null)
+    .toList();
+
+double avg = ratedStats.stream()
+    .mapToDouble(
+        PlayerMatchStat::getRating)
+    .average()
+    .orElse(0.0);</div>
+      <div class="ba-stat">~10 lines — declarative intent</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 3: Records vs Classes ─── -->
+<div class="diagram">
+  <div class="diagram-title">Records vs Classes — What You Write vs What Java Generates</div>
+  <div class="diagram-subtitle">One record declaration replaces 40+ lines of traditional class boilerplate</div>
+
+  <div class="records-comparison">
+    <div class="rc-side rc-write">
+      <h3>What You Write (Record)</h3>
+      <div class="rc-code">public record AuthPayload(
+    String token,
+    User user
+) {}
+
+
+
+
+// That's it.
+// One line of declaration.
+// Zero boilerplate.</div>
+    </div>
+
+    <div class="rc-arrow">&#10132;</div>
+
+    <div class="rc-side rc-generate">
+      <h3>What Java Generates</h3>
+      <div class="rc-code">public final class AuthPayload {
+  private final String token;
+  private final User user;
+
+  public AuthPayload(String t,
+                     User u) {
+    this.token = t;
+    this.user = u;
+  }
+  public String token() { ... }
+  public User user() { ... }
+  public boolean equals(Object o){..}
+  public int hashCode() { ... }
+  public String toString() { ... }
+}</div>
+    </div>
+  </div>
+
+  <div class="rc-stats">
+    <div class="rc-stat-badge stat-you">You write: 3 lines</div>
+    <div class="rc-stat-badge stat-java">Java generates: 40+ lines</div>
+  </div>
+
+  <div style="text-align: center; margin-top: 16px; font-size: 13px; color: #555; font-weight: 600;">
+    12 records in AI Coach codebase:
+  </div>
+  <div class="records-list">
+    <div class="record-chip">AuthPayload</div>
+    <div class="record-chip">MatchInput</div>
+    <div class="record-chip">MatchAnalysisInput</div>
+    <div class="record-chip">TacticalContextInput</div>
+    <div class="record-chip">TrainingPlanInput</div>
+    <div class="record-chip">SeasonPlanInput</div>
+    <div class="record-chip">PlayerMatchStatInput</div>
+    <div class="record-chip">PlayerPerformanceTrend</div>
+    <div class="record-chip">AiTrainingPlanResponse</div>
+    <div class="record-chip">SessionEntry</div>
+    <div class="record-chip">AiSeasonPlanResponse</div>
+    <div class="record-chip">RecommendationContextInput</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 4: Text Blocks vs String Concatenation ─── -->
+<div class="diagram">
+  <div class="diagram-title">Text Blocks vs String Concatenation</div>
+  <div class="diagram-subtitle">CoachService.java — building AI prompts</div>
+
+  <div class="text-comparison">
+    <div class="tc-side tc-old">
+      <h3>&#10007; Pre-Java 15: Concatenation</h3>
+      <div class="tc-code">String prompt =
+  "You are an elite football "
+  + "tactical coach.\n"
+  + "Analyse the upcoming match "
+  + "with the following context:\n"
+  + "\n"
+  + "Match ID: " + match.getId()
+  + "\n"
+  + "Home Team: "
+  + match.getHomeTeam().getName()
+  + "\n"
+  + "Away Team: "
+  + match.getAwayTeam().getName()
+  + "\n"
+  + "Focus Area: "
+  + input.focusArea() + "\n"
+  + "Style: " + input.style()
+  + "\n"
+  + "Risk Level: "
+  + input.riskLevel() + "\n";</div>
+    </div>
+
+    <div class="tc-arrow">&#10132;</div>
+
+    <div class="tc-side tc-new">
+      <h3>&#10003; Java 15+: Text Block</h3>
+      <div class="tc-code">String prompt = """
+  You are an elite football
+  tactical coach.
+  Analyse the upcoming match
+  with the following context:
+
+  Match ID: %d
+  Home Team: %s
+  Away Team: %s
+  Focus Area: %s
+  Style: %s
+  Risk Level: %s
+
+  Consider recent form and
+  tactical nuances.
+  """.formatted(
+  match.getId(),
+  match.getHomeTeam().getName(),
+  match.getAwayTeam().getName(),
+  input.focusArea(),
+  input.style(),
+  input.riskLevel());</div>
+    </div>
+  </div>
+
+  <div class="tc-benefits">
+    <div class="tc-benefit">What you see = what AI receives</div>
+    <div class="tc-benefit">No \n escape characters</div>
+    <div class="tc-benefit">Template separated from data</div>
+    <div class="tc-benefit">4 text blocks in codebase</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 5: Sealed Exception Hierarchy ─── -->
+<div class="diagram">
+  <div class="diagram-title">Sealed Classes — Compiler-Enforced Exception Hierarchy</div>
+  <div class="diagram-subtitle">Java 17: only permitted subtypes can extend CoachException</div>
+
+  <div class="sealed-diagram">
+    <div class="sealed-parent">
+      <div class="sealed-tag">sealed</div>
+      <h4>CoachException</h4>
+      <p>extends RuntimeException</p>
+    </div>
+
+    <div class="sealed-connector">
+      <div class="vert-line"></div>
+      <div class="horiz-container">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="horiz-line"></div>
+          <div class="vert-branch"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="horiz-line"></div>
+          <div class="vert-branch"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sealed-children">
+      <div class="sealed-child child-entity">
+        <div class="child-tag">final</div>
+        <h4>EntityNotFoundException</h4>
+        <p>"%s not found with id: %s".formatted(...)</p>
+      </div>
+      <div class="sealed-child child-ai">
+        <div class="child-tag">final</div>
+        <h4>AiGenerationException</h4>
+        <p>"AI generation failed for: %s".formatted(...)</p>
+      </div>
+    </div>
+
+    <div class="sealed-note">
+      <strong>Why sealed?</strong> The compiler knows exactly which exceptions exist.
+      No rogue subclass can sneak in. The hierarchy is closed and documented in code.
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 6: Switch Expression ─── -->
+<div class="diagram">
+  <div class="diagram-title">Switch Expressions — Values, Not Statements</div>
+  <div class="diagram-subtitle">CoachService.java — computeInjuryRisk()</div>
+
+  <div class="switch-comparison">
+    <div class="sw-side sw-old">
+      <h3>&#10007; If-Else Chain</h3>
+      <div class="sw-code">private String computeInjuryRisk(
+    String fatigue, int matches) {
+  if (matches >= 6
+      || "EXHAUSTED".equals(fatigue))
+    return "HIGH";
+  if ("TIRED".equals(fatigue))
+    return "MEDIUM";
+  return "LOW";
+}</div>
+    </div>
+
+    <div class="sw-arrow">&#10132;</div>
+
+    <div class="sw-side sw-new">
+      <h3>&#10003; Switch Expression (Java 14)</h3>
+      <div class="sw-code">private String computeInjuryRisk(
+    String fatigue, int matches) {
+  if (matches >= 6) return "HIGH";
+  return switch (fatigue) {
+    case "EXHAUSTED" -&gt; "HIGH";
+    case "TIRED"     -&gt; "MEDIUM";
+    default          -&gt; "LOW";
+  };
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 7: Feature Map ─── -->
+<div class="diagram">
+  <div class="diagram-title">Feature Map — Java 8-17 Features Across AI Coach</div>
+  <div class="diagram-subtitle">Which modern Java features are used in which files</div>
+
+  <div class="feature-map">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Security<br>Config</th>
+          <th>Ai<br>Client</th>
+          <th>Player<br>StatSvc</th>
+          <th>Coach<br>Service</th>
+          <th>Recom<br>Service</th>
+          <th>Exception<br>Handler</th>
+          <th>JWT<br>Filter</th>
+          <th>Auth<br>Service</th>
+          <th>DTOs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Lambdas <code>-></code> <span class="java-ver ver-8">8</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>Streams <span class="java-ver ver-8">8</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td>Optional <span class="java-ver ver-8">8</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>Method refs <code>::</code> <span class="java-ver ver-8">8</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td>Set/List/Map.of <span class="java-ver ver-9">9</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td><code>var</code> <span class="java-ver ver-10">10</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td><code>strip()</code> <span class="java-ver ver-11">11</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>Text blocks <code>"""</code> <span class="java-ver ver-15">15</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td><code>.formatted()</code> <span class="java-ver ver-15">15</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>Switch expr <span class="java-ver ver-14">14</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td>Records <span class="java-ver ver-16">16</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+        </tr>
+        <tr>
+          <td>Pattern <code>instanceof</code> <span class="java-ver ver-16">16</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td><code>.toList()</code> <span class="java-ver ver-16">16</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+        </tr>
+        <tr>
+          <td>Sealed classes <span class="java-ver ver-17">17</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-no">&#183;</span></td>
+          <td><span class="fm-yes">&#10003;</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── SUMMARY ARTICLE TEXT ─── -->
+<div class="diagram" style="max-width: 920px; line-height: 1.8;">
+  <div class="diagram-title">Java 8 to 17 — The Modern Features That Changed Everything</div>
+
+  <div style="font-size: 15px; color: #444; padding: 0 10px;">
+
+    <p style="margin-bottom: 16px;">
+      I'm building an AI-powered football coaching app called <strong>AI Coach</strong>. It runs on Java 17, and virtually every file uses features that didn't exist before Java 8. Lambdas, streams, records, text blocks, pattern matching — these aren't curiosities. They're the backbone of how modern Java code reads and works.
+    </p>
+
+    <p style="margin-bottom: 24px;">
+      Java's transformation happened in three waves. Here's what each one contributed to the codebase.
+    </p>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #1565c0; padding-bottom: 6px; display: inline-block;">Wave 1: Java 8 — The Functional Revolution (2014)</h3>
+    <p style="margin-bottom: 10px;">This single release changed more about how Java code looks than everything before it combined:</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>Lambdas</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">csrf -> csrf.disable()</code> in SecurityConfig replaced 15+ anonymous inner classes with one-liners across the entire codebase.</li>
+      <li style="margin-bottom: 6px;"><strong>Streams</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">stats.stream().mapToInt(PlayerMatchStat::getGoals).sum()</code> turns a for-loop with manual accumulation into a single declarative pipeline.</li>
+      <li style="margin-bottom: 6px;"><strong>Optional</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">.orElseThrow(() -> new EntityNotFoundException(...))</code> makes the happy-path vs error-path explicit in the type system. No more null checks.</li>
+      <li style="margin-bottom: 6px;"><strong>Method references</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">PlayerMatchStat::getGoals</code> is shorter and more intentional than <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">s -> s.getGoals()</code>.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #2e7d32; padding-bottom: 6px; display: inline-block;">Wave 2: Java 9-11 — Quality of Life (2017-2018)</h3>
+    <p style="margin-bottom: 10px;">Small features that reduce ceremony:</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>Immutable factories</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">Set.of("LOW", "MEDIUM", "HIGH")</code> replaces three lines of <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">Collections.unmodifiableSet(new HashSet<>(...))</code>.</li>
+      <li style="margin-bottom: 6px;"><strong>var</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">var auth = new UsernamePasswordAuthenticationToken(...)</code> lets the compiler infer the type when it's obvious from the right-hand side.</li>
+      <li style="margin-bottom: 6px;"><strong>String.strip()</strong> — Unicode-aware whitespace removal for processing AI-generated text that might contain non-standard whitespace characters.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #c62828; padding-bottom: 6px; display: inline-block;">Wave 3: Java 14-17 — Modern Data Modeling (2020-2021)</h3>
+    <p style="margin-bottom: 10px;">Java finally got concise data types and modern string handling:</p>
+    <ul style="margin-bottom: 24px; padding-left: 20px; color: #444;">
+      <li style="margin-bottom: 6px;"><strong>Records</strong> — 10+ records in the codebase: <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">AuthPayload</code>, <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">MatchAnalysisInput</code>, <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">PlayerPerformanceTrend</code>, and more. Each one replaces 40+ lines of class boilerplate with 1-4 lines.</li>
+      <li style="margin-bottom: 6px;"><strong>Pattern matching instanceof</strong> — 4 patterns in <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">GraphQLExceptionHandler</code> that check the type and bind the variable in one expression, eliminating manual casting.</li>
+      <li style="margin-bottom: 6px;"><strong>Text blocks</strong> — 4 AI prompts in <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">CoachService</code> and <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">RecommendationService</code> use <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">"""</code> blocks paired with <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">.formatted()</code> — the prompt reads exactly as the AI receives it.</li>
+      <li style="margin-bottom: 6px;"><strong>Stream.toList()</strong> — 5 usages replacing <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">.collect(Collectors.toList())</code> with a shorter, immutable-by-default alternative.</li>
+      <li style="margin-bottom: 6px;"><strong>Switch expressions</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">return switch (fatigueLevel) { case "EXHAUSTED" -> "HIGH"; ... };</code> in CoachService replaces if-else chains with a value-returning expression.</li>
+      <li style="margin-bottom: 6px;"><strong>Sealed classes</strong> — <code style="background:#f0f4ff; padding:2px 6px; border-radius:4px; font-size:13px;">sealed class CoachException permits EntityNotFoundException, AiGenerationException</code> restricts the exception hierarchy to exactly two permitted subtypes, documented and enforced by the compiler.</li>
+    </ul>
+
+    <h3 style="color: #1a1a2e; font-size: 17px; margin-bottom: 8px; border-bottom: 2px solid #7b2cbf; padding-bottom: 6px; display: inline-block;">The Practical Takeaway</h3>
+    <p style="margin-bottom: 16px;">
+      Modern Java isn't the same language that earned its "verbose" reputation. Every record in AI Coach would have been 40+ lines as a class. Every stream pipeline would have been a manual loop. Every text block would have been a concatenation nightmare. Every pattern match would have been a check-then-cast.
+    </p>
+
+    <div style="margin-top: 24px; padding: 20px; background: #f0f4ff; border-radius: 12px; border-left: 4px solid #0077b6;">
+      <p style="margin: 0; font-size: 15px; color: #1a1a2e;">
+        <strong>The bottom line:</strong> Java kept the safety — type checking, compile-time errors, the JVM. It shed the ceremony — lambdas for anonymous classes, records for POJOs, text blocks for string concatenation, pattern matching for manual casts. The result is a language that's both safe and expressive.
+      </p>
+    </div>
+
+    <div style="margin-top: 24px; text-align: center;">
+      <p style="font-size: 14px; color: #888;">The code is open source:</p>
+      <a href="https://github.com/ando7555/ai-coach" style="font-size: 16px; color: #0077b6; font-weight: 700; text-decoration: none;">github.com/ando7555/ai-coach</a>
+      <p style="margin-top: 12px; font-size: 13px; color: #aaa;">#Java #Java17 #SpringBoot #ModernJava #Streams #Records #SoftwareEngineering #LearningInPublic</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

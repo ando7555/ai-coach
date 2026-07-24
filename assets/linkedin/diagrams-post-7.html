@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coach — Post 7: Design Patterns Diagrams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f5f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.instructions {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .diagram {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 960px;
+    width: 100%;
+  }
+  .diagram-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .diagram-subtitle {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  code {
+    background: #f0f4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+  }
+
+  /* ─── Diagram 1: Pattern Classification Map ─── */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .pattern-category {
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid;
+  }
+  .pattern-category h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pattern-category ul {
+    list-style: none;
+    padding: 0;
+  }
+  .pattern-category li {
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pattern-category li:last-child { border-bottom: none; }
+  .pattern-name {
+    font-weight: 600;
+  }
+  .pattern-file {
+    font-family: 'Consolas', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.05);
+    color: #666;
+  }
+  .cat-creational { background: #e3f2fd; border-color: #90caf9; }
+  .cat-creational h3 { color: #1565c0; }
+  .cat-creational .cat-badge { background: #1565c0; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .cat-structural { background: #e8f5e9; border-color: #a5d6a7; }
+  .cat-structural h3 { color: #2e7d32; }
+  .cat-structural .cat-badge { background: #2e7d32; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .cat-behavioral { background: #fff3e0; border-color: #ffcc80; }
+  .cat-behavioral h3 { color: #e65100; }
+  .cat-behavioral .cat-badge { background: #e65100; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .cat-modern { background: #f3e5f5; border-color: #ce93d8; }
+  .cat-modern h3 { color: #6a1b9a; }
+  .cat-modern .cat-badge { background: #6a1b9a; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .depth-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+  .depth-deep { background: #c62828; color: white; }
+  .depth-medium { background: #f57c00; color: white; }
+  .depth-brief { background: #9e9e9e; color: white; }
+
+  /* ─── Diagram 2: Request Flow ─── */
+  .flow-trace {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 800px;
+  }
+  .flow-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .flow-content {
+    flex: 1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    border: 2px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-desc {
+    font-size: 12px;
+    color: #333;
+    flex: 1;
+  }
+  .flow-desc strong { font-weight: 700; }
+  .flow-patterns {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .flow-pattern-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: white;
+    white-space: nowrap;
+  }
+  .fp-behavioral { background: #e65100; }
+  .fp-structural { background: #2e7d32; }
+  .fp-creational { background: #1565c0; }
+  .fp-modern { background: #6a1b9a; }
+  .fp-arch { background: #37474f; }
+  .flow-connector {
+    width: 3px;
+    height: 6px;
+    background: #ddd;
+    margin-left: 15px;
+  }
+  .f-auth .flow-number { background: #e65100; }
+  .f-auth .flow-content { background: #fff3e0; border-color: #ffcc80; }
+  .f-route .flow-number { background: #37474f; }
+  .f-route .flow-content { background: #eceff1; border-color: #b0bec5; }
+  .f-facade .flow-number { background: #2e7d32; }
+  .f-facade .flow-content { background: #e8f5e9; border-color: #a5d6a7; }
+  .f-repo .flow-number { background: #1565c0; }
+  .f-repo .flow-content { background: #e3f2fd; border-color: #90caf9; }
+  .f-factory .flow-number { background: #00695c; }
+  .f-factory .flow-content { background: #e0f2f1; border-color: #80cbc4; }
+  .f-enum .flow-number { background: #6a1b9a; }
+  .f-enum .flow-content { background: #f3e5f5; border-color: #ce93d8; }
+  .f-strategy .flow-number { background: #c62828; }
+  .f-strategy .flow-content { background: #fce4ec; border-color: #ef9a9a; }
+  .f-adapter .flow-number { background: #4527a0; }
+  .f-adapter .flow-content { background: #ede7f6; border-color: #b39ddb; }
+  .f-builder .flow-number { background: #1565c0; }
+  .f-builder .flow-content { background: #e3f2fd; border-color: #90caf9; }
+  .f-template .flow-number { background: #bf360c; }
+  .f-template .flow-content { background: #fbe9e7; border-color: #ffab91; }
+
+  /* ─── Diagram 3: Strategy AiClient ─── */
+  .strategy-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+  .strategy-clients {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+  .strategy-client {
+    border-radius: 10px;
+    padding: 16px;
+    border: 2px solid;
+    text-align: center;
+  }
+  .strategy-client h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .strategy-client .prompt-text {
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .strategy-client .method-name {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .sc-tactical { background: #fce4ec; border-color: #ef9a9a; }
+  .sc-tactical h4 { color: #c62828; }
+  .sc-tactical .method-name { background: #ffcdd2; color: #b71c1c; }
+  .sc-season { background: #e3f2fd; border-color: #90caf9; }
+  .sc-season h4 { color: #1565c0; }
+  .sc-season .method-name { background: #bbdefb; color: #0d47a1; }
+  .sc-training { background: #e8f5e9; border-color: #a5d6a7; }
+  .sc-training h4 { color: #2e7d32; }
+  .sc-training .method-name { background: #c8e6c9; color: #1b5e20; }
+  .strategy-arrow-down {
+    font-size: 28px;
+    color: #aaa;
+    font-weight: 700;
+  }
+  .strategy-context {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    padding: 20px;
+    border: 3px solid #ff8f00;
+    background: #fff8e1;
+    text-align: center;
+  }
+  .strategy-context h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 4px;
+  }
+  .strategy-context .code-line {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: #555;
+    background: rgba(0,0,0,0.04);
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-top: 8px;
+    text-align: left;
+  }
+  .strategy-services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+  .strategy-service {
+    border-radius: 8px;
+    padding: 10px;
+    background: #eceff1;
+    border: 1px solid #b0bec5;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #37474f;
+  }
+
+  /* ─── Diagram 4: Adapter Dual Layer ─── */
+  .adapter-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .adapter-box {
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 2px solid;
+    text-align: center;
+    min-width: 140px;
+  }
+  .adapter-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .adapter-box p {
+    font-size: 10px;
+    color: #666;
+  }
+  .adapter-arrow {
+    font-size: 24px;
+    color: #aaa;
+    font-weight: 700;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .ab-app { background: #eceff1; border-color: #b0bec5; }
+  .ab-app h4 { color: #37474f; }
+  .ab-outgoing { background: #fce4ec; border-color: #ef9a9a; }
+  .ab-outgoing h4 { color: #c62828; }
+  .ab-gemini { background: #fff3e0; border-color: #ffcc80; }
+  .ab-gemini h4 { color: #e65100; }
+  .ab-incoming { background: #e3f2fd; border-color: #90caf9; }
+  .ab-incoming h4 { color: #1565c0; }
+  .ab-typed { background: #e8f5e9; border-color: #a5d6a7; }
+  .ab-typed h4 { color: #2e7d32; }
+  .adapter-detail {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .adapter-detail-box {
+    border-radius: 10px;
+    padding: 16px;
+    border: 2px solid;
+  }
+  .adapter-detail-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .adapter-detail-box .code-line {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: #555;
+    background: rgba(0,0,0,0.04);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+  }
+  .ad-out { background: #fce4ec; border-color: #ef9a9a; }
+  .ad-out h4 { color: #c62828; }
+  .ad-in { background: #e3f2fd; border-color: #90caf9; }
+  .ad-in h4 { color: #1565c0; }
+
+  /* ─── Diagram 5: Sealed Class Hierarchy ─── */
+  .sealed-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .sealed-root {
+    border-radius: 12px;
+    padding: 18px 32px;
+    border: 3px solid #6a1b9a;
+    background: #f3e5f5;
+    text-align: center;
+  }
+  .sealed-root h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #6a1b9a;
+    margin-bottom: 4px;
+  }
+  .sealed-root p {
+    font-size: 11px;
+    color: #666;
+  }
+  .sealed-keyword {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: white;
+    margin-bottom: 4px;
+  }
+  .kw-sealed { background: #6a1b9a; }
+  .kw-final { background: #2e7d32; }
+  .kw-rejected { background: #c62828; }
+  .sealed-connector {
+    width: 3px;
+    height: 16px;
+    background: #ce93d8;
+  }
+  .sealed-branches {
+    display: flex;
+    align-items: flex-start;
+    gap: 80px;
+    position: relative;
+  }
+  .sealed-branches::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 160px);
+    height: 3px;
+    background: #ce93d8;
+  }
+  .sealed-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .sealed-branch-connector {
+    width: 3px;
+    height: 12px;
+    background: #ce93d8;
+  }
+  .sealed-child {
+    border-radius: 10px;
+    padding: 14px 20px;
+    border: 2px solid;
+    text-align: center;
+    min-width: 220px;
+  }
+  .sealed-child h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .sealed-child p {
+    font-size: 10px;
+    color: #666;
+  }
+  .sc-entity { background: #e3f2fd; border-color: #90caf9; }
+  .sc-entity h4 { color: #1565c0; }
+  .sc-ai { background: #e8f5e9; border-color: #a5d6a7; }
+  .sc-ai h4 { color: #2e7d32; }
+  .sealed-rejected-box {
+    border-radius: 10px;
+    padding: 14px 20px;
+    border: 2px dashed #c62828;
+    background: #fff3f3;
+    text-align: center;
+    min-width: 220px;
+  }
+  .sealed-rejected-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #c62828;
+    margin-bottom: 4px;
+  }
+  .sealed-rejected-box p {
+    font-size: 10px;
+    color: #c62828;
+  }
+
+  /* ─── Diagram 6: Facade Hub-and-Spoke ─── */
+  .facade-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .facade-controller {
+    border-radius: 10px;
+    padding: 14px 28px;
+    background: #eceff1;
+    border: 2px solid #b0bec5;
+    text-align: center;
+  }
+  .facade-controller h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #37474f;
+  }
+  .facade-controller p {
+    font-size: 10px;
+    color: #666;
+  }
+  .facade-arrow-down {
+    font-size: 24px;
+    color: #aaa;
+    font-weight: 700;
+  }
+  .facade-hub {
+    border-radius: 14px;
+    padding: 20px 32px;
+    border: 3px solid #2e7d32;
+    background: #e8f5e9;
+    text-align: center;
+    position: relative;
+  }
+  .facade-hub h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 2px;
+  }
+  .facade-hub p {
+    font-size: 11px;
+    color: #666;
+  }
+  .facade-hub .facade-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #2e7d32;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .facade-spokes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .facade-spoke {
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 2px solid;
+    text-align: center;
+  }
+  .facade-spoke h4 {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .facade-spoke p {
+    font-size: 10px;
+    color: #666;
+  }
+  .fs-team { background: #e3f2fd; border-color: #90caf9; }
+  .fs-team h4 { color: #1565c0; }
+  .fs-player { background: #e8f5e9; border-color: #a5d6a7; }
+  .fs-player h4 { color: #2e7d32; }
+  .fs-stats { background: #f3e5f5; border-color: #ce93d8; }
+  .fs-stats h4 { color: #6a1b9a; }
+  .fs-plan { background: #fff3e0; border-color: #ffcc80; }
+  .fs-plan h4 { color: #e65100; }
+  .fs-ai { background: #fce4ec; border-color: #ef9a9a; }
+  .fs-ai h4 { color: #c62828; }
+  .fs-parser { background: #e0f2f1; border-color: #80cbc4; }
+  .fs-parser h4 { color: #00695c; }
+  .facade-spread-arrows {
+    font-size: 20px;
+    color: #aaa;
+    font-weight: 700;
+    letter-spacing: 30px;
+    text-align: center;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>AI Coach — Post 7: Design Patterns Diagrams</h1>
+<p class="instructions">Open this file in a browser. Screenshot each diagram and embed in your LinkedIn article.</p>
+
+<!-- ─── DIAGRAM 1: Pattern Classification Map ─── -->
+<div class="diagram">
+  <div class="diagram-title">Pattern Classification Map</div>
+  <div class="diagram-subtitle">15 design patterns across 4 categories — found in a single Spring Boot app</div>
+
+  <div class="pattern-grid">
+    <div class="pattern-category cat-creational">
+      <h3><span class="cat-badge">CREATIONAL</span> How objects are made</h3>
+      <ul>
+        <li>
+          <span><span class="pattern-name">Builder</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">@Builder + ChatClient.Builder</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Factory Method</span> <span class="depth-tag depth-medium">MED</span></span>
+          <span class="pattern-file">buildWorkloadSnapshot()</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Singleton</span> <span class="depth-tag depth-brief">BRIEF</span></span>
+          <span class="pattern-file">@Component / @Service</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="pattern-category cat-structural">
+      <h3><span class="cat-badge">STRUCTURAL</span> How objects compose</h3>
+      <ul>
+        <li>
+          <span><span class="pattern-name">Adapter</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">AiClient + AiResponseParser</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Facade</span> <span class="depth-tag depth-medium">MED</span></span>
+          <span class="pattern-file">SeasonPlanService</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Decorator / Filter</span> <span class="depth-tag depth-medium">MED</span></span>
+          <span class="pattern-file">JwtAuthenticationFilter</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Repository</span> <span class="depth-tag depth-medium">MED</span></span>
+          <span class="pattern-file">9 Neo4j interfaces</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">DTO</span> <span class="depth-tag depth-brief">BRIEF</span></span>
+          <span class="pattern-file">*Input / *Response records</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Layered Architecture</span> <span class="depth-tag depth-brief">BRIEF</span></span>
+          <span class="pattern-file">Controller &rarr; Service &rarr; Repo</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Dependency Injection</span> <span class="depth-tag depth-brief">BRIEF</span></span>
+          <span class="pattern-file">@RequiredArgsConstructor</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="pattern-category cat-behavioral">
+      <h3><span class="cat-badge">BEHAVIORAL</span> How objects interact</h3>
+      <ul>
+        <li>
+          <span><span class="pattern-name">Strategy</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">AiClient — 3 ChatClients</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Template Method</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">GraphQLExceptionHandler</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Transactional Script</span> <span class="depth-tag depth-brief">BRIEF</span></span>
+          <span class="pattern-file">@Transactional methods</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="pattern-category cat-modern">
+      <h3><span class="cat-badge">MODERN JAVA</span> Language-level patterns</h3>
+      <ul>
+        <li>
+          <span><span class="pattern-name">Sealed Classes</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">CoachException sealed permits</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Type-Safe Enums</span> <span class="depth-tag depth-deep">DEEP</span></span>
+          <span class="pattern-file">7 enums + switch expressions</span>
+        </li>
+        <li>
+          <span><span class="pattern-name">Records as Value Objects</span> <span class="depth-tag depth-medium">MED</span></span>
+          <span class="pattern-file">8 immutable DTOs</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+    <div style="padding: 8px 16px; background: #e3f2fd; border-radius: 8px; border: 1px solid #90caf9; font-size: 12px; font-weight: 700; color: #1565c0;">3 Creational</div>
+    <div style="padding: 8px 16px; background: #e8f5e9; border-radius: 8px; border: 1px solid #a5d6a7; font-size: 12px; font-weight: 700; color: #2e7d32;">7 Structural</div>
+    <div style="padding: 8px 16px; background: #fff3e0; border-radius: 8px; border: 1px solid #ffcc80; font-size: 12px; font-weight: 700; color: #e65100;">3 Behavioral</div>
+    <div style="padding: 8px 16px; background: #f3e5f5; border-radius: 8px; border: 1px solid #ce93d8; font-size: 12px; font-weight: 700; color: #6a1b9a;">3 Modern Java</div>
+    <div style="padding: 8px 16px; background: #fce4ec; border-radius: 8px; border: 1px solid #ef9a9a; font-size: 12px; font-weight: 700; color: #c62828;">5 Deep Dives</div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 2: Request Flow — generateSeasonPlan ─── -->
+<div class="diagram">
+  <div class="diagram-title">Request Flow — generateSeasonPlan()</div>
+  <div class="diagram-subtitle">11 design patterns activate in a single API call</div>
+
+  <div class="flow-trace">
+    <div class="flow-step f-auth">
+      <div class="flow-number">1</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>JwtAuthenticationFilter</strong> intercepts request, extracts JWT, sets SecurityContext</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-structural">Filter Chain</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-route">
+      <div class="flow-number">2</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>CoachGraphQLController</strong> (singleton bean) receives GraphQL mutation</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-creational">Singleton</span>
+          <span class="flow-pattern-tag fp-arch">Layered</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-facade">
+      <div class="flow-number">3</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>seasonPlanService.generateSeasonPlan(input)</strong> — controller delegates to facade</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-structural">Facade</span>
+          <span class="flow-pattern-tag fp-structural">DI</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-repo">
+      <div class="flow-number">4</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>teamRepository.findById()</strong> + <strong>playerRepository.findByTeamId()</strong></div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-structural">Repository</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-factory">
+      <div class="flow-number">5</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>buildWorkloadSnapshot()</strong> creates PlayerWorkloadSnapshot for each player</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-creational">Factory Method</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-enum">
+      <div class="flow-number">6</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>computeFatigueLevel()</strong> + <strong>computeInjuryRisk()</strong> via enum switch</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-modern">Enums</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-factory">
+      <div class="flow-number">7</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>buildPrompt()</strong> assembles structured text prompt from domain objects</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-creational">Factory Method</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-strategy">
+      <div class="flow-number">8</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>aiClient.generateSeasonPlan()</strong> selects <code>seasonPlanClient</code> strategy</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-behavioral">Strategy</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-adapter">
+      <div class="flow-number">9</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>callClient()</strong> adapts domain call to Spring AI / Gemini protocol</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-structural">Adapter (out)</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-adapter">
+      <div class="flow-number">10</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>aiResponseParser.parseAiResponse()</strong> converts raw JSON to typed record</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-structural">Adapter (in)</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-builder">
+      <div class="flow-number">11</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>SeasonPlan.builder()...build()</strong> constructs entity + <strong>save()</strong> persists</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-creational">Builder</span>
+          <span class="flow-pattern-tag fp-structural">Repository</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step f-template">
+      <div class="flow-number">&#9888;</div>
+      <div class="flow-content">
+        <div class="flow-desc"><strong>GraphQLExceptionHandler</strong> catches any thrown exception (Template Method)</div>
+        <div class="flow-patterns">
+          <span class="flow-pattern-tag fp-behavioral">Template Method</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; padding: 14px 20px; background: #f3e5f5; border-radius: 8px; border-left: 4px solid #6a1b9a; font-size: 12px; color: #555; text-align: center;">
+    <strong>11 patterns in one request.</strong> Not because we over-engineered — because Spring Boot, Lombok, and modern Java compose naturally into pattern-rich architectures.
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 3: Strategy — AiClient Internals ─── -->
+<div class="diagram">
+  <div class="diagram-title">Strategy Pattern — AiClient Internals</div>
+  <div class="diagram-subtitle">3 ChatClients with different system prompts, 1 shared callClient() context</div>
+
+  <div class="strategy-layout">
+    <div style="font-size: 12px; font-weight: 600; color: #888; margin-bottom: -8px;">Services call public methods</div>
+
+    <div class="strategy-services">
+      <div class="strategy-service">MatchAnalysisService</div>
+      <div class="strategy-service">SeasonPlanService</div>
+      <div class="strategy-service">TrainingPlanService</div>
+    </div>
+
+    <div class="strategy-arrow-down">&#11015;</div>
+
+    <div style="width: 100%; border: 3px solid #455a64; border-radius: 14px; padding: 24px; background: #fafafa;">
+      <div style="text-align: center; font-size: 15px; font-weight: 700; color: #37474f; margin-bottom: 16px;">
+        AiClient <span style="font-size: 11px; font-weight: 400; color: #888;">@Component</span>
+      </div>
+
+      <div style="text-align: center; font-size: 11px; color: #666; margin-bottom: 12px;">
+        Constructor: <code>builder.clone().defaultSystem("...").build()</code> &times; 3
+      </div>
+
+      <div class="strategy-clients">
+        <div class="strategy-client sc-tactical">
+          <h4>tacticalClient</h4>
+          <div class="prompt-text">"You are an expert football tactical analyst..."</div>
+          <div class="method-name">generateTacticalAdvice()</div>
+        </div>
+        <div class="strategy-client sc-season">
+          <h4>seasonPlanClient</h4>
+          <div class="prompt-text">"You are an expert season planner..."</div>
+          <div class="method-name">generateSeasonPlan()</div>
+        </div>
+        <div class="strategy-client sc-training">
+          <h4>trainingPlanClient</h4>
+          <div class="prompt-text">"You are an expert training coach..."</div>
+          <div class="method-name">generateTrainingPlan()</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 16px;">
+        <div class="strategy-arrow-down">&#11015;</div>
+      </div>
+
+      <div class="strategy-context">
+        <h4>callClient(ChatClient client, String prompt, String context)</h4>
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">The Context — doesn't know which strategy it's executing</div>
+        <div class="code-line">Mono.fromCallable(() -> client.prompt().user(prompt).call().content())</div>
+        <div class="code-line">&nbsp;&nbsp;.subscribeOn(Schedulers.boundedElastic())</div>
+        <div class="code-line">&nbsp;&nbsp;.doOnError(e -> log.error("{} generation failed", context, e))</div>
+        <div class="code-line">&nbsp;&nbsp;.onErrorResume(e -> Mono.empty());</div>
+      </div>
+    </div>
+
+    <div class="strategy-arrow-down">&#11015;</div>
+
+    <div style="padding: 12px 20px; background: #fff3e0; border-radius: 8px; border: 2px solid #ffcc80; font-size: 12px; color: #e65100; font-weight: 600; text-align: center;">
+      Gemini API (via Spring AI)
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 4: Adapter — Dual Layer ─── -->
+<div class="diagram">
+  <div class="diagram-title">Adapter Pattern — Dual Translation Layer</div>
+  <div class="diagram-subtitle">Outgoing adapter (domain &rarr; API) + Incoming adapter (raw JSON &rarr; typed records)</div>
+
+  <div class="adapter-flow">
+    <div class="adapter-box ab-app">
+      <h4>Service Layer</h4>
+      <p>SeasonPlanService<br>TrainingPlanService<br>MatchAnalysisService</p>
+    </div>
+    <div class="adapter-arrow">&#10132;</div>
+    <div class="adapter-box ab-outgoing">
+      <h4>AiClient</h4>
+      <p>Outgoing Adapter</p>
+      <div style="margin-top: 6px; font-size: 10px; font-weight: 600; color: #c62828;">domain &rarr; Spring AI</div>
+    </div>
+    <div class="adapter-arrow">&#10132;</div>
+    <div class="adapter-box ab-gemini">
+      <h4>Gemini API</h4>
+      <p>External Service</p>
+      <div style="margin-top: 6px; font-size: 10px; font-weight: 600; color: #e65100;">raw string response</div>
+    </div>
+    <div class="adapter-arrow">&#10132;</div>
+    <div class="adapter-box ab-incoming">
+      <h4>AiResponseParser</h4>
+      <p>Incoming Adapter</p>
+      <div style="margin-top: 6px; font-size: 10px; font-weight: 600; color: #1565c0;">JSON &rarr; typed records</div>
+    </div>
+    <div class="adapter-arrow">&#10132;</div>
+    <div class="adapter-box ab-typed">
+      <h4>Typed Objects</h4>
+      <p>AiSeasonPlanResponse<br>AiTrainingPlanResponse</p>
+    </div>
+  </div>
+
+  <div class="adapter-detail">
+    <div class="adapter-detail-box ad-out">
+      <h4>Outgoing Adapter: AiClient</h4>
+      <div class="code-line">generateSeasonPlan(prompt)</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; client.prompt().user(prompt).call().content()</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; wrapped in Mono + boundedElastic scheduler</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; error handling + logging</div>
+      <div style="margin-top: 8px; font-size: 10px; color: #666;">
+        <strong>Benefit:</strong> Switch from Gemini to OpenAI? Change only this class.
+      </div>
+    </div>
+    <div class="adapter-detail-box ad-in">
+      <h4>Incoming Adapter: AiResponseParser</h4>
+      <div class="code-line">parseAiResponse(raw, Type.class, fallback)</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; stripMarkdownFences(raw)</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; objectMapper.readValue(json, type)</div>
+      <div class="code-line">&nbsp;&nbsp;&rarr; fallback on parse failure</div>
+      <div style="margin-top: 8px; font-size: 10px; color: #666;">
+        <strong>Benefit:</strong> Handles messy AI output (```json fences, whitespace) in one place.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px; padding: 12px 20px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #2e7d32; font-size: 12px; color: #555; text-align: center;">
+    <strong>The entire app is isolated from Gemini.</strong> Services never see ChatClient, Mono, or markdown fences.
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 5: Sealed Class Hierarchy ─── -->
+<div class="diagram">
+  <div class="diagram-title">Sealed Class Hierarchy — CoachException</div>
+  <div class="diagram-subtitle">Compiler-enforced exception hierarchy — only permitted subtypes can exist</div>
+
+  <div class="sealed-tree">
+    <div class="sealed-root">
+      <div class="sealed-keyword kw-sealed">sealed</div>
+      <h3>CoachException</h3>
+      <p><code>extends RuntimeException</code></p>
+      <p style="margin-top: 4px; font-size: 10px;"><code>permits EntityNotFoundException, AiGenerationException</code></p>
+    </div>
+
+    <div class="sealed-connector"></div>
+
+    <div class="sealed-branches">
+      <div class="sealed-branch">
+        <div class="sealed-branch-connector"></div>
+        <div class="sealed-child sc-entity">
+          <div class="sealed-keyword kw-final">final</div>
+          <h4>EntityNotFoundException</h4>
+          <p><code>entityType</code> + <code>entityId</code></p>
+          <p style="margin-top: 4px;">"Team not found with id: 42"</p>
+        </div>
+      </div>
+
+      <div class="sealed-branch">
+        <div class="sealed-branch-connector"></div>
+        <div class="sealed-child sc-ai">
+          <div class="sealed-keyword kw-final">final</div>
+          <h4>AiGenerationException</h4>
+          <p><code>operation</code> + <code>cause</code></p>
+          <p style="margin-top: 4px;">"AI generation failed for: season plan"</p>
+        </div>
+      </div>
+
+      <div class="sealed-branch">
+        <div class="sealed-branch-connector"></div>
+        <div class="sealed-rejected-box">
+          <div class="sealed-keyword kw-rejected">REJECTED</div>
+          <h4>HackException extends CoachException</h4>
+          <p>&#10007; Compiler error: not in permits clause</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; width: 100%; max-width: 700px;">
+      <div style="padding: 10px 14px; background: #f3e5f5; border-radius: 8px; border: 1px solid #ce93d8; font-size: 11px; text-align: center;">
+        <strong style="color: #6a1b9a;">Compiler-enforced</strong><br>
+        <span style="color: #666;">Only permitted types extend</span>
+      </div>
+      <div style="padding: 10px 14px; background: #e8f5e9; border-radius: 8px; border: 1px solid #a5d6a7; font-size: 11px; text-align: center;">
+        <strong style="color: #2e7d32;">Self-documenting</strong><br>
+        <span style="color: #666;">permits clause = full hierarchy</span>
+      </div>
+      <div style="padding: 10px 14px; background: #e3f2fd; border-radius: 8px; border: 1px solid #90caf9; font-size: 11px; text-align: center;">
+        <strong style="color: #1565c0;">Exhaustive switching</strong><br>
+        <span style="color: #666;">Compiler warns on missing cases</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; padding: 14px 20px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #ff8f00; font-size: 12px; color: #555; width: 100%; max-width: 700px;">
+      <strong>+ 7 type-safe enums</strong> replacing String fields:
+      <code>FatigueLevel</code> <code>InjuryRisk</code> <code>TrainingIntensity</code>
+      <code>FocusArea</code> <code>TacticalStyle</code> <code>RiskLevel</code> <code>FormIndicator</code>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGRAM 6: Facade — SeasonPlanService ─── -->
+<div class="diagram">
+  <div class="diagram-title">Facade Pattern — SeasonPlanService</div>
+  <div class="diagram-subtitle">6 dependencies hidden behind a single generateSeasonPlan() entry point</div>
+
+  <div class="facade-layout">
+    <div class="facade-controller">
+      <h4>CoachGraphQLController</h4>
+      <p>Knows only: <code>seasonPlanService.generateSeasonPlan(input)</code></p>
+    </div>
+
+    <div class="facade-arrow-down">&#11015;</div>
+
+    <div class="facade-hub">
+      <div class="facade-badge">FACADE</div>
+      <h3>SeasonPlanService</h3>
+      <p><code>generateSeasonPlan(SeasonPlanInput input)</code></p>
+      <div style="margin-top: 8px; font-size: 10px; color: #555;">
+        Orchestrates: fetch &rarr; compute &rarr; prompt &rarr; call AI &rarr; parse &rarr; save
+      </div>
+    </div>
+
+    <div class="facade-spread-arrows">&#11015; &nbsp; &#11015; &nbsp; &#11015; &nbsp; &#11015; &nbsp; &#11015; &nbsp; &#11015;</div>
+
+    <div class="facade-spokes">
+      <div class="facade-spoke fs-team">
+        <h4>TeamRepository</h4>
+        <p>findById()</p>
+      </div>
+      <div class="facade-spoke fs-player">
+        <h4>PlayerRepository</h4>
+        <p>findByTeamId()</p>
+      </div>
+      <div class="facade-spoke fs-stats">
+        <h4>PlayerMatchStatRepository</h4>
+        <p>findByPlayerIdAndMatchDateAfter()</p>
+      </div>
+      <div class="facade-spoke fs-plan">
+        <h4>SeasonPlanRepository</h4>
+        <p>save()</p>
+      </div>
+      <div class="facade-spoke fs-ai">
+        <h4>AiClient</h4>
+        <p>generateSeasonPlan()</p>
+      </div>
+      <div class="facade-spoke fs-parser">
+        <h4>AiResponseParser</h4>
+        <p>parseAiResponse()</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; padding: 14px 20px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #2e7d32; font-size: 12px; color: #555; text-align: center;">
+      <strong>The controller has zero knowledge</strong> of repositories, AI clients, or parsers.
+      One method call. The facade handles everything.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
