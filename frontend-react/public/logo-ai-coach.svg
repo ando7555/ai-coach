@@ -20,15 +20,12 @@
       <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.28"/>
     </filter>
   </defs>
-
   <rect width="500" height="300" rx="28" fill="url(#panelGrad)"/>
-
   <g opacity="0.12">
     <path d="M56 54H444M56 246H444M56 54V246M444 54V246" fill="none" stroke="#d7f7ff" stroke-width="1.4"/>
     <path d="M250 54V246M56 150H444" fill="none" stroke="#d7f7ff" stroke-width="1"/>
     <circle cx="250" cy="150" r="43" fill="none" stroke="#d7f7ff" stroke-width="1"/>
   </g>
-
   <g transform="translate(70 83)" filter="url(#softShadow)">
     <path d="M73.9 0 134 34.6v69.2l-60.1 34.7-60-34.7V34.6L73.9 0Z" fill="#07131f" stroke="url(#markGrad)" stroke-width="4"/>
     <path d="M28 41h92M28 98h92M74 16v107" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-opacity="0.2"/>
@@ -41,7 +38,6 @@
     <circle cx="112" cy="48" r="6.5" fill="#20b7ff"/>
     <circle cx="112" cy="93" r="5.5" fill="#d7f7ff"/>
   </g>
-
   <g transform="translate(224 101)">
     <text x="0" y="0" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="55" font-weight="760" fill="#f8fbff">Pitch</text>
     <text x="0" y="58" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="55" font-weight="760" fill="#13d8a3">Mind</text>

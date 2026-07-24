@@ -30,14 +30,14 @@ These capabilities are present in the code today:
 - AI-generated or deterministic-fallback weekly training microcycles
 - AI-generated or deterministic-fallback season plans with workload snapshots
 - Player workload and performance trend calculations
-- Angular coaching portal for squads, matches, player stats, tactical analysis, training plans, and season workload review
+- React intelligence portal for squads, matches, player stats, tactical analysis, training plans, season workload review, and prediction workflows
 - Transparent statistical baseline predictor using completed pre-match history
 - Backend market-value evaluation for fair odds, implied probability, expected value, and conservative value classification
 - Immutable prediction history in Neo4j
 
 ## Partially Implemented Prediction Functionality
 
-The current code does not contain a trained football prediction model. It now includes a transparent statistical baseline predictor, exposed through GraphQL and the Angular Prediction Lab, so users can inspect probability calculations without claiming machine-learning accuracy.
+The current code does not contain a trained football prediction model. It now includes a transparent statistical baseline predictor, exposed through GraphQL and the React Prediction Lab, so users can inspect probability calculations without claiming machine-learning accuracy.
 
 Current support:
 
@@ -189,7 +189,7 @@ Before any real-money functionality, PitchMind must treat these as mandatory pre
 - GraphQL with Spring GraphQL and GraphiQL
 - Neo4j for teams, players, matches, stats, plans, and recommendation entities
 - Spring AI with the Google Gemini OpenAI-compatible endpoint
-- Angular coaching portal
+- React intelligence portal powered by Vite and TypeScript
 - Project Reactor and Lombok
 
 ## Running Locally
@@ -197,7 +197,7 @@ Before any real-money functionality, PitchMind must treat these as mandatory pre
 ### Prerequisites
 
 - Java 17+
-- Node.js and npm for Angular builds
+- Node.js and npm for React builds
 - Neo4j running on `bolt://127.0.0.1:7687`
 - Optional Google Gemini API key
 
@@ -215,7 +215,7 @@ $env:GOOGLE_GEMINI_API_KEY="your-key-here"
 .\gradlew.bat bootRun
 ```
 
-Open the Angular portal at:
+Open the React portal at:
 
 ```text
 http://localhost:8080/

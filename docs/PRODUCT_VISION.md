@@ -39,7 +39,7 @@ The current application supports:
 - weekly training microcycles
 - season planning and workload review
 - GraphQL authentication and authorization
-- an Angular portal for the above workflows
+- a React portal for the above workflows
 - a transparent statistical baseline predictor for match probabilities
 - backend betting-market value evaluation for decimal odds and expected value
 - immutable prediction history for audit

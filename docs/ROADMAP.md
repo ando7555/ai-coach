@@ -16,7 +16,7 @@ The current app already provides the football data and coaching foundation:
 - transparent statistical baseline match prediction
 - backend decimal-odds market evaluation
 - immutable prediction history
-- Angular portal
+- React portal
 - GraphQL API
 - Neo4j persistence
 - deterministic AI fallbacks when Gemini is disabled
