@@ -1,5 +1,5 @@
 const graphqlUrl = process.env.PITCHMIND_GRAPHQL_URL ?? 'http://localhost:8080/graphql';
-const frontendUrl = process.env.PITCHMIND_FRONTEND_URL ?? 'http://127.0.0.1:5173/';
+const frontendUrl = process.env.PITCHMIND_FRONTEND_URL ?? 'http://127.0.0.1:8080/';
 const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
 const username = `smoke_admin_${stamp}`;
 const password = 'SmokePass123!';
@@ -62,21 +62,52 @@ const createTeamMutation = `
   }
 `;
 
-const homeTeam = (
-  await gql(createTeamMutation, {
-    name: `Smoke FC ${stamp}`,
-    league: 'Smoke League',
-    formation: '4-3-3'
-  })
-).createTeam;
+async function createTeam(name, formation) {
+  return (
+    await gql(createTeamMutation, {
+      name,
+      league: 'Smoke Premier League',
+      formation
+    })
+  ).createTeam;
+}
 
-const awayTeam = (
-  await gql(createTeamMutation, {
-    name: `Control United ${stamp}`,
-    league: 'Smoke League',
-    formation: '4-2-3-1'
-  })
-).createTeam;
+async function recordMatch(homeTeamId, awayTeamId, homeGoals, awayGoals, date) {
+  return (
+    await gql(
+      `
+        mutation RecordMatch($input: MatchInput!) {
+          recordMatch(input: $input) {
+            id
+            homeTeam { id name }
+            awayTeam { id name }
+            homeGoals
+            awayGoals
+            date
+          }
+        }
+      `,
+      {
+        input: {
+          homeTeamId,
+          awayTeamId,
+          homeGoals,
+          awayGoals,
+          date
+        }
+      }
+    )
+  ).recordMatch;
+}
+
+const homeTeam = (
+  await createTeam(`Smoke FC ${stamp}`, '4-3-3')
+);
+
+const awayTeam = await createTeam(`Control United ${stamp}`, '4-2-3-1');
+const opponentOne = await createTeam(`Northbridge Athletic ${stamp}`, '4-4-2');
+const opponentTwo = await createTeam(`Riverside City ${stamp}`, '3-5-2');
+const opponentThree = await createTeam(`Harbour Rangers ${stamp}`, '4-1-4-1');
 
 const player = (
   await gql(
@@ -96,31 +127,14 @@ const player = (
   )
 ).createPlayer;
 
-const match = (
-  await gql(
-    `
-      mutation RecordMatch($input: MatchInput!) {
-        recordMatch(input: $input) {
-          id
-          homeTeam { id name }
-          awayTeam { id name }
-          homeGoals
-          awayGoals
-          date
-        }
-      }
-    `,
-    {
-      input: {
-        homeTeamId: homeTeam.id,
-        awayTeamId: awayTeam.id,
-        homeGoals: 2,
-        awayGoals: 1,
-        date: '2026-07-24'
-      }
-    }
-  )
-).recordMatch;
+const completedMatch = await recordMatch(homeTeam.id, opponentOne.id, 2, 0, '2026-07-01');
+await recordMatch(homeTeam.id, opponentTwo.id, 1, 1, '2026-07-05');
+await recordMatch(opponentThree.id, homeTeam.id, 1, 3, '2026-07-09');
+await recordMatch(opponentOne.id, awayTeam.id, 0, 1, '2026-07-02');
+await recordMatch(opponentTwo.id, awayTeam.id, 2, 2, '2026-07-06');
+await recordMatch(awayTeam.id, opponentThree.id, 2, 0, '2026-07-10');
+
+const match = await recordMatch(homeTeam.id, awayTeam.id, null, null, '2026-07-24');
 
 const stat = (
   await gql(
@@ -138,7 +152,7 @@ const stat = (
     {
       input: {
         playerId: player.id,
-        matchId: match.id,
+        matchId: completedMatch.id,
         minutesPlayed: 90,
         goals: 1,
         assists: 1,
@@ -172,6 +186,60 @@ const trainingPlan = (
   )
 ).generateTrainingPlan;
 
+const prediction = (
+  await gql(
+    `
+      mutation Predict($matchId: ID!) {
+        generateMatchPrediction(matchId: $matchId) {
+          id
+          matchId
+          homeWinProbability
+          drawProbability
+          awayWinProbability
+          over25GoalsProbability
+          dataQualityStatus
+          confidenceLevel
+          uncertaintyLevel
+          warnings
+        }
+      }
+    `,
+    { matchId: match.id }
+  )
+).generateMatchPrediction;
+
+if (prediction.dataQualityStatus !== 'SUFFICIENT') {
+  throw new Error(`Expected SUFFICIENT prediction data, got ${prediction.dataQualityStatus}: ${prediction.warnings.join('; ')}`);
+}
+
+const marketValue = (
+  await gql(
+    `
+      mutation EvaluateMarket($input: MarketValueInput!) {
+        evaluateMarketValue(input: $input) {
+          predictionId
+          market
+          modelProbability
+          decimalOdds
+          fairOdds
+          rawImpliedProbability
+          expectedValue
+          classification
+          validationWarnings
+        }
+      }
+    `,
+    {
+      input: {
+        predictionId: prediction.id,
+        market: 'HOME_WIN',
+        modelProbability: prediction.homeWinProbability,
+        decimalOdds: 2.1
+      }
+    }
+  )
+).evaluateMarketValue;
+
 await assertFrontendAvailable();
 
 console.log(
@@ -184,10 +252,27 @@ console.log(
       team: homeTeam.name,
       opponent: awayTeam.name,
       player: `${player.name} (${player.position}, rating ${player.rating})`,
-      match: `${match.homeTeam.name} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam.name}`,
+      match: `${match.homeTeam.name} vs ${match.awayTeam.name} on ${match.date}`,
       stat: `${stat.player.name}: ${stat.minutesPlayed} min, ${stat.goals} goal, ${stat.assists} assist`,
       trainingPlan: trainingPlan.summary,
-      sessionCount: trainingPlan.sessions.length
+      sessionCount: trainingPlan.sessions.length,
+      prediction: {
+        dataQualityStatus: prediction.dataQualityStatus,
+        confidenceLevel: prediction.confidenceLevel,
+        uncertaintyLevel: prediction.uncertaintyLevel,
+        homeWinProbability: prediction.homeWinProbability,
+        drawProbability: prediction.drawProbability,
+        awayWinProbability: prediction.awayWinProbability,
+        over25GoalsProbability: prediction.over25GoalsProbability
+      },
+      marketValue: {
+        market: marketValue.market,
+        decimalOdds: marketValue.decimalOdds,
+        fairOdds: marketValue.fairOdds,
+        expectedValue: marketValue.expectedValue,
+        classification: marketValue.classification,
+        validationWarnings: marketValue.validationWarnings
+      }
     },
     null,
     2
