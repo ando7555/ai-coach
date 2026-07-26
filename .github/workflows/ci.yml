@@ -33,12 +33,6 @@ jobs:
       - name: Build and test with coverage
         run: ./gradlew build jacocoTestReport
 
-      - name: SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
