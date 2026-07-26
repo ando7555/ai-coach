@@ -4,7 +4,9 @@ import com.ai.coach.betting.MarketValueInput;
 import com.ai.coach.betting.MarketValueResult;
 import com.ai.coach.betting.MarketValueService;
 import com.ai.coach.predictor.MatchPredictionService;
+import com.ai.coach.predictor.evaluation.PredictionEvaluationService;
 import com.ai.coach.predictor.model.MatchPredictionPayload;
+import com.ai.coach.predictor.model.PredictionEvaluationSummary;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -22,6 +24,7 @@ import java.util.List;
 public class PredictionGraphQLController {
     private final MatchPredictionService predictionService;
     private final MarketValueService marketValueService;
+    private final PredictionEvaluationService predictionEvaluationService;
 
     @QueryMapping
     @PreAuthorize("isAuthenticated()")
@@ -33,6 +36,12 @@ public class PredictionGraphQLController {
     @PreAuthorize("isAuthenticated()")
     public List<MatchPredictionPayload> matchPredictionHistory(@Argument Long matchId) {
         return predictionService.history(matchId);
+    }
+
+    @QueryMapping
+    @PreAuthorize("isAuthenticated()")
+    public PredictionEvaluationSummary predictionEvaluationSummary() {
+        return predictionEvaluationService.summarizeLatestCompletedPredictions();
     }
 
     @MutationMapping

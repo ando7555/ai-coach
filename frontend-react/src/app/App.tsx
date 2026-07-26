@@ -9,6 +9,7 @@ import {
   LogOut,
   RefreshCcw,
   ShieldCheck,
+  Target,
   Users
 } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
@@ -73,6 +74,16 @@ type MarketEvaluation = {
   expectedValue: number;
   classification: string;
   validationWarnings: string[];
+};
+
+type EvaluationSummary = {
+  generatedPredictions: number;
+  evaluatedPredictions: number;
+  correctWinnerPredictions: number;
+  winnerAccuracy: number;
+  averageBrierScore?: number | null;
+  modelVersion?: string | null;
+  notes: string[];
 };
 
 type AiResponse =
@@ -272,6 +283,7 @@ function Portal() {
   });
   const [predictionMatchId, setPredictionMatchId] = useState('');
   const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [evaluationSummary, setEvaluationSummary] = useState<EvaluationSummary | null>(null);
   const [market, setMarket] = useState('HOME_WIN');
   const [decimalOdds, setDecimalOdds] = useState(2.1);
   const [marketEvaluation, setMarketEvaluation] = useState<MarketEvaluation | null>(null);
@@ -287,6 +299,19 @@ function Portal() {
   const [seasonForm, setSeasonForm] = useState({ teamId: '', season: '2026/27', priority: 'Balanced' });
 
   const selectedTeam = useMemo(() => teams.find((team) => team.id === selectedTeamId) ?? null, [teams, selectedTeamId]);
+  const completedMatches = useMemo(
+    () => matches.filter((match) => match.homeGoals !== null && match.homeGoals !== undefined && match.awayGoals !== null && match.awayGoals !== undefined),
+    [matches]
+  );
+  const scheduledMatches = useMemo(
+    () => matches.filter((match) => match.homeGoals === null || match.homeGoals === undefined || match.awayGoals === null || match.awayGoals === undefined),
+    [matches]
+  );
+  const predictionReadiness = completedMatches.length >= 6
+    ? 'Ready'
+    : completedMatches.length >= 3
+      ? 'Limited'
+      : 'Needs History';
 
   function flashSuccess(message: string) {
     setSuccess(message);
@@ -325,7 +350,27 @@ function Portal() {
       }));
       setTrainingForm((current) => ({ ...current, teamId: current.teamId || nextTeam?.id || '' }));
       setSeasonForm((current) => ({ ...current, teamId: current.teamId || nextTeam?.id || '' }));
+      await loadEvaluationSummary();
     });
+  }
+
+  async function loadEvaluationSummary() {
+    const data = await graphQLClient.request<{ predictionEvaluationSummary: EvaluationSummary }>(
+      `
+        query PredictionEvaluationSummary {
+          predictionEvaluationSummary {
+            generatedPredictions
+            evaluatedPredictions
+            correctWinnerPredictions
+            winnerAccuracy
+            averageBrierScore
+            modelVersion
+            notes
+          }
+        }
+      `
+    );
+    setEvaluationSummary(data.predictionEvaluationSummary);
   }
 
   async function loadTeamContext(teamId: string) {
@@ -494,6 +539,7 @@ function Portal() {
       );
       setPrediction(data.generateMatchPrediction);
       setMarketEvaluation(null);
+      await loadEvaluationSummary();
       flashSuccess('Prediction generated');
     });
   }
@@ -722,7 +768,7 @@ function Portal() {
               <Metric label="Selected Team" value={selectedTeam?.name ?? 'None'} detail={selectedTeam?.league ?? 'League not set'} />
               <Metric label="Roster Size" value={players.length} detail="Players in active squad" />
               <Metric label="Recorded Fixtures" value={matches.length} detail="Loaded for selected team" />
-              <Metric label="Prediction Status" value={matches.length >= 5 ? 'Tracked' : 'Limited'} detail="Depends on match history" />
+              <Metric label="Prediction Status" value={predictionReadiness} detail={`${completedMatches.length} completed, ${scheduledMatches.length} scheduled`} />
             </div>
             <div className="work-grid">
               <Panel title="Recent Matches">
@@ -738,6 +784,7 @@ function Portal() {
                 </button>
               </Panel>
             </div>
+            <ModelEvaluationPanel summary={evaluationSummary} />
           </section>
         )}
 
@@ -886,6 +933,12 @@ function Portal() {
             <div className="responsible-banner">
               Football outcomes are uncertain. PitchMind shows model probabilities, uncertainty, and value math; it does not promise any result or return.
             </div>
+            <ReadinessPanel
+              completedMatches={completedMatches.length}
+              scheduledMatches={scheduledMatches.length}
+              hasTeams={teams.length >= 2}
+              hasPlayers={players.length > 0}
+            />
             <div className="work-grid">
               <Panel title="Generate Match Prediction">
                 <label>
@@ -895,7 +948,7 @@ function Portal() {
                   </select>
                 </label>
                 <div className="button-row">
-                  <button className="primary-button fit" type="button" onClick={generateMatchPrediction}>Generate Prediction</button>
+                  <button className="primary-button fit" type="button" onClick={generateMatchPrediction} disabled={!predictionMatchId}>Generate Prediction</button>
                   <button className="secondary-button fit" type="button" onClick={loadPrediction}>Load Latest</button>
                 </div>
               </Panel>
@@ -1014,6 +1067,59 @@ function Metric({ label, value, detail }: { label: string; value: React.ReactNod
       <strong>{value}</strong>
       <small>{detail}</small>
     </article>
+  );
+}
+
+function ReadinessPanel({
+  completedMatches,
+  scheduledMatches,
+  hasTeams,
+  hasPlayers
+}: {
+  completedMatches: number;
+  scheduledMatches: number;
+  hasTeams: boolean;
+  hasPlayers: boolean;
+}) {
+  const checks = [
+    { label: 'At least two teams', ok: hasTeams },
+    { label: 'Roster context', ok: hasPlayers },
+    { label: 'Six completed historical fixtures', ok: completedMatches >= 6 },
+    { label: 'One scheduled target fixture', ok: scheduledMatches >= 1 }
+  ];
+
+  return (
+    <section className="readiness-panel">
+      <div className="readiness-title">
+        <Target size={18} aria-hidden="true" />
+        <strong>Prediction Readiness</strong>
+      </div>
+      <div className="readiness-checks">
+        {checks.map((check) => (
+          <span className={check.ok ? 'readiness-check ok' : 'readiness-check'} key={check.label}>
+            {check.label}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ModelEvaluationPanel({ summary }: { summary: EvaluationSummary | null }) {
+  if (!summary) {
+    return null;
+  }
+
+  return (
+    <Panel title="Model Evaluation">
+      <div className="metric-grid compact">
+        <Metric label="Saved Predictions" value={summary.generatedPredictions} detail="All prediction records" />
+        <Metric label="Evaluated Fixtures" value={summary.evaluatedPredictions} detail="Predictions with final scores" />
+        <Metric label="Winner Accuracy" value={`${(summary.winnerAccuracy * 100).toFixed(1)}%`} detail={`${summary.correctWinnerPredictions} correct outcomes`} />
+        <Metric label="Brier Score" value={summary.averageBrierScore === null || summary.averageBrierScore === undefined ? '-' : summary.averageBrierScore.toFixed(3)} detail={summary.modelVersion ?? 'Current model'} />
+      </div>
+      <FactorList title="Evaluation Notes" items={summary.notes} />
+    </Panel>
   );
 }
 

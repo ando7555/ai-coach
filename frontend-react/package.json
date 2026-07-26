@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "demo:seed": "node scripts/seed-demo-data.mjs",
     "smoke:e2e": "node scripts/smoke-use-case.mjs"
   },
   "dependencies": {

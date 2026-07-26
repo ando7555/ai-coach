@@ -28,17 +28,49 @@ public class PlayerService {
 
     @Transactional
     public Player createPlayer(CreatePlayerInput input) {
-        log.info("Creating player: {}", input.name());
-        Team team = teamRepository.findById(input.teamId())
-                .orElseThrow(() -> new EntityNotFoundException("Team", input.teamId()));
+        if (input == null) {
+            throw new IllegalArgumentException("Player input is required");
+        }
+        Long teamId = requireId(input.teamId(), "Team id");
+        String name = requireText(input.name(), "Player name");
+        String position = requireText(input.position(), "Player position");
+        Double rating = normalizeRating(input.rating());
+
+        log.info("Creating player: {}", name);
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("Team", teamId));
 
         Player player = Player.builder()
-                .name(input.name())
-                .position(input.position())
-                .rating(input.rating())
+                .name(name)
+                .position(position)
+                .rating(rating)
                 .team(team)
                 .build();
 
         return playerRepository.save(player);
+    }
+
+    private Long requireId(Long value, String field) {
+        if (value == null) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return value;
+    }
+
+    private String requireText(String value, String field) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return value.strip();
+    }
+
+    private Double normalizeRating(Double rating) {
+        if (rating == null) {
+            return null;
+        }
+        if (rating < 0 || rating > 10) {
+            throw new IllegalArgumentException("Player rating must be between 0 and 10");
+        }
+        return rating;
     }
 }

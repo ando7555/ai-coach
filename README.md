@@ -69,6 +69,17 @@ npm install
 npm run dev
 ```
 
+## Demo Data
+
+With Neo4j and the backend running, seed a reusable demo dataset:
+
+```bash
+cd frontend-react
+npm run demo:seed
+```
+
+The walkthrough is in `frontend-react/scripts/demo-walkthrough.md`.
+
 ## Testing
 
 ```bash
@@ -81,4 +92,5 @@ For frontend-only checks:
 cd frontend-react
 npm test
 npm run build
+npm run smoke:e2e
 ```

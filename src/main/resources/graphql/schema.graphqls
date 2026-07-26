@@ -246,6 +246,16 @@ type MarketValueResult {
   evaluatedAt: String!
 }
 
+type PredictionEvaluationSummary {
+  generatedPredictions: Int!
+  evaluatedPredictions: Int!
+  correctWinnerPredictions: Int!
+  winnerAccuracy: Float!
+  averageBrierScore: Float
+  modelVersion: String
+  notes: [String!]!
+}
+
 extend type Query {
   matchAnalysis(matchId: ID!): [MatchAnalysis!]!
   trainingPlansByTeam(teamId: ID!): [TrainingPlan!]!
@@ -256,6 +266,7 @@ extend type Query {
   playerTrendByDateRange(playerId: ID!, from: String!, to: String!): PlayerPerformanceTrend!
   matchPrediction(matchId: ID!): MatchPrediction
   matchPredictionHistory(matchId: ID!): [MatchPrediction!]!
+  predictionEvaluationSummary: PredictionEvaluationSummary!
 }
 
 type User {
