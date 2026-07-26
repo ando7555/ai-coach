@@ -341,7 +341,7 @@ function Portal() {
     await withStatus(async () => {
       const data = await graphQLClient.request<{ teams: Team[] }>(teamQuery);
       setTeams(data.teams);
-      const nextTeam = data.teams.find((team) => team.id === preferredTeamId) ?? data.teams[0] ?? null;
+      const nextTeam = selectInitialTeam(data.teams, preferredTeamId);
       setSelectedTeamId(nextTeam?.id ?? '');
       setMatchForm((current) => ({
         ...current,
@@ -352,6 +352,15 @@ function Portal() {
       setSeasonForm((current) => ({ ...current, teamId: current.teamId || nextTeam?.id || '' }));
       await loadEvaluationSummary();
     });
+  }
+
+  function selectInitialTeam(nextTeams: Team[], preferredTeamId?: string) {
+    return (
+      nextTeams.find((team) => team.id === preferredTeamId) ??
+      nextTeams.find((team) => team.name === 'Warsaw Athletic' && team.league === 'PitchMind Demo League') ??
+      nextTeams[0] ??
+      null
+    );
   }
 
   async function loadEvaluationSummary() {
