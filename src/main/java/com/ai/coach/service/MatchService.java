@@ -51,20 +51,28 @@ public class MatchService {
 
     @Transactional
     public Match recordMatch(MatchInput input) {
-        log.debug("Recording match: home={}, away={}", input.homeTeamId(), input.awayTeamId());
-        if (input.homeTeamId().equals(input.awayTeamId())) {
+        if (input == null) {
+            throw new IllegalArgumentException("Match input is required");
+        }
+        Long homeTeamId = requireId(input.homeTeamId(), "Home team id");
+        Long awayTeamId = requireId(input.awayTeamId(), "Away team id");
+        validateScore(input.homeGoals(), input.awayGoals());
+
+        log.debug("Recording match: home={}, away={}", homeTeamId, awayTeamId);
+        if (homeTeamId.equals(awayTeamId)) {
             throw new IllegalArgumentException("Home and away teams must be different");
         }
-        Team home = teamRepository.findById(input.homeTeamId())
-                .orElseThrow(() -> new EntityNotFoundException("Team", input.homeTeamId()));
-        Team away = teamRepository.findById(input.awayTeamId())
-                .orElseThrow(() -> new EntityNotFoundException("Team", input.awayTeamId()));
+        Team home = teamRepository.findById(homeTeamId)
+                .orElseThrow(() -> new EntityNotFoundException("Team", homeTeamId));
+        Team away = teamRepository.findById(awayTeamId)
+                .orElseThrow(() -> new EntityNotFoundException("Team", awayTeamId));
 
         LocalDate date;
         try {
-            date = input.date() == null || input.date().isBlank()
-                    ? LocalDate.now()
-                    : LocalDate.parse(input.date());
+            if (input.date() == null || input.date().isBlank()) {
+                throw new IllegalArgumentException("Match date is required");
+            }
+            date = LocalDate.parse(input.date());
         } catch (java.time.format.DateTimeParseException e) {
             throw new IllegalArgumentException("Match date must use ISO format YYYY-MM-DD");
         }
@@ -79,4 +87,19 @@ public class MatchService {
         return matchRepository.save(match);
     }
 
+    private Long requireId(Long value, String field) {
+        if (value == null) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return value;
+    }
+
+    private void validateScore(Integer homeGoals, Integer awayGoals) {
+        if ((homeGoals == null) != (awayGoals == null)) {
+            throw new IllegalArgumentException("Both goal values must be provided for completed matches, or both left empty for scheduled fixtures");
+        }
+        if (homeGoals != null && (homeGoals < 0 || awayGoals < 0)) {
+            throw new IllegalArgumentException("Match goals must be non-negative");
+        }
+    }
 }

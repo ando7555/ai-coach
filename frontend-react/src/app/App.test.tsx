@@ -42,6 +42,21 @@ describe('App', () => {
       .mockResolvedValueOnce(
         jsonResponse({
           data: {
+            predictionEvaluationSummary: {
+              generatedPredictions: 3,
+              evaluatedPredictions: 1,
+              correctWinnerPredictions: 1,
+              winnerAccuracy: 1,
+              averageBrierScore: 0.18,
+              modelVersion: 'baseline-poisson-v1',
+              notes: ['Evaluation uses the latest saved prediction per match with a completed result.']
+            }
+          }
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
             playersByTeam: [{ id: 'player-1', name: 'Bukayo Saka', position: 'Forward', rating: 8.4 }],
             matchesByTeam: {
               totalCount: 1,
@@ -70,6 +85,7 @@ describe('App', () => {
 
     expect(screen.getByText('Football Intelligence Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Roster Size')).toBeInTheDocument();
+    expect(screen.getByText('Model Evaluation')).toBeInTheDocument();
 
     await waitFor(() => expect(screen.getByText('Arsenal FC vs Chelsea FC')).toBeInTheDocument());
   });

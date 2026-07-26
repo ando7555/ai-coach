@@ -118,23 +118,29 @@ public class PlayerMatchStatService {
 
     @Transactional
     public PlayerMatchStat record(PlayerMatchStatInput input) {
-        log.debug("Recording stat: player={}, match={}", input.playerId(), input.matchId());
-        Player player = playerRepository.findById(input.playerId())
-                .orElseThrow(() -> new EntityNotFoundException("Player", input.playerId()));
+        if (input == null) {
+            throw new IllegalArgumentException("Player match stat input is required");
+        }
+        Long playerId = requireId(input.playerId(), "Player id");
+        Long matchId = requireId(input.matchId(), "Match id");
+        validateRawStatInput(input);
 
-        Match match = matchRepository.findById(input.matchId())
-                .orElseThrow(() -> new EntityNotFoundException("Match", input.matchId()));
+        log.debug("Recording stat: player={}, match={}", playerId, matchId);
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException("Player", playerId));
+
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new EntityNotFoundException("Match", matchId));
 
         Long playerTeamId = player.getTeam() != null ? player.getTeam().getId() : null;
         if (playerTeamId == null || (!playerTeamId.equals(match.getHomeTeam().getId())
                 && !playerTeamId.equals(match.getAwayTeam().getId()))) {
             throw new IllegalArgumentException("Player must belong to one of the teams in the match");
         }
-        if (input.goals() != null && input.goals() < 0
-                || input.assists() != null && input.assists() < 0
-                || input.yellowCards() != null && (input.yellowCards() < 0 || input.yellowCards() > 2)) {
-            throw new IllegalArgumentException("Goals and assists must be non-negative; yellow cards must be between 0 and 2");
+        if (match.getHomeGoals() == null || match.getAwayGoals() == null) {
+            throw new IllegalArgumentException("Player match stats require a completed match result");
         }
+        validateStatAgainstScore(input, playerTeamId, match);
 
         PlayerMatchStat stat = PlayerMatchStat.builder()
                 .player(player)
@@ -149,4 +155,33 @@ public class PlayerMatchStatService {
         return statRepository.save(stat);
     }
 
+    private Long requireId(Long value, String field) {
+        if (value == null) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return value;
+    }
+
+    private void validateRawStatInput(PlayerMatchStatInput input) {
+        if (input.minutesPlayed() < 1 || input.minutesPlayed() > 120) {
+            throw new IllegalArgumentException("Minutes played must be between 1 and 120");
+        }
+        if ((input.goals() != null && input.goals() < 0)
+                || (input.assists() != null && input.assists() < 0)
+                || (input.yellowCards() != null && (input.yellowCards() < 0 || input.yellowCards() > 2))) {
+            throw new IllegalArgumentException("Goals and assists must be non-negative; yellow cards must be between 0 and 2");
+        }
+    }
+
+    private void validateStatAgainstScore(PlayerMatchStatInput input, Long playerTeamId, Match match) {
+        int goals = input.goals() != null ? input.goals() : 0;
+        int assists = input.assists() != null ? input.assists() : 0;
+        int teamGoals = playerTeamId.equals(match.getHomeTeam().getId()) ? match.getHomeGoals() : match.getAwayGoals();
+        if (goals > teamGoals) {
+            throw new IllegalArgumentException("Player goals cannot exceed the player's team goals in the match");
+        }
+        if (assists > teamGoals) {
+            throw new IllegalArgumentException("Player assists cannot exceed the player's team goals in the match");
+        }
+    }
 }

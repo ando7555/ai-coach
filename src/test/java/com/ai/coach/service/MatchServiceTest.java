@@ -37,4 +37,24 @@ class MatchServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("YYYY-MM-DD");
     }
+
+    @Test
+    void rejectsPartialScore() {
+        MatchService service = new MatchService(matchRepository, teamRepository);
+
+        assertThatThrownBy(() -> service.recordMatch(new MatchInput(1L, 2L, 1, null, "2026-07-05")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Both goal values");
+    }
+
+    @Test
+    void rejectsMissingDate() {
+        MatchService service = new MatchService(matchRepository, teamRepository);
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(Team.builder().id(1L).name("Home").build()));
+        when(teamRepository.findById(2L)).thenReturn(Optional.of(Team.builder().id(2L).name("Away").build()));
+
+        assertThatThrownBy(() -> service.recordMatch(new MatchInput(1L, 2L, null, null, "")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Match date is required");
+    }
 }

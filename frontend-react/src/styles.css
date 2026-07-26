@@ -42,6 +42,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -236,6 +241,7 @@ h3 {
 .work-panel,
 .auth-panel,
 .responsible-banner,
+.readiness-panel,
 .toast,
 .loading-overlay {
   border: 1px solid var(--line);
@@ -390,6 +396,44 @@ td:nth-child(3) {
   padding: 16px 18px;
   color: var(--gold);
   background: rgba(246, 200, 95, 0.09);
+}
+
+.readiness-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.readiness-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--text);
+}
+
+.readiness-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.readiness-check {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(246, 200, 95, 0.34);
+  border-radius: 8px;
+  color: var(--gold);
+  background: rgba(246, 200, 95, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.readiness-check.ok {
+  border-color: rgba(19, 216, 163, 0.34);
+  color: var(--green);
+  background: rgba(19, 216, 163, 0.1);
 }
 
 .badge {
