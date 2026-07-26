@@ -1,9 +1,9 @@
 .git
-.gitignore
 .gradle
 build
-.idea
-*.md
-.env
-.claude
-docker-compose.yml
+frontend-react/node_modules
+frontend-react/dist
+frontend-react/.env
+frontend-react/.env.*
+scratch
+*.log

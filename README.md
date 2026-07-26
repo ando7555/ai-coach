@@ -80,6 +80,31 @@ npm run demo:seed
 
 The walkthrough is in `frontend-react/scripts/demo-walkthrough.md`.
 
+## Public Deployment
+
+The simplest full public deployment is:
+
+1. Create a Neo4j AuraDB database and copy its Bolt URI, username, and password.
+2. Deploy this repository as a Docker web service using `render.yaml`.
+3. Set these environment variables on the web service:
+
+```text
+NEO4J_URI=neo4j+s://your-aura-host.databases.neo4j.io
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your-aura-password
+JWT_SECRET=generated-long-random-secret
+GOOGLE_GEMINI_API_KEY=disabled
+SPRING_PROFILES_ACTIVE=prod
+```
+
+The Docker image builds the React frontend and serves it from Spring Boot, so the public backend URL is also the public app URL.
+
+If deploying the frontend separately on Vercel, set `VITE_GRAPHQL_ENDPOINT` to the public backend GraphQL URL, for example:
+
+```text
+VITE_GRAPHQL_ENDPOINT=https://pitchmind.onrender.com/graphql
+```
+
 ## Testing
 
 ```bash

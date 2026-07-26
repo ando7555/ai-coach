@@ -994,33 +994,67 @@ function Portal() {
               </Panel>
               <Panel title="Weekly Training Microcycle">
                 <form className="form-stack" onSubmit={generateTrainingPlan}>
-                  <TeamSelect teams={teams} value={trainingForm.teamId} onChange={(value) => setTrainingForm({ ...trainingForm, teamId: value })} />
+                  <TeamSelect teams={teams} value={trainingForm.teamId} onChange={(value) => setTrainingForm((current) => ({ ...current, teamId: value }))} />
                   <div className="form-row">
                     <label>
                       Week Start
-                      <input type="date" value={trainingForm.weekStart} onChange={(event) => setTrainingForm({ ...trainingForm, weekStart: event.target.value })} />
+                      <input
+                        type="date"
+                        value={trainingForm.weekStart}
+                        onInput={(event) => {
+                          const { value } = event.currentTarget;
+                          setTrainingForm((current) => ({ ...current, weekStart: value }));
+                        }}
+                        onChange={(event) => {
+                          const { value } = event.currentTarget;
+                          setTrainingForm((current) => ({ ...current, weekStart: value }));
+                        }}
+                      />
                     </label>
                     <label>
                       Week End
-                      <input type="date" value={trainingForm.weekEnd} onChange={(event) => setTrainingForm({ ...trainingForm, weekEnd: event.target.value })} />
+                      <input
+                        type="date"
+                        value={trainingForm.weekEnd}
+                        onInput={(event) => {
+                          const { value } = event.currentTarget;
+                          setTrainingForm((current) => ({ ...current, weekEnd: value }));
+                        }}
+                        onChange={(event) => {
+                          const { value } = event.currentTarget;
+                          setTrainingForm((current) => ({ ...current, weekEnd: value }));
+                        }}
+                      />
                     </label>
                   </div>
-                  <SelectField label="Primary Focus" value={trainingForm.primaryFocus} options={['PRESSING', 'BUILD_UP', 'DEFENCE']} onChange={(value) => setTrainingForm({ ...trainingForm, primaryFocus: value })} />
-                  <SelectField label="Intensity" value={trainingForm.intensity} options={['LOW', 'MEDIUM', 'HIGH']} onChange={(value) => setTrainingForm({ ...trainingForm, intensity: value })} />
+                  <SelectField label="Primary Focus" value={trainingForm.primaryFocus} options={['PRESSING', 'BUILD_UP', 'DEFENCE']} onChange={(value) => setTrainingForm((current) => ({ ...current, primaryFocus: value }))} />
+                  <SelectField label="Intensity" value={trainingForm.intensity} options={['LOW', 'MEDIUM', 'HIGH']} onChange={(value) => setTrainingForm((current) => ({ ...current, intensity: value }))} />
                   <button className="primary-button" type="submit">Generate Training Schedule</button>
                 </form>
               </Panel>
               <Panel title="Season Workload Auditor">
                 <form className="form-stack" onSubmit={generateSeasonPlan}>
-                  <TeamSelect teams={teams} value={seasonForm.teamId} onChange={(value) => setSeasonForm({ ...seasonForm, teamId: value })} />
+                  <TeamSelect teams={teams} value={seasonForm.teamId} onChange={(value) => setSeasonForm((current) => ({ ...current, teamId: value }))} />
                   <div className="form-row">
                     <label>
                       Season
-                      <input value={seasonForm.season} onChange={(event) => setSeasonForm({ ...seasonForm, season: event.target.value })} />
+                      <input
+                        value={seasonForm.season}
+                        onChange={(event) => {
+                          const { value } = event.currentTarget;
+                          setSeasonForm((current) => ({ ...current, season: value }));
+                        }}
+                      />
                     </label>
                     <label>
                       Priority
-                      <select value={seasonForm.priority} onChange={(event) => setSeasonForm({ ...seasonForm, priority: event.target.value })}>
+                      <select
+                        value={seasonForm.priority}
+                        onChange={(event) => {
+                          const { value } = event.currentTarget;
+                          setSeasonForm((current) => ({ ...current, priority: value }));
+                        }}
+                      >
                         <option value="Balanced">Balanced</option>
                         <option value="Rotation">Rotation</option>
                         <option value="Fitness">Fitness</option>
