@@ -41,3 +41,9 @@ out/
 /scratch/
 /frontend-react/node_modules/
 /frontend-react/dist/
+.env
+.env.*
+/frontend-react/.env
+/frontend-react/.env.*
+!.env.example
+!/frontend-react/.env.example

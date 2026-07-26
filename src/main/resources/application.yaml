@@ -19,8 +19,8 @@ spring:
   neo4j:
     uri: ${NEO4J_URI:bolt://127.0.0.1:7687}
     authentication:
-      username: neo4j
-      password: ai-coach   # change this
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:ai-coach}
 
   graphql:
     schema:
@@ -59,7 +59,7 @@ pitchmind:
     high-uncertainty-probability-threshold: 0.05
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 management:
   endpoints:

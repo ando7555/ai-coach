@@ -72,6 +72,7 @@ task npmInstall(type: Exec) {
 	workingDir 'frontend-react'
 	inputs.files 'frontend-react/package.json', 'frontend-react/package-lock.json'
 	outputs.dir 'frontend-react/node_modules'
+	onlyIf { !providers.environmentVariable('SKIP_FRONTEND_BUILD').map { it.toBoolean() }.orElse(false).get() }
 	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 		commandLine 'cmd', '/c', 'npm ci'
 	} else {
@@ -88,6 +89,7 @@ task buildFrontend(type: Exec) {
 			'frontend-react/tsconfig.json', 'frontend-react/tsconfig.app.json', 'frontend-react/tsconfig.node.json',
 			'frontend-react/vite.config.ts'
 	outputs.dir 'frontend-react/dist'
+	onlyIf { !providers.environmentVariable('SKIP_FRONTEND_BUILD').map { it.toBoolean() }.orElse(false).get() }
 	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
 		commandLine 'cmd', '/c', 'npm run build'
 	} else {

@@ -23,13 +23,15 @@ type GraphQLClientOptions = {
   fetcher?: typeof fetch;
 };
 
+const defaultGraphQLEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT ?? '/graphql';
+
 export class GraphQLClient {
   private readonly endpoint: string;
   private readonly getToken: () => string | null;
   private readonly fetcher?: typeof fetch;
 
   constructor(options: GraphQLClientOptions = {}) {
-    this.endpoint = options.endpoint ?? '/graphql';
+    this.endpoint = options.endpoint ?? defaultGraphQLEndpoint;
     this.getToken = options.getToken ?? (() => localStorage.getItem('jwt_token'));
     this.fetcher = options.fetcher;
   }
