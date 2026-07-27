@@ -20,10 +20,12 @@ describe('App', () => {
   });
 
   it('renders the auth screen when no token exists', () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ googleClientId: '' })));
+
     render(<App />);
 
     expect(screen.getByText('PitchMind Intelligence Portal')).toBeInTheDocument();
-    expect(screen.getByText(/Google sign-in is not configured/)).toBeInTheDocument();
+    return waitFor(() => expect(screen.getByText(/Google sign-in is not configured/)).toBeInTheDocument());
   });
 
   it('loads the migrated React dashboard from GraphQL when authenticated', async () => {

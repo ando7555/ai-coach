@@ -216,7 +216,44 @@ function AuthScreen() {
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const configuredGoogleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const [googleClientId, setGoogleClientId] = useState(configuredGoogleClientId ?? '');
+  const [configLoaded, setConfigLoaded] = useState(Boolean(configuredGoogleClientId));
+
+  useEffect(() => {
+    if (configuredGoogleClientId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadPublicConfig() {
+      try {
+        const response = await fetch('/api/public-config');
+        if (!response.ok) {
+          throw new Error(`Config request failed with HTTP ${response.status}`);
+        }
+        const config = (await response.json()) as { googleClientId?: string };
+        if (!cancelled) {
+          setGoogleClientId(config.googleClientId ?? '');
+        }
+      } catch (configError) {
+        if (!cancelled) {
+          setError(configError instanceof Error ? configError.message : 'Could not load Google sign-in configuration');
+        }
+      } finally {
+        if (!cancelled) {
+          setConfigLoaded(true);
+        }
+      }
+    }
+
+    loadPublicConfig();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [configuredGoogleClientId]);
 
   useEffect(() => {
     if (!googleClientId || !googleButtonRef.current) {
@@ -304,9 +341,13 @@ function AuthScreen() {
             <div ref={googleButtonRef} className="google-auth-button" />
             {status && <span className="auth-status">{status}</span>}
           </div>
+        ) : !configLoaded ? (
+          <div className="google-auth-box">
+            <span className="auth-status">Loading Google sign-in</span>
+          </div>
         ) : (
           <div className="inline-alert error">
-            Google sign-in is not configured. Set VITE_GOOGLE_CLIENT_ID for the frontend build and GOOGLE_CLIENT_ID for the backend.
+            Google sign-in is not configured. Set GOOGLE_CLIENT_ID on the backend service.
           </div>
         )}
 
