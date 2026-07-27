@@ -12,9 +12,28 @@ import {
   Target,
   Users
 } from 'lucide-react';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { graphQLClient } from '../api/graphqlClient';
 import { AuthProvider, useAuth } from '../auth/AuthContext';
+
+type GoogleCredentialResponse = {
+  credential?: string;
+};
+
+type GoogleAccounts = {
+  id: {
+    initialize: (options: { client_id: string; callback: (response: GoogleCredentialResponse) => void }) => void;
+    renderButton: (element: HTMLElement, options: Record<string, string | number | boolean>) => void;
+  };
+};
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: GoogleAccounts;
+    };
+  }
+}
 
 type TabId = 'dashboard' | 'teams' | 'matches' | 'prediction' | 'studio';
 
@@ -193,67 +212,105 @@ function scoreLabel(match: Match) {
 }
 
 function AuthScreen() {
-  const { login, register } = useAuth();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('COACH');
+  const { signInWithGoogle } = useAuth();
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    setStatus('Authenticating');
-    setError(null);
-
-    try {
-      if (mode === 'login') {
-        await login(username, password);
-      } else {
-        await register(username, password, role);
-      }
-    } catch (authError) {
-      setError(authError instanceof Error ? authError.message : 'Authentication failed');
-    } finally {
-      setStatus(null);
+  useEffect(() => {
+    if (!googleClientId || !googleButtonRef.current) {
+      return;
     }
-  }
+
+    const clientId = googleClientId;
+    let cancelled = false;
+
+    async function handleCredential(response: GoogleCredentialResponse) {
+      if (!response.credential) {
+        setError('Google did not return an account credential.');
+        return;
+      }
+
+      setStatus('Signing in with Google');
+      setError(null);
+
+      try {
+        await signInWithGoogle(response.credential);
+      } catch (authError) {
+        setError(authError instanceof Error ? authError.message : 'Google sign-in failed');
+      } finally {
+        setStatus(null);
+      }
+    }
+
+    function renderGoogleButton() {
+      if (cancelled || !googleButtonRef.current || !window.google?.accounts) {
+        return;
+      }
+
+      googleButtonRef.current.innerHTML = '';
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredential
+      });
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        type: 'standard',
+        shape: 'rectangular',
+        text: 'continue_with',
+        width: Math.min(360, googleButtonRef.current.clientWidth || 360)
+      });
+    }
+
+    if (window.google?.accounts) {
+      renderGoogleButton();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const scriptId = 'google-identity-services';
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => setError('Could not load Google sign-in. Check browser privacy settings and network access.');
+      document.head.appendChild(script);
+    }
+
+    script.addEventListener('load', renderGoogleButton);
+
+    return () => {
+      cancelled = true;
+      script?.removeEventListener('load', renderGoogleButton);
+    };
+  }, [googleClientId, signInWithGoogle]);
 
   return (
     <main className="auth-page">
       <section className="auth-panel">
         <img src="/logo-ai-coach.svg" alt="PitchMind logo" />
         <h1>PitchMind Intelligence Portal</h1>
-        <p>Sign in to manage squads, fixtures, prediction readiness, and AI planning workflows.</p>
+        <p>Use your Google account to access squads, fixtures, prediction readiness, and AI planning workflows.</p>
 
-        <form className="form-stack" onSubmit={submit}>
-          <label>
-            Username
-            <input value={username} onChange={(event) => setUsername(event.target.value)} required />
-          </label>
-          <label>
-            Password
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-          </label>
-          {mode === 'register' && (
-            <label>
-              Role
-              <select value={role} onChange={(event) => setRole(event.target.value)}>
-                <option value="COACH">Analyst / Coach</option>
-                <option value="FITNESS_COACH">Workload Specialist</option>
-                <option value="ADMIN">Administrator</option>
-              </select>
-            </label>
-          )}
-          <button className="primary-button" type="submit" disabled={Boolean(status)}>
-            {status ? 'Working...' : mode === 'login' ? 'Login to Portal' : 'Create Account'}
-          </button>
-        </form>
+        {googleClientId ? (
+          <div className="google-auth-box">
+            <div ref={googleButtonRef} className="google-auth-button" />
+            {status && <span className="auth-status">{status}</span>}
+          </div>
+        ) : (
+          <div className="inline-alert error">
+            Google sign-in is not configured. Set VITE_GOOGLE_CLIENT_ID for the frontend build and GOOGLE_CLIENT_ID for the backend.
+          </div>
+        )}
 
         {error && <div className="inline-alert error">{error}</div>}
-        <button className="text-button" type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
-          {mode === 'login' ? 'Create an account' : 'Sign in with existing credentials'}
-        </button>
       </section>
     </main>
   );
@@ -740,7 +797,8 @@ function Portal() {
             <ShieldCheck size={18} aria-hidden="true" />
           </div>
           <div>
-            <strong>{user?.username ?? 'Analyst'}</strong>
+            <strong>{user?.displayName ?? user?.email ?? 'Analyst'}</strong>
+            <small>{user?.email ?? 'Google account'}</small>
             <span>{user?.role ?? 'COACH'}</span>
           </div>
         </div>

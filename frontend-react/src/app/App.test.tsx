@@ -23,12 +23,20 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.getByText('PitchMind Intelligence Portal')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Login to Portal' })).toBeInTheDocument();
+    expect(screen.getByText(/Google sign-in is not configured/)).toBeInTheDocument();
   });
 
   it('loads the migrated React dashboard from GraphQL when authenticated', async () => {
     localStorage.setItem('jwt_token', 'token');
-    localStorage.setItem('jwt_user', JSON.stringify({ username: 'coach', role: 'ADMIN' }));
+    localStorage.setItem(
+      'jwt_user',
+      JSON.stringify({
+        username: 'coach@example.com',
+        email: 'coach@example.com',
+        displayName: 'Coach Analyst',
+        role: 'ADMIN'
+      })
+    );
 
     const fetchMock = vi
       .fn()

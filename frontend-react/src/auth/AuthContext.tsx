@@ -5,6 +5,9 @@ import { readStorageItem, removeStorageItem, writeStorageItem } from './storage'
 export type AuthUser = {
   id?: string;
   username: string;
+  email: string;
+  displayName?: string | null;
+  pictureUrl?: string | null;
   role: string;
 };
 
@@ -12,8 +15,7 @@ type AuthContextValue = {
   token: string | null;
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<AuthUser>;
-  register: (username: string, password: string, role: string) => Promise<AuthUser>;
+  signInWithGoogle: (idToken: string) => Promise<AuthUser>;
   logout: () => void;
 };
 
@@ -60,38 +62,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
       token,
       user,
       isAuthenticated: Boolean(token),
-      login: async (username, password) => {
-        const data = await authClient.request<{ login: AuthPayload }, { username: string; password: string }>(
+      signInWithGoogle: async (idToken) => {
+        const data = await authClient.request<{ authenticateWithGoogle: AuthPayload }, { idToken: string }>(
           `
-            mutation Login($username: String!, $password: String!) {
-              login(username: $username, password: $password) {
+            mutation AuthenticateWithGoogle($idToken: String!) {
+              authenticateWithGoogle(idToken: $idToken) {
                 token
-                user { id username role }
+                user { id username email displayName pictureUrl role }
               }
             }
           `,
-          { username, password }
+          { idToken }
         );
 
-        return persistAuth(data.login);
-      },
-      register: async (username, password, role) => {
-        const data = await authClient.request<
-          { register: AuthPayload },
-          { username: string; password: string; role: string }
-        >(
-          `
-            mutation Register($username: String!, $password: String!, $role: String) {
-              register(username: $username, password: $password, role: $role) {
-                token
-                user { id username role }
-              }
-            }
-          `,
-          { username, password, role }
-        );
-
-        return persistAuth(data.register);
+        return persistAuth(data.authenticateWithGoogle);
       },
       logout: () => {
         removeStorageItem(TOKEN_KEY);

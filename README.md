@@ -22,6 +22,7 @@ Documentation is published from the dedicated `wiki` branch through GitHub Pages
 - Java 17 and Spring Boot 3.5
 - Spring GraphQL and GraphiQL
 - Neo4j
+- Google Identity Services for account sign-in
 - Spring AI with the Google Gemini OpenAI-compatible endpoint
 - React, Vite, and TypeScript
 - Project Reactor and Lombok
@@ -36,6 +37,16 @@ Prerequisites:
 - Optional `GOOGLE_GEMINI_API_KEY`
 
 The app can run without a Gemini key. If `GOOGLE_GEMINI_API_KEY` is missing or set to `disabled`, AI endpoints use deterministic fallback outputs.
+
+Google sign-in requires a web OAuth client ID:
+
+```bash
+export GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
+export VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
+export PITCHMIND_ADMIN_EMAILS=your-admin@gmail.com
+```
+
+Only emails listed in `PITCHMIND_ADMIN_EMAILS` receive the `ADMIN` role. Every other Google account is created as `COACH`.
 
 ```bash
 export GOOGLE_GEMINI_API_KEY=your-key-here
@@ -94,6 +105,9 @@ NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=your-aura-password
 JWT_SECRET=generated-long-random-secret
 GOOGLE_GEMINI_API_KEY=disabled
+GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
+PITCHMIND_ADMIN_EMAILS=your-admin@gmail.com
 SPRING_PROFILES_ACTIVE=prod
 ```
 
@@ -117,5 +131,7 @@ For frontend-only checks:
 cd frontend-react
 npm test
 npm run build
-npm run smoke:e2e
+PITCHMIND_AUTH_TOKEN=your-admin-jwt npm run smoke:e2e
 ```
+
+The demo seed and smoke scripts no longer create password users. Provide either `PITCHMIND_AUTH_TOKEN` or `PITCHMIND_GOOGLE_ID_TOKEN` when running authenticated demo flows.

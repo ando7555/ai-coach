@@ -18,6 +18,9 @@ public class User {
     private Long id;
 
     private String username;
-    private String password;
+    private String email;
+    private String displayName;
+    private String pictureUrl;
+    private String googleSubject;
     private UserRole role;
 }

@@ -6,18 +6,22 @@
  * secured via {@code @PreAuthorize} annotations where needed.</p>
  *
  * <ul>
- *   <li>{@link com.ai.coach.controller.AuthGraphQLController} – login and
- *       registration mutations.</li>
- *   <li>{@link com.ai.coach.controller.TeamGraphQLController} – team and
- *       player queries and mutations (admin-only creation).</li>
- *   <li>{@link com.ai.coach.controller.MatchGraphQLController} – match
+ *   <li>{@link com.ai.coach.controller.AuthGraphQLController} - Google account
+ *       authentication mutation.</li>
+ *   <li>{@link com.ai.coach.controller.TeamGraphQLController} - team and
+ *       player queries and mutations.</li>
+ *   <li>{@link com.ai.coach.controller.MatchGraphQLController} - match
  *       recording and retrieval.</li>
- *   <li>{@link com.ai.coach.controller.PlayerMatchStatController} – player
+ *   <li>{@link com.ai.coach.controller.PlayerMatchStatController} - player
  *       statistics and performance-trend queries.</li>
- *   <li>{@link com.ai.coach.controller.RecommendationGraphQLController} –
+ *   <li>{@link com.ai.coach.controller.RecommendationGraphQLController} -
  *       AI-generated tactical recommendations.</li>
- *   <li>{@link com.ai.coach.controller.CoachGraphqlController} – match
- *       analysis, training-plan, and season-plan AI features.</li>
+ *   <li>{@link com.ai.coach.controller.MatchAnalysisGraphQLController} -
+ *       match analysis AI features.</li>
+ *   <li>{@link com.ai.coach.controller.TrainingPlanGraphQLController} -
+ *       training-plan AI features.</li>
+ *   <li>{@link com.ai.coach.controller.SeasonPlanGraphQLController} -
+ *       season-plan AI features.</li>
  * </ul>
  */
 package com.ai.coach.controller;

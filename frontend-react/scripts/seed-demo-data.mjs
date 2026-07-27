@@ -1,9 +1,6 @@
 const graphqlUrl = process.env.PITCHMIND_GRAPHQL_URL ?? 'http://localhost:8080/graphql';
-const preferredUsername = process.env.PITCHMIND_DEMO_USERNAME ?? 'pitchmind_demo_admin';
-const password = process.env.PITCHMIND_DEMO_PASSWORD ?? 'PitchMindDemo123!';
 
-let token = '';
-let activeUsername = preferredUsername;
+let token = process.env.PITCHMIND_AUTH_TOKEN ?? '';
 
 async function gql(query, variables = {}) {
   const response = await fetch(graphqlUrl, {
@@ -27,42 +24,28 @@ async function gql(query, variables = {}) {
 }
 
 async function authenticate() {
-  const candidates = [preferredUsername, 'pitchmind_demo_admin_v2', 'pitchmind_demo_admin_v3'];
-  let lastError;
-
-  for (const candidate of candidates) {
-    try {
-      const registered = await gql(
-        `
-          mutation Register($username: String!, $password: String!, $role: String) {
-            register(username: $username, password: $password, role: $role) { token }
-          }
-        `,
-        { username: candidate, password, role: 'ADMIN' }
-      );
-      token = registered.register.token;
-      activeUsername = candidate;
-      return;
-    } catch (registerError) {
-      try {
-        const loggedIn = await gql(
-          `
-            mutation Login($username: String!, $password: String!) {
-              login(username: $username, password: $password) { token }
-            }
-          `,
-          { username: candidate, password }
-        );
-        token = loggedIn.login.token;
-        activeUsername = candidate;
-        return;
-      } catch (loginError) {
-        lastError = loginError;
-      }
-    }
+  if (token) {
+    return;
   }
 
-  throw lastError ?? new Error('Could not create or login with a demo account');
+  const googleIdToken = process.env.PITCHMIND_GOOGLE_ID_TOKEN;
+  if (!googleIdToken) {
+    throw new Error('Set PITCHMIND_AUTH_TOKEN or PITCHMIND_GOOGLE_ID_TOKEN to seed demo data.');
+  }
+
+  const auth = await gql(
+    `
+      mutation AuthenticateWithGoogle($idToken: String!) {
+        authenticateWithGoogle(idToken: $idToken) {
+          token
+          user { id email displayName role }
+        }
+      }
+    `,
+    { idToken: googleIdToken }
+  );
+
+  token = auth.authenticateWithGoogle.token;
 }
 
 async function allTeams() {
@@ -365,7 +348,7 @@ const featuredScheduledMatches = featuredMatches.length - featuredCompletedMatch
 console.log(JSON.stringify({
   status: 'demo-ready',
   graphqlUrl,
-  credentials: { username: activeUsername, password },
+  auth: process.env.PITCHMIND_AUTH_TOKEN ? 'provided-token' : 'google-id-token',
   featuredTeam: warsaw.name,
   featuredFixture: `${target.homeTeam.name} vs ${target.awayTeam.name} on ${target.date}`,
   readiness: {

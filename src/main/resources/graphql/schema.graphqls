@@ -272,6 +272,9 @@ extend type Query {
 type User {
   id: ID!
   username: String!
+  email: String!
+  displayName: String
+  pictureUrl: String
   role: String!
 }
 
@@ -308,8 +311,7 @@ type PlayerMatchStatConnection {
 }
 
 extend type Mutation {
-  register(username: String!, password: String!, role: String): AuthPayload!
-  login(username: String!, password: String!): AuthPayload!
+  authenticateWithGoogle(idToken: String!): AuthPayload!
 
   generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!

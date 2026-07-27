@@ -1,58 +1,76 @@
 package com.ai.coach.service;
 
-import com.ai.coach.domain.EnumParser;
 import com.ai.coach.domain.entity.User;
 import com.ai.coach.domain.entity.UserRole;
 import com.ai.coach.domain.repository.UserRepository;
 import com.ai.coach.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final GoogleIdentityService googleIdentityService;
+    private final Set<String> adminEmails;
+
+    public AuthService(UserRepository userRepository,
+                       JwtTokenProvider tokenProvider,
+                       GoogleIdentityService googleIdentityService,
+                       @Value("${pitchmind.auth.admin-emails:}") String adminEmails) {
+        this.userRepository = userRepository;
+        this.tokenProvider = tokenProvider;
+        this.googleIdentityService = googleIdentityService;
+        this.adminEmails = parseAdminEmails(adminEmails);
+    }
 
     @Transactional
-    public AuthPayload register(String username, String password, String role) {
-        log.debug("Registering user: {}", username);
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already taken: " + username);
-        }
+    public AuthPayload authenticateWithGoogle(String idToken) {
+        GoogleIdentityService.GoogleProfile profile = googleIdentityService.verify(idToken);
+        String normalizedEmail = normalizeEmail(profile.email());
+        UserRole role = adminEmails.contains(normalizedEmail) ? UserRole.ADMIN : UserRole.COACH;
 
-        UserRole assignedRole = EnumParser.parse(UserRole.class, role, UserRole.COACH);
+        User user = userRepository.findByGoogleSubject(profile.subject())
+                .or(() -> userRepository.findByEmail(normalizedEmail))
+                .orElseGet(User::new);
 
-        User user = User.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
-                .role(assignedRole)
-                .build();
+        user.setGoogleSubject(profile.subject());
+        user.setEmail(normalizedEmail);
+        user.setUsername(normalizedEmail);
+        user.setDisplayName(StringUtils.hasText(profile.displayName()) ? profile.displayName() : normalizedEmail);
+        user.setPictureUrl(profile.pictureUrl());
+        user.setRole(role);
 
         user = userRepository.save(user);
-        log.info("User registered: {} with role {}", username, assignedRole);
-        String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());
+        log.info("Google user authenticated: {} with role {}", normalizedEmail, role);
+        String token = tokenProvider.generateToken(user.getEmail(), user.getRole().name());
         return new AuthPayload(token, user);
     }
 
-    @Transactional(readOnly = true)
-    public AuthPayload login(String username, String password) {
-        log.debug("Login attempt for user: {}", username);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+    private static Set<String> parseAdminEmails(String configuredEmails) {
+        if (!StringUtils.hasText(configuredEmails)) {
+            return Set.of();
         }
 
-        String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());
-        return new AuthPayload(token, user);
+        return Arrays.stream(configuredEmails.split(","))
+                .map(AuthService::normalizeEmail)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
     }
 
     public record AuthPayload(String token, User user) {}

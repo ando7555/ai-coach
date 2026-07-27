@@ -11,6 +11,12 @@ services:
         value: prod
       - key: GOOGLE_GEMINI_API_KEY
         value: disabled
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+      - key: PITCHMIND_ADMIN_EMAILS
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: NEO4J_URI

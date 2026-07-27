@@ -1,10 +1,8 @@
 const graphqlUrl = process.env.PITCHMIND_GRAPHQL_URL ?? 'http://localhost:8080/graphql';
 const frontendUrl = process.env.PITCHMIND_FRONTEND_URL ?? 'http://127.0.0.1:8080/';
 const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
-const username = `smoke_admin_${stamp}`;
-const password = 'SmokePass123!';
 
-let token = '';
+let token = process.env.PITCHMIND_AUTH_TOKEN ?? '';
 
 async function gql(query, variables = {}) {
   const response = await fetch(graphqlUrl, {
@@ -37,19 +35,32 @@ async function assertFrontendAvailable() {
   }
 }
 
-const register = await gql(
-  `
-    mutation Register($username: String!, $password: String!, $role: String) {
-      register(username: $username, password: $password, role: $role) {
-        token
-        user { id username role }
-      }
-    }
-  `,
-  { username, password, role: 'ADMIN' }
-);
+async function authenticate() {
+  if (token) {
+    return;
+  }
 
-token = register.register.token;
+  const googleIdToken = process.env.PITCHMIND_GOOGLE_ID_TOKEN;
+  if (!googleIdToken) {
+    throw new Error('Set PITCHMIND_AUTH_TOKEN or PITCHMIND_GOOGLE_ID_TOKEN to run the authenticated smoke flow.');
+  }
+
+  const auth = await gql(
+    `
+      mutation AuthenticateWithGoogle($idToken: String!) {
+        authenticateWithGoogle(idToken: $idToken) {
+          token
+          user { id email displayName role }
+        }
+      }
+    `,
+    { idToken: googleIdToken }
+  );
+
+  token = auth.authenticateWithGoogle.token;
+}
+
+await authenticate();
 
 const createTeamMutation = `
   mutation CreateTeam($name: String!, $league: String, $formation: String) {
@@ -248,7 +259,7 @@ console.log(
       status: 'passed',
       frontendUrl,
       graphqlUrl,
-      credentials: { username, password },
+      auth: process.env.PITCHMIND_AUTH_TOKEN ? 'provided-token' : 'google-id-token',
       team: homeTeam.name,
       opponent: awayTeam.name,
       player: `${player.name} (${player.position}, rating ${player.rating})`,

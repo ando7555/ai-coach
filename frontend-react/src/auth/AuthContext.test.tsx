@@ -20,7 +20,7 @@ describe('AuthProvider', () => {
 
   it('hydrates auth state from the existing JWT local storage keys', () => {
     localStorage.setItem('jwt_token', 'token');
-    localStorage.setItem('jwt_user', JSON.stringify({ username: 'coach', role: 'ADMIN' }));
+    localStorage.setItem('jwt_user', JSON.stringify({ username: 'coach@example.com', email: 'coach@example.com', role: 'ADMIN' }));
 
     render(
       <AuthProvider>
@@ -29,7 +29,7 @@ describe('AuthProvider', () => {
     );
 
     expect(screen.getByText('authenticated')).toBeInTheDocument();
-    expect(screen.getByText('coach')).toBeInTheDocument();
+    expect(screen.getByText('coach@example.com')).toBeInTheDocument();
   });
 
   it('clears malformed stored user data', () => {

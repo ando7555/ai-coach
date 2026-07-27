@@ -85,11 +85,17 @@ button:disabled {
 }
 
 .identity-card strong,
+.identity-card small,
 .identity-card span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.identity-card small {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .identity-card span {
@@ -545,6 +551,22 @@ td:nth-child(3) {
 
 .auth-panel h1 {
   font-size: 30px;
+}
+
+.google-auth-box {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.google-auth-button {
+  min-height: 44px;
+}
+
+.auth-status {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 750;
 }
 
 .inline-alert,

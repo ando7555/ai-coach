@@ -6,17 +6,15 @@ Run the app with Neo4j available, then seed the reusable demo dataset:
 
 ```powershell
 cd C:\Users\Msi\Downloads\ai-coach-backend\frontend-react
+$env:PITCHMIND_AUTH_TOKEN="your-admin-jwt"
 npm run demo:seed
 ```
 
-Default demo login:
-
-- Username: `pitchmind_demo_admin`
-- Password: `PitchMindDemo123!`
+The seed script requires either `PITCHMIND_AUTH_TOKEN` or `PITCHMIND_GOOGLE_ID_TOKEN`.
 
 ## Talk Track
 
-1. Open `http://localhost:8080/` and sign in with the demo account.
+1. Open `http://localhost:8080/` and sign in with an allow-listed Google admin account.
 2. Start on the dashboard with `Warsaw Athletic` selected.
 3. Show roster size, fixture history, scheduled fixtures, and prediction readiness.
 4. Open Prediction Lab and select `Warsaw Athletic vs Krakow United`.

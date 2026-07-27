@@ -13,14 +13,7 @@ public class AuthGraphQLController {
     private final AuthService authService;
 
     @MutationMapping
-    public AuthService.AuthPayload register(@Argument String username,
-                                               @Argument String password,
-                                               @Argument String role) {
-        return authService.register(username, password, role);
-    }
-
-    @MutationMapping
-    public AuthService.AuthPayload login(@Argument String username, @Argument String password) {
-        return authService.login(username, password);
+    public AuthService.AuthPayload authenticateWithGoogle(@Argument String idToken) {
+        return authService.authenticateWithGoogle(idToken);
     }
 }
