@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="PitchMind football intelligence portal" />
     <title>PitchMind Intelligence Portal</title>
-  </head>
-  <body>
-    <div id="root"></div>
     <script>
+      if (typeof navigator === 'undefined') {
+        var navigator = {
+          connection: { downlink: 5 },
+          userAgent: ''
+        };
+      }
+
       (function () {
         var root =
           typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : undefined;
@@ -20,19 +24,16 @@
         try {
           Object.defineProperty(root, 'navigator', {
             configurable: true,
-            value: {
-              connection: { downlink: 5 },
-              userAgent: ''
-            }
+            value: navigator
           });
         } catch (error) {
-          root.navigator = {
-            connection: { downlink: 5 },
-            userAgent: ''
-          };
+          root.navigator = navigator;
         }
       })();
     </script>
+  </head>
+  <body>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
