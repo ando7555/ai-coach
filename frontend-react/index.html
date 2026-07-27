@@ -8,6 +8,31 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        var root =
+          typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : undefined;
+
+        if (!root || typeof root.navigator !== 'undefined') {
+          return;
+        }
+
+        try {
+          Object.defineProperty(root, 'navigator', {
+            configurable: true,
+            value: {
+              connection: { downlink: 5 },
+              userAgent: ''
+            }
+          });
+        } catch (error) {
+          root.navigator = {
+            connection: { downlink: 5 },
+            userAgent: ''
+          };
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
