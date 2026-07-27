@@ -505,6 +505,35 @@ td:nth-child(3) {
   padding: 24px;
 }
 
+.startup-fallback {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.startup-fallback section {
+  width: min(100%, 560px);
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(14, 26, 37, 0.86);
+}
+
+.startup-fallback h1 {
+  font-size: 30px;
+}
+
+.startup-fallback pre {
+  overflow: auto;
+  margin: 16px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--danger);
+  background: rgba(0, 0, 0, 0.22);
+  white-space: pre-wrap;
+}
+
 .auth-panel {
   width: min(100%, 460px);
   padding: 28px;
