@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
 import { GraphQLClient } from '../api/graphqlClient';
+import { readStorageItem, removeStorageItem, writeStorageItem } from './storage';
 
 export type AuthUser = {
   id?: string;
@@ -20,7 +21,7 @@ const TOKEN_KEY = 'jwt_token';
 const USER_KEY = 'jwt_user';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-const authClient = new GraphQLClient({ getToken: () => localStorage.getItem(TOKEN_KEY) });
+const authClient = new GraphQLClient({ getToken: () => readStorageItem(TOKEN_KEY) });
 
 type AuthPayload = {
   token: string;
@@ -28,7 +29,7 @@ type AuthPayload = {
 };
 
 function readStoredUser(): AuthUser | null {
-  const rawUser = localStorage.getItem(USER_KEY);
+  const rawUser = readStorageItem(USER_KEY);
 
   if (!rawUser) {
     return null;
@@ -37,18 +38,18 @@ function readStoredUser(): AuthUser | null {
   try {
     return JSON.parse(rawUser) as AuthUser;
   } catch {
-    localStorage.removeItem(USER_KEY);
+    removeStorageItem(USER_KEY);
     return null;
   }
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [token, setToken] = useState(() => readStorageItem(TOKEN_KEY));
   const [user, setUser] = useState<AuthUser | null>(() => readStoredUser());
 
   function persistAuth(payload: AuthPayload) {
-    localStorage.setItem(TOKEN_KEY, payload.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(payload.user));
+    writeStorageItem(TOKEN_KEY, payload.token);
+    writeStorageItem(USER_KEY, JSON.stringify(payload.user));
     setToken(payload.token);
     setUser(payload.user);
     return payload.user;
@@ -93,8 +94,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return persistAuth(data.register);
       },
       logout: () => {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+        removeStorageItem(TOKEN_KEY);
+        removeStorageItem(USER_KEY);
         setToken(null);
         setUser(null);
       }

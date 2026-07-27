@@ -1,3 +1,5 @@
+import { readStorageItem } from '../auth/storage';
+
 export type GraphQLErrorPayload = {
   message: string;
 };
@@ -32,7 +34,7 @@ export class GraphQLClient {
 
   constructor(options: GraphQLClientOptions = {}) {
     this.endpoint = options.endpoint ?? defaultGraphQLEndpoint;
-    this.getToken = options.getToken ?? (() => localStorage.getItem('jwt_token'));
+    this.getToken = options.getToken ?? (() => readStorageItem('jwt_token'));
     this.fetcher = options.fetcher;
   }
 
