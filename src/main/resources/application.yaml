@@ -39,6 +39,8 @@ pitchmind:
   auth:
     google-client-id: ${GOOGLE_CLIENT_ID:${VITE_GOOGLE_CLIENT_ID:}}
     admin-emails: ${PITCHMIND_ADMIN_EMAILS:andokhachatryan986@gmail.com}
+    confirmation-base-url: ${PITCHMIND_CONFIRMATION_BASE_URL:http://localhost:8080/}
+    email-token-expiration-minutes: ${PITCHMIND_EMAIL_TOKEN_EXPIRATION_MINUTES:60}
   predictor:
     model-name: Transparent Poisson Baseline
     model-version: baseline-poisson-v1

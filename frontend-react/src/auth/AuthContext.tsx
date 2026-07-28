@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   displayName?: string | null;
   pictureUrl?: string | null;
+  emailConfirmed?: boolean;
   role: string;
 };
 
@@ -16,6 +17,9 @@ type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
   signInWithGoogle: (idToken: string) => Promise<AuthUser>;
+  signInWithEmail: (email: string, password: string) => Promise<AuthUser>;
+  registerWithEmail: (input: EmailRegistrationInput) => Promise<EmailRegistrationResult>;
+  confirmEmail: (token: string) => Promise<AuthUser>;
   logout: () => void;
 };
 
@@ -28,6 +32,18 @@ const authClient = new GraphQLClient({ getToken: () => readStorageItem(TOKEN_KEY
 type AuthPayload = {
   token: string;
   user: AuthUser;
+};
+
+export type EmailRegistrationInput = {
+  email: string;
+  displayName?: string;
+  password: string;
+};
+
+export type EmailRegistrationResult = {
+  email: string;
+  expiresAt: string;
+  message: string;
 };
 
 function readStoredUser(): AuthUser | null {
@@ -68,7 +84,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             mutation AuthenticateWithGoogle($idToken: String!) {
               authenticateWithGoogle(idToken: $idToken) {
                 token
-                user { id username email displayName pictureUrl role }
+                user { id username email displayName pictureUrl emailConfirmed role }
               }
             }
           `,
@@ -76,6 +92,52 @@ export function AuthProvider({ children }: PropsWithChildren) {
         );
 
         return persistAuth(data.authenticateWithGoogle);
+      },
+      signInWithEmail: async (email, password) => {
+        const data = await authClient.request<{ authenticateWithEmail: AuthPayload }, { email: string; password: string }>(
+          `
+            mutation AuthenticateWithEmail($email: String!, $password: String!) {
+              authenticateWithEmail(email: $email, password: $password) {
+                token
+                user { id username email displayName pictureUrl emailConfirmed role }
+              }
+            }
+          `,
+          { email, password }
+        );
+
+        return persistAuth(data.authenticateWithEmail);
+      },
+      registerWithEmail: async (input) => {
+        const data = await authClient.request<{ registerWithEmail: EmailRegistrationResult }, { input: EmailRegistrationInput }>(
+          `
+            mutation RegisterWithEmail($input: EmailRegistrationInput!) {
+              registerWithEmail(input: $input) {
+                email
+                expiresAt
+                message
+              }
+            }
+          `,
+          { input }
+        );
+
+        return data.registerWithEmail;
+      },
+      confirmEmail: async (confirmationToken) => {
+        const data = await authClient.request<{ confirmEmail: AuthPayload }, { token: string }>(
+          `
+            mutation ConfirmEmail($token: String!) {
+              confirmEmail(token: $token) {
+                token
+                user { id username email displayName pictureUrl emailConfirmed role }
+              }
+            }
+          `,
+          { token: confirmationToken }
+        );
+
+        return persistAuth(data.confirmEmail);
       },
       logout: () => {
         removeStorageItem(TOKEN_KEY);

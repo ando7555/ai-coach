@@ -38,15 +38,17 @@ Prerequisites:
 
 The app can run without a Gemini key. If `GOOGLE_GEMINI_API_KEY` is missing or set to `disabled`, AI endpoints use deterministic fallback outputs.
 
-Google sign-in requires a web OAuth client ID:
+Google sign-in requires a web OAuth client ID. Email/password registration is also supported; new email accounts must confirm a token link before sign-in.
 
 ```bash
 export GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 export VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 export PITCHMIND_ADMIN_EMAILS=your-admin@gmail.com
+export PITCHMIND_CONFIRMATION_BASE_URL=http://localhost:8080/
 ```
 
 Only emails listed in `PITCHMIND_ADMIN_EMAILS` receive the `ADMIN` role. Every other Google account is created as `COACH`.
+If SMTP is not configured, confirmation links are written to the backend logs for local development.
 
 ```bash
 export GOOGLE_GEMINI_API_KEY=your-key-here
@@ -108,10 +110,22 @@ GOOGLE_GEMINI_API_KEY=disabled
 GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 PITCHMIND_ADMIN_EMAILS=your-admin@gmail.com
+PITCHMIND_CONFIRMATION_BASE_URL=https://your-public-app-url/
 SPRING_PROFILES_ACTIVE=prod
 ```
 
 The Docker image builds the React frontend and serves it from Spring Boot, so the public backend URL is also the public app URL.
+
+For real email delivery, configure Spring Mail on the deployed service, for example:
+
+```text
+SPRING_MAIL_HOST=smtp.example.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=your-smtp-user
+SPRING_MAIL_PASSWORD=your-smtp-password
+SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+```
 
 If deploying the frontend separately on Vercel, set `VITE_GRAPHQL_ENDPOINT` to the public backend GraphQL URL, for example:
 

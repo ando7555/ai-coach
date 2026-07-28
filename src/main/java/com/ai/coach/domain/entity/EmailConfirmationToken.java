@@ -1,9 +1,15 @@
 package com.ai.coach.domain.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+
+import java.time.OffsetDateTime;
 
 @Node
 @Getter
@@ -11,18 +17,17 @@ import org.springframework.data.neo4j.core.schema.Node;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class EmailConfirmationToken {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String username;
+    private String token;
     private String email;
     private String displayName;
-    private String pictureUrl;
-    private String googleSubject;
     private String passwordHash;
-    private boolean emailConfirmed;
-    private UserRole role;
+    private OffsetDateTime expiresAt;
+    private OffsetDateTime consumedAt;
+    private OffsetDateTime createdAt;
 }
