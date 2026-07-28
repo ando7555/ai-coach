@@ -1,0 +1,92 @@
+package com.ai.coach.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Arrays;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class EmailConfirmationNotifier {
+
+    private final ObjectProvider<JavaMailSender> mailSenderProvider;
+
+    @Value("${pitchmind.auth.confirmation-base-url}")
+    private String confirmationBaseUrl;
+
+    @Value("${spring.mail.host:}")
+    private String mailHost;
+
+    @Value("${pitchmind.auth.email-from:}")
+    private String fromAddress;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
+
+    public void requireDeliveryAvailable() {
+        if (!StringUtils.hasText(mailHost) && !canLogConfirmationLinks()) {
+            throw new IllegalArgumentException("Email delivery is not configured. Use Google sign-in until SMTP is configured.");
+        }
+    }
+
+    public String sendConfirmation(String email, String token) {
+        String confirmationLink = UriComponentsBuilder
+                .fromUriString(confirmationBaseUrl)
+                .queryParam("confirmEmail", token)
+                .build()
+                .toUriString();
+
+        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
+        if (mailSender == null || !StringUtils.hasText(mailHost)) {
+            log.info("Email confirmation link for {}: {}", email, confirmationLink);
+            return confirmationLink;
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        if (StringUtils.hasText(fromAddress)) {
+            message.setFrom(fromAddress);
+        }
+        message.setTo(email);
+        message.setSubject("Confirm your PitchMind account");
+        message.setText("""
+                Welcome to PitchMind.
+
+                Confirm your account by opening this link:
+                %s
+
+                If you did not request this account, you can ignore this email.
+                """.formatted(confirmationLink));
+        mailSender.send(message);
+        return confirmationLink;
+    }
+
+    private boolean canLogConfirmationLinks() {
+        return hasLocalProfile() || hasLocalConfirmationBaseUrl();
+    }
+
+    private boolean hasLocalProfile() {
+        return Arrays.stream(activeProfiles.split(","))
+                .map(String::trim)
+                .anyMatch(profile -> "dev".equalsIgnoreCase(profile)
+                        || "local".equalsIgnoreCase(profile)
+                        || "test".equalsIgnoreCase(profile));
+    }
+
+    private boolean hasLocalConfirmationBaseUrl() {
+        try {
+            String host = URI.create(confirmationBaseUrl).getHost();
+            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+}

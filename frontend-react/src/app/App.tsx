@@ -212,13 +212,35 @@ function scoreLabel(match: Match) {
 }
 
 function AuthScreen() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithEmail, registerWithEmail, confirmEmail } = useAuth();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const [authMode, setAuthMode] = useState<'signin' | 'register' | 'confirm'>('signin');
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [emailForm, setEmailForm] = useState({ email: '', displayName: '', password: '' });
+  const [confirmToken, setConfirmToken] = useState('');
   const configuredGoogleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
   const [googleClientId, setGoogleClientId] = useState(configuredGoogleClientId ?? '');
   const [configLoaded, setConfigLoaded] = useState(Boolean(configuredGoogleClientId));
+
+  useEffect(() => {
+    const tokenFromUrl = new URLSearchParams(window.location.search).get('confirmEmail');
+    if (!tokenFromUrl) {
+      return;
+    }
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+    setAuthMode('confirm');
+    setConfirmToken(tokenFromUrl);
+    setStatus('Confirming your email');
+    setError(null);
+
+    void confirmEmail(tokenFromUrl)
+      .catch((confirmationError) => {
+        setError(confirmationError instanceof Error ? confirmationError.message : 'Email confirmation failed');
+      })
+      .finally(() => setStatus(null));
+  }, [confirmEmail]);
 
   useEffect(() => {
     if (configuredGoogleClientId) {
@@ -329,17 +351,59 @@ function AuthScreen() {
     };
   }, [googleClientId, signInWithGoogle]);
 
+  async function handleEmailSignIn(event: FormEvent) {
+    event.preventDefault();
+    setStatus('Signing in');
+    setError(null);
+
+    try {
+      await signInWithEmail(emailForm.email, emailForm.password);
+    } catch (authError) {
+      setError(authError instanceof Error ? authError.message : 'Email sign-in failed');
+    } finally {
+      setStatus(null);
+    }
+  }
+
+  async function handleEmailRegistration(event: FormEvent) {
+    event.preventDefault();
+    setStatus('Creating account');
+    setError(null);
+
+    try {
+      const result = await registerWithEmail(emailForm);
+      setStatus(result.message);
+      setAuthMode('confirm');
+    } catch (registrationError) {
+      setError(registrationError instanceof Error ? registrationError.message : 'Registration failed');
+      setStatus(null);
+    }
+  }
+
+  async function handleConfirmEmail(event: FormEvent) {
+    event.preventDefault();
+    setStatus('Confirming your email');
+    setError(null);
+
+    try {
+      await confirmEmail(confirmToken);
+    } catch (confirmationError) {
+      setError(confirmationError instanceof Error ? confirmationError.message : 'Email confirmation failed');
+    } finally {
+      setStatus(null);
+    }
+  }
+
   return (
     <main className="auth-page">
       <section className="auth-panel">
         <img src="/logo-ai-coach.svg" alt="PitchMind logo" />
         <h1>PitchMind Intelligence Portal</h1>
-        <p>Use your Google account to access squads, fixtures, prediction readiness, and AI planning workflows.</p>
+        <p>Use Google or a confirmed email account to access squads, fixtures, prediction readiness, and AI planning workflows.</p>
 
         {googleClientId ? (
           <div className="google-auth-box">
             <div ref={googleButtonRef} className="google-auth-button" />
-            {status && <span className="auth-status">{status}</span>}
           </div>
         ) : !configLoaded ? (
           <div className="google-auth-box">
@@ -351,6 +415,96 @@ function AuthScreen() {
           </div>
         )}
 
+        <div className="auth-divider"><span>Email account</span></div>
+
+        <div className="auth-mode-tabs" aria-label="Email authentication mode">
+          <button className={authMode === 'signin' ? 'secondary-button active' : 'secondary-button'} type="button" onClick={() => setAuthMode('signin')}>
+            Sign in
+          </button>
+          <button className={authMode === 'register' ? 'secondary-button active' : 'secondary-button'} type="button" onClick={() => setAuthMode('register')}>
+            Register
+          </button>
+          <button className={authMode === 'confirm' ? 'secondary-button active' : 'secondary-button'} type="button" onClick={() => setAuthMode('confirm')}>
+            Confirm
+          </button>
+        </div>
+
+        {authMode === 'signin' && (
+          <form className="form-stack auth-form" onSubmit={handleEmailSignIn}>
+            <label>
+              Email
+              <input
+                type="email"
+                autoComplete="email"
+                value={emailForm.email}
+                onChange={(event) => setEmailForm((current) => ({ ...current, email: event.target.value }))}
+                required
+              />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={emailForm.password}
+                onChange={(event) => setEmailForm((current) => ({ ...current, password: event.target.value }))}
+                required
+              />
+            </label>
+            <button className="primary-button" type="submit">Sign in with Email</button>
+          </form>
+        )}
+
+        {authMode === 'register' && (
+          <form className="form-stack auth-form" onSubmit={handleEmailRegistration}>
+            <label>
+              Name
+              <input
+                autoComplete="name"
+                value={emailForm.displayName}
+                onChange={(event) => setEmailForm((current) => ({ ...current, displayName: event.target.value }))}
+              />
+            </label>
+            <label>
+              Email
+              <input
+                type="email"
+                autoComplete="email"
+                value={emailForm.email}
+                onChange={(event) => setEmailForm((current) => ({ ...current, email: event.target.value }))}
+                required
+              />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                value={emailForm.password}
+                onChange={(event) => setEmailForm((current) => ({ ...current, password: event.target.value }))}
+                required
+              />
+            </label>
+            <button className="primary-button" type="submit">Create Email Account</button>
+          </form>
+        )}
+
+        {authMode === 'confirm' && (
+          <form className="form-stack auth-form" onSubmit={handleConfirmEmail}>
+            <label>
+              Confirmation token
+              <input
+                value={confirmToken}
+                onChange={(event) => setConfirmToken(event.target.value)}
+                required
+              />
+            </label>
+            <button className="primary-button" type="submit">Confirm Email</button>
+          </form>
+        )}
+
+        {status && <div className="inline-alert success">{status}</div>}
         {error && <div className="inline-alert error">{error}</div>}
       </section>
     </main>

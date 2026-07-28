@@ -275,12 +275,25 @@ type User {
   email: String!
   displayName: String
   pictureUrl: String
+  emailConfirmed: Boolean!
   role: String!
 }
 
 type AuthPayload {
   token: String!
   user: User!
+}
+
+input EmailRegistrationInput {
+  email: String!
+  displayName: String
+  password: String!
+}
+
+type EmailRegistrationResult {
+  email: String!
+  expiresAt: String!
+  message: String!
 }
 
 type PageInfo {
@@ -312,6 +325,9 @@ type PlayerMatchStatConnection {
 
 extend type Mutation {
   authenticateWithGoogle(idToken: String!): AuthPayload!
+  registerWithEmail(input: EmailRegistrationInput!): EmailRegistrationResult!
+  confirmEmail(token: String!): AuthPayload!
+  authenticateWithEmail(email: String!, password: String!): AuthPayload!
 
   generateMatchAnalysis(input: MatchAnalysisInput!): MatchAnalysis!
   generateTrainingPlan(input: TrainingPlanInput!): TrainingPlan!
