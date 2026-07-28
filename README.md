@@ -111,12 +111,13 @@ GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 PITCHMIND_ADMIN_EMAILS=your-admin@gmail.com
 PITCHMIND_CONFIRMATION_BASE_URL=https://your-public-app-url/
+PITCHMIND_EMAIL_FROM="PitchMind <no-reply@your-domain.com>"
 SPRING_PROFILES_ACTIVE=prod
 ```
 
 The Docker image builds the React frontend and serves it from Spring Boot, so the public backend URL is also the public app URL.
 
-For real email delivery, configure Spring Mail on the deployed service, for example:
+For real email delivery, configure Spring Mail on the deployed service with credentials from your SMTP provider:
 
 ```text
 SPRING_MAIL_HOST=smtp.example.com

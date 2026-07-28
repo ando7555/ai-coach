@@ -41,6 +41,7 @@ pitchmind:
     admin-emails: ${PITCHMIND_ADMIN_EMAILS:andokhachatryan986@gmail.com}
     confirmation-base-url: ${PITCHMIND_CONFIRMATION_BASE_URL:http://localhost:8080/}
     email-token-expiration-minutes: ${PITCHMIND_EMAIL_TOKEN_EXPIRATION_MINUTES:60}
+    email-from: ${PITCHMIND_EMAIL_FROM:${spring.mail.username:}}
   predictor:
     model-name: Transparent Poisson Baseline
     model-version: baseline-poisson-v1

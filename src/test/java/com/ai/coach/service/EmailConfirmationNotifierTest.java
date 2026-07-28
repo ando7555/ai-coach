@@ -45,6 +45,17 @@ class EmailConfirmationNotifierTest {
                 .doesNotThrowAnyException();
     }
 
+    @Test
+    void allowsPublicConfirmationUrlWithSmtp() {
+        EmailConfirmationNotifier notifier = notifier(
+                "smtp.example.com",
+                "prod",
+                "https://pitch-mind-j6zv.onrender.com/");
+
+        assertThatCode(notifier::requireDeliveryAvailable)
+                .doesNotThrowAnyException();
+    }
+
     private EmailConfirmationNotifier notifier(String mailHost, String activeProfiles, String confirmationBaseUrl) {
         @SuppressWarnings("unchecked")
         ObjectProvider<JavaMailSender> mailSenderProvider = mock(ObjectProvider.class);

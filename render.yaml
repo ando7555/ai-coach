@@ -19,6 +19,20 @@ services:
         sync: false
       - key: PITCHMIND_CONFIRMATION_BASE_URL
         value: https://pitch-mind-j6zv.onrender.com/
+      - key: PITCHMIND_EMAIL_FROM
+        sync: false
+      - key: SPRING_MAIL_HOST
+        sync: false
+      - key: SPRING_MAIL_PORT
+        value: 587
+      - key: SPRING_MAIL_USERNAME
+        sync: false
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+      - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH
+        value: true
+      - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
+        value: true
       - key: JWT_SECRET
         generateValue: true
       - key: NEO4J_URI

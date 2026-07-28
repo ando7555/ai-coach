@@ -26,7 +26,7 @@ public class EmailConfirmationNotifier {
     @Value("${spring.mail.host:}")
     private String mailHost;
 
-    @Value("${spring.mail.username:}")
+    @Value("${pitchmind.auth.email-from:}")
     private String fromAddress;
 
     @Value("${spring.profiles.active:}")
