@@ -854,16 +854,18 @@ Avoid:
 
 Use this sequence to understand the system quickly:
 
-1. Read `README.md` for basic purpose and commands.
-2. Read `docs/DEVELOPER_ONBOARDING.md`.
-3. Open `src/main/resources/graphql/schema.graphqls` to understand the API.
-4. Open `frontend-react/src/app/App.tsx` and map each tab to GraphQL operations.
-5. Open `AuthService`, `GoogleIdentityService`, `JwtTokenProvider`, and `SecurityConfig` to understand auth.
-6. Open `MatchFeatureExtractor` and `PoissonBaselineMatchPredictor` to understand prediction.
-7. Open `MarketValueService` to understand odds evaluation.
-8. Run backend tests.
-9. Run frontend tests and build.
-10. Start the app locally and create or seed demo data.
+1. Read `AGENTS.md` for clean-code, review, branch, testing, and deployment standards.
+2. Read `README.md` for basic purpose and commands.
+3. Read `docs/DEVELOPER_ONBOARDING.md`.
+4. Read `docs/AGENT_WORKFLOW.md` for reasoning rules, architecture diagrams, and roadmap context.
+5. Open `src/main/resources/graphql/schema.graphqls` to understand the API.
+6. Open `frontend-react/src/app/App.tsx` and map each tab to GraphQL operations.
+7. Open `AuthService`, `GoogleIdentityService`, `EmailConfirmationNotifier`, `JwtTokenProvider`, and `SecurityConfig` to understand auth.
+8. Open `MatchFeatureExtractor` and `PoissonBaselineMatchPredictor` to understand prediction.
+9. Open `MarketValueService` to understand odds evaluation.
+10. Run backend tests.
+11. Run frontend tests and build.
+12. Start the app locally and create or seed demo data.
 
 Recommended first small task:
 

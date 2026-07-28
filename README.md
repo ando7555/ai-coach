@@ -10,6 +10,7 @@ Documentation is published from the dedicated `wiki` branch through GitHub Pages
 Engineering onboarding and system design documentation lives in this repository:
 
 - [Developer Onboarding Guide](docs/DEVELOPER_ONBOARDING.md)
+- [Agent Workflow, Reasoning Model, and Roadmap](docs/AGENT_WORKFLOW.md)
 - [Documentation Index](docs/README.md)
 
 ## Implemented Capabilities
