@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,15 @@ public class EmailConfirmationNotifier {
 
     @Value("${spring.mail.username:}")
     private String fromAddress;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
+
+    public void requireDeliveryAvailable() {
+        if (!StringUtils.hasText(mailHost) && isProductionProfile()) {
+            throw new IllegalArgumentException("Email delivery is not configured. Use Google sign-in until SMTP is configured.");
+        }
+    }
 
     public String sendConfirmation(String email, String token) {
         String confirmationLink = UriComponentsBuilder
@@ -55,5 +66,11 @@ public class EmailConfirmationNotifier {
                 """.formatted(confirmationLink));
         mailSender.send(message);
         return confirmationLink;
+    }
+
+    private boolean isProductionProfile() {
+        return Arrays.stream(activeProfiles.split(","))
+                .map(String::trim)
+                .anyMatch("prod"::equalsIgnoreCase);
     }
 }

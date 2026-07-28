@@ -19,6 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,6 +94,21 @@ class AuthServiceTest {
         assertThat(result.email()).isEqualTo("coach@example.com");
         assertThat(result.message()).contains("Check your email");
     }
+
+    @Test
+    void doesNotCreatePendingTokenWhenEmailDeliveryIsUnavailable() {
+        doThrow(new IllegalArgumentException("Email delivery is not configured"))
+                .when(emailConfirmationNotifier).requireDeliveryAvailable();
+
+        AuthService service = authService("andokhachatryan986@gmail.com");
+
+        assertThatThrownBy(() -> service.registerWithEmail(
+                new AuthService.EmailRegistrationInput("coach@example.com", "Coach", "secret123")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email delivery");
+        verify(confirmationTokenRepository, never()).save(any(EmailConfirmationToken.class));
+    }
+
 
     @Test
     void confirmsEmailAndAssignsAdminOnlyForAllowListedEmail() {

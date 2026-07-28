@@ -86,6 +86,7 @@ public class AuthService {
         String email = normalizeEmail(input.email());
         validateEmail(email);
         validatePassword(input.password());
+        emailConfirmationNotifier.requireDeliveryAvailable();
 
         String displayName = StringUtils.hasText(input.displayName()) ? input.displayName().trim() : email;
         User existingUser = userRepository.findByEmail(email).orElse(null);

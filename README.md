@@ -48,7 +48,7 @@ export PITCHMIND_CONFIRMATION_BASE_URL=http://localhost:8080/
 ```
 
 Only emails listed in `PITCHMIND_ADMIN_EMAILS` receive the `ADMIN` role. Every other Google account is created as `COACH`.
-If SMTP is not configured, confirmation links are written to the backend logs for local development.
+If SMTP is not configured, confirmation links are written to the backend logs for local development. Production email registration requires SMTP; otherwise users should use Google sign-in until mail delivery is configured.
 
 ```bash
 export GOOGLE_GEMINI_API_KEY=your-key-here
