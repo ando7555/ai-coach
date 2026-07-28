@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Arrays;
 
 @Slf4j
@@ -32,7 +33,7 @@ public class EmailConfirmationNotifier {
     private String activeProfiles;
 
     public void requireDeliveryAvailable() {
-        if (!StringUtils.hasText(mailHost) && isProductionProfile()) {
+        if (!StringUtils.hasText(mailHost) && !canLogConfirmationLinks()) {
             throw new IllegalArgumentException("Email delivery is not configured. Use Google sign-in until SMTP is configured.");
         }
     }
@@ -68,9 +69,24 @@ public class EmailConfirmationNotifier {
         return confirmationLink;
     }
 
-    private boolean isProductionProfile() {
+    private boolean canLogConfirmationLinks() {
+        return hasLocalProfile() || hasLocalConfirmationBaseUrl();
+    }
+
+    private boolean hasLocalProfile() {
         return Arrays.stream(activeProfiles.split(","))
                 .map(String::trim)
-                .anyMatch("prod"::equalsIgnoreCase);
+                .anyMatch(profile -> "dev".equalsIgnoreCase(profile)
+                        || "local".equalsIgnoreCase(profile)
+                        || "test".equalsIgnoreCase(profile));
+    }
+
+    private boolean hasLocalConfirmationBaseUrl() {
+        try {
+            String host = URI.create(confirmationBaseUrl).getHost();
+            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 }
