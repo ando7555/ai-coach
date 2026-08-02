@@ -7,6 +7,12 @@ Documentation is published from the dedicated `wiki` branch through GitHub Pages
 - https://ando7555.github.io/ai-coach/
 - https://github.com/ando7555/ai-coach/tree/wiki
 
+Engineering design notes for upcoming implementation work live in this repository:
+
+- [Engineering Notes](docs/README.md)
+- [Modular DDD Architecture](docs/MODULAR_DDD_ARCHITECTURE.md)
+- [DDD/SOLID LinkedIn Article Draft](docs/articles/DDD_SOLID_MODULAR_ARCHITECTURE_LINKEDIN.md)
+
 ## Implemented Capabilities
 
 - GraphQL authentication with role-aware mutation access
