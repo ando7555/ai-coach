@@ -138,7 +138,266 @@ Infrastructure implements ports.
 Common is allowed downward, never upward.
 ```
 
-## 5. AI Provider Module
+## 5. Credible Architecture Designs By Part
+
+This section describes architecture designs that are credible for the current project because they map to existing code paths or the next planned Ollama provider step. They are not theoretical modules detached from the codebase.
+
+### 5.1 Common Backend Module
+
+Current reusable candidates already exist in the codebase:
+
+- cursor pagination
+- enum parsing
+- form/stat/workload calculation helpers where they are domain-neutral enough
+- exception base classes
+- JSON response parsing patterns
+
+Target design:
+
+```mermaid
+flowchart TD
+  Common["common module"] --> Pagination["pagination"]
+  Common --> Validation["validation"]
+  Common --> Time["time/date ranges"]
+  Common --> Json["json parsing"]
+  Common --> Error["error contracts"]
+
+  Coaching["coaching"] --> Common
+  Prediction["prediction"] --> Common
+  Identity["identity"] --> Common
+  AiProvider["ai provider"] --> Common
+
+  Common -.must not depend on.-> Coaching
+  Common -.must not depend on.-> Prediction
+  Common -.must not depend on.-> Identity
+  Common -.must not depend on.-> AiProvider
+```
+
+Suggested first moves:
+
+```text
+domain.CursorPaginator        -> common.pagination.CursorPaginator
+domain.EnumParser             -> common.validation.EnumParser
+exception.CoachException      -> common.error.ApplicationException or common.error.CoachException
+service.AiResponseParser      -> common.json.JsonResponseParser only if it stays provider-neutral
+```
+
+Keep football-specific calculators in their owning contexts unless they become truly generic.
+
+### 5.2 Coaching Backend Module
+
+Current code already has coaching services:
+
+```text
+MatchAnalysisService
+TrainingPlanService
+SeasonPlanService
+RecommendationService
+```
+
+Target coaching design:
+
+```mermaid
+flowchart TD
+  GQL["Coaching GraphQL Controllers"] --> App["Coaching Application Services"]
+  App --> Domain["Coaching Domain Objects"]
+  App --> Ai["AiClient port"]
+  App --> Repos["Coaching Repositories"]
+  Ai --> Provider["AI Provider Module"]
+  Repos --> Neo4j["Neo4j"]
+
+  App --> Fallback["Deterministic fallback builders"]
+  Provider --> Gemini["Gemini"]
+  Provider --> Ollama["Ollama"]
+  Provider --> Disabled["Disabled"]
+```
+
+Coaching services may ask for generated text or JSON from `AiClient`, but they must own:
+
+- input validation
+- domain prompt content
+- deterministic fallback
+- persistence shape
+- GraphQL response shape
+
+Coaching must not own:
+
+- provider selection
+- Ollama HTTP request format
+- Gemini/Spring AI client details
+- prediction formulas
+
+### 5.3 Prediction Backend Module
+
+Current prediction flow already exists and is separate from LLM output:
+
+```text
+MatchPredictionService
+MatchFeatureExtractor
+PoissonBaselineMatchPredictor
+PredictionAuditMapper
+MarketValueService
+PredictionEvaluationService
+```
+
+Target prediction design:
+
+```mermaid
+flowchart TD
+  GQL["PredictionGraphQLController"] --> App["MatchPredictionService"]
+  App --> Features["MatchFeatureExtractor"]
+  Features --> History["Completed match history"]
+  History --> Neo4j["Neo4j repositories"]
+  Features --> Model["PoissonBaselineMatchPredictor"]
+  Model --> Record["MatchPredictionRecord"]
+  Record --> Audit["PredictionAuditMapper"]
+  App --> Eval["PredictionEvaluationService"]
+  App --> Market["MarketValueService"]
+
+  Model -.must not call.-> AiProvider["AI Provider Module"]
+```
+
+Prediction owns deterministic model behavior:
+
+- feature cutoff rules
+- data quality status
+- expected goals
+- probability matrix
+- confidence and uncertainty
+- model versioning
+- market value classification
+
+Prediction must stay independent from:
+
+- Gemini
+- Ollama
+- prompt parsing
+- frontend tabs
+- coaching fallback output
+
+### 5.4 Identity Backend Module
+
+Current identity flow includes Google auth, email confirmation, JWT, and role assignment.
+
+Target identity design:
+
+```mermaid
+sequenceDiagram
+  participant UI as React Auth UI
+  participant API as AuthGraphQLController
+  participant Auth as AuthService
+  participant Google as GoogleIdentityService
+  participant Email as EmailConfirmationNotifier
+  participant JWT as JwtTokenProvider
+  participant DB as Neo4j
+
+  UI->>API: authenticateWithGoogle(idToken)
+  API->>Auth: delegate
+  Auth->>Google: verify token
+  Google-->>Auth: verified profile
+  Auth->>Auth: assign ADMIN only from allow-list
+  Auth->>DB: upsert user
+  Auth->>JWT: generate app token
+  JWT-->>UI: JWT + user
+
+  UI->>API: registerWithEmail(input)
+  API->>Auth: delegate
+  Auth->>Email: require delivery availability
+  Auth->>DB: create pending confirmation token
+  Auth->>Email: send confirmation link
+```
+
+Identity owns:
+
+- user role assignment
+- admin allow-list
+- email confirmation state
+- JWT issuing
+- auth error behavior
+
+Identity must not delegate role decisions to:
+
+- frontend state
+- Google profile custom fields
+- GraphQL inputs
+- local storage
+
+### 5.5 AI Provider Backend Module
+
+This is the next implementation target for Ollama local mode.
+
+Target provider design:
+
+```mermaid
+flowchart LR
+  AiClient["AiClient public contract"] --> Router["AiProviderRouter"]
+  Router --> Mode{"AiProviderMode"}
+  Mode -->|gemini| Gemini["GeminiAiProvider"]
+  Mode -->|ollama| Ollama["OllamaAiProvider"]
+  Mode -->|disabled| Disabled["DisabledAiProvider"]
+
+  Gemini --> SpringAI["Spring AI ChatClient"]
+  Ollama --> Http["Ollama HTTP /api/generate"]
+  Disabled --> Failure["AiGenerationException"]
+```
+
+The existing service contract should stay stable:
+
+```text
+AiClient.generateTacticalAdvice(prompt)
+AiClient.generateTrainingPlan(prompt)
+AiClient.generateSeasonPlan(prompt)
+```
+
+Provider module owns:
+
+- provider mode selection
+- provider-specific request and response mapping
+- local model endpoint config
+- provider availability failure
+
+Provider module must not own:
+
+- coaching fallback logic
+- training session persistence
+- prediction probability logic
+- auth role logic
+
+### 5.6 Frontend Modules
+
+The current React app works, but it is concentrated mostly in `App.tsx`. The target is incremental extraction into feature modules.
+
+Target frontend design:
+
+```mermaid
+flowchart TD
+  App["App Shell"] --> Auth["features/auth"]
+  App --> Dashboard["features/dashboard"]
+  App --> Coaching["features/coaching"]
+  App --> Prediction["features/prediction"]
+
+  Auth --> SharedApi["shared/api"]
+  Dashboard --> SharedUi["shared/ui"]
+  Coaching --> SharedApi
+  Prediction --> SharedApi
+  Coaching --> SharedUi
+  Prediction --> SharedUi
+
+  SharedApi --> GraphQL["GraphQL client"]
+  SharedUi --> Components["Panel / Metric / Badge / ErrorBanner"]
+```
+
+Extraction order:
+
+1. Move generic UI components to `shared/ui`.
+2. Move GraphQL client and config helpers to `shared/api` and `shared/config`.
+3. Extract prediction UI into `features/prediction`.
+4. Extract coaching UI into `features/coaching`.
+5. Extract auth UI and storage helpers into `features/auth`.
+
+Do not change behavior while extracting. First move, then test, then improve.
+
+## 6. AI Provider Module
 
 The AI provider module exists so coaching workflows do not care whether output comes from Gemini, Ollama, or fallback mode.
 
@@ -173,7 +432,7 @@ flowchart LR
 
 Prediction should not use this module for probability generation. Prediction is deterministic and provider-independent.
 
-## 6. Coaching Module
+## 7. Coaching Module
 
 Coaching owns the language of football planning:
 
@@ -198,7 +457,7 @@ coaching.recommendation.RecommendationService
 
 Coaching may call `AiClient`, but it should not know which provider is active.
 
-## 7. Prediction Module
+## 8. Prediction Module
 
 Prediction owns deterministic analytics:
 
@@ -230,7 +489,7 @@ Prediction must not know about:
 - Spring AI
 - frontend tabs
 
-## 8. Identity Module
+## 9. Identity Module
 
 Identity owns:
 
@@ -259,7 +518,7 @@ Only emails configured in PITCHMIND_ADMIN_EMAILS may become ADMIN.
 Every other user must become COACH.
 ```
 
-## 9. Frontend Module Boundaries
+## 10. Frontend Module Boundaries
 
 Target frontend shape:
 
@@ -302,7 +561,7 @@ features/prediction/components/PredictionCard.tsx
 features/prediction/components/MarketValuePanel.tsx
 ```
 
-## 10. SOLID Rules In This Project
+## 11. SOLID Rules In This Project
 
 Single Responsibility:
 
@@ -331,7 +590,7 @@ Dependency Inversion:
 - Application services depend on provider interfaces, not HTTP clients.
 - Domain services do not depend on Spring, WebClient, or external APIs.
 
-## 11. Design Patterns To Use
+## 12. Design Patterns To Use
 
 Recommended patterns:
 
@@ -351,7 +610,7 @@ Avoid:
 - Frontend role decisions.
 - Refactor PRs that move everything at once.
 
-## 12. Incremental Refactoring Plan
+## 13. Incremental Refactoring Plan
 
 Phase 1: Documentation and contracts.
 
@@ -379,7 +638,7 @@ Phase 4: Frontend extraction.
 - Extract prediction feature second.
 - Extract coaching feature third.
 
-## 13. First Hands-On Task For Senior Developer
+## 14. First Hands-On Task For Senior Developer
 
 Implement one small piece from this design:
 
@@ -398,7 +657,7 @@ Acceptance criteria:
 
 This is a safe first step because it teaches module boundaries without risking production AI flows.
 
-## 14. Review Checklist
+## 15. Review Checklist
 
 Before merging modular architecture work:
 
