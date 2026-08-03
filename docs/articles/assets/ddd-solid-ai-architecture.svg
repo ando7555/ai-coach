@@ -65,7 +65,8 @@
   <path class="line" d="M840 374 C900 420, 940 430, 985 455" />
   <path class="line" d="M880 374 C1015 420, 1185 430, 1355 455" />
 
-  <path class="line" d="M395 514 L1205 514" />
+  <path class="line" d="M245 573 C245 650, 1355 650, 1355 573" />
+  <text class="tiny" x="713" y="640">uses AI provider contract</text>
 
   <rect class="box" x="220" y="690" width="1160" height="104" />
   <text class="label" x="680" y="730">Common / Shared</text>
