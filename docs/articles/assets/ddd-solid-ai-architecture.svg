@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">PitchMind modular DDD architecture</title>
+  <desc id="desc">A clean software architecture diagram showing React UI, GraphQL API, bounded contexts, AI providers, deterministic prediction, identity, and common utilities.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7fafc; }
+      .title { font: 700 46px Arial, sans-serif; fill: #102033; }
+      .subtitle { font: 400 23px Arial, sans-serif; fill: #4b5f73; }
+      .label { font: 700 25px Arial, sans-serif; fill: #102033; }
+      .small { font: 400 18px Arial, sans-serif; fill: #4b5f73; }
+      .tiny { font: 400 16px Arial, sans-serif; fill: #5d7082; }
+      .box { fill: #ffffff; stroke: #ccd7e2; stroke-width: 2; rx: 18; }
+      .box-blue { fill: #e9f4ff; stroke: #5aa6d6; stroke-width: 2; rx: 18; }
+      .box-green { fill: #e9f7ef; stroke: #44a36f; stroke-width: 2; rx: 18; }
+      .box-amber { fill: #fff6df; stroke: #d99a26; stroke-width: 2; rx: 18; }
+      .box-red { fill: #fff0ef; stroke: #d46a63; stroke-width: 2; rx: 18; }
+      .line { stroke: #60768a; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .softline { stroke: #91a1b1; stroke-width: 2.5; fill: none; marker-end: url(#arrowSoft); stroke-dasharray: 7 7; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#60768a" />
+    </marker>
+    <marker id="arrowSoft" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#91a1b1" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900" />
+
+  <text class="title" x="80" y="80">Building AI Products With DDD + SOLID</text>
+  <text class="subtitle" x="80" y="120">PitchMind separates business flows from AI provider infrastructure.</text>
+
+  <rect class="box-blue" x="610" y="160" width="380" height="82" />
+  <text class="label" x="705" y="195">React UI</text>
+  <text class="small" x="682" y="220">feature modules + shared UI</text>
+
+  <rect class="box-blue" x="610" y="292" width="380" height="82" />
+  <text class="label" x="703" y="327">GraphQL API</text>
+  <text class="small" x="684" y="352">controllers delegate to services</text>
+
+  <path class="line" d="M800 242 L800 292" />
+
+  <rect class="box-green" x="95" y="455" width="300" height="118" />
+  <text class="label" x="175" y="493">Coaching</text>
+  <text class="small" x="134" y="522">training plans</text>
+  <text class="small" x="134" y="548">match analysis</text>
+
+  <rect class="box-amber" x="465" y="455" width="300" height="118" />
+  <text class="label" x="563" y="493">Prediction</text>
+  <text class="small" x="502" y="522">features + Poisson model</text>
+  <text class="small" x="502" y="548">confidence + market value</text>
+
+  <rect class="box-red" x="835" y="455" width="300" height="118" />
+  <text class="label" x="927" y="493">Identity</text>
+  <text class="small" x="885" y="522">Google + email auth</text>
+  <text class="small" x="885" y="548">JWT + roles</text>
+
+  <rect class="box-blue" x="1205" y="455" width="300" height="118" />
+  <text class="label" x="1283" y="493">AI Provider</text>
+  <text class="small" x="1252" y="522">provider routing</text>
+  <text class="small" x="1252" y="548">Gemini / Ollama / disabled</text>
+
+  <path class="line" d="M760 374 C635 415, 420 430, 245 455" />
+  <path class="line" d="M800 374 C760 420, 690 430, 615 455" />
+  <path class="line" d="M840 374 C900 420, 940 430, 985 455" />
+  <path class="line" d="M880 374 C1015 420, 1185 430, 1355 455" />
+
+  <path class="line" d="M395 514 L1205 514" />
+
+  <rect class="box" x="220" y="690" width="1160" height="104" />
+  <text class="label" x="680" y="730">Common / Shared</text>
+  <text class="small" x="394" y="762">pagination, validation, date helpers, JSON parsing, base errors, generic UI primitives</text>
+
+  <path class="softline" d="M245 573 L390 690" />
+  <path class="softline" d="M615 573 L615 690" />
+  <path class="softline" d="M985 573 L940 690" />
+  <path class="softline" d="M1355 573 L1205 690" />
+
+  <text class="tiny" x="95" y="630">owns football planning language</text>
+  <text class="tiny" x="465" y="630">deterministic, auditable math</text>
+  <text class="tiny" x="835" y="630">roles stay backend-owned</text>
+  <text class="tiny" x="1205" y="630">technical adapter boundary</text>
+
+  <text class="subtitle" x="80" y="855">Rule: Prediction calculates. Coaching plans. AI providers execute. Common stays boring.</text>
+</svg>
