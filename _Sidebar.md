@@ -16,3 +16,5 @@
 - [Post 7](post-7-design-patterns)
 - [Post 8](post-8-algorithms-performance)
 - [Post 9](post-9-refactoring-patterns)
+- [Post 10](post-10-ddd-solid-ai-architecture)
+- [Post 10 Package](docs/articles/linkedin-ddd-solid-architecture/README)

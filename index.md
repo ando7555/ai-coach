@@ -1,5 +1,7 @@
 # PitchMind Documentation
 
+![PitchMind logo](assets/brand/pitchmind-logo.svg)
+
 This documentation site contains the product, roadmap, brand, and publication material that used to live beside the application code.
 
 ## Product Documentation
@@ -19,9 +21,12 @@ This documentation site contains the product, roadmap, brand, and publication ma
 - [Post 7: Design Patterns](post-7-design-patterns.md)
 - [Post 8: Algorithms and Performance](post-8-algorithms-performance.md)
 - [Post 9: Refactoring Patterns](post-9-refactoring-patterns.md)
+- [Post 10: DDD, SOLID, and Modular AI Product Architecture](post-10-ddd-solid-ai-architecture.md)
+- [Full Post 10 Package](docs/articles/linkedin-ddd-solid-architecture/README.md)
 
 ## Assets
 
 - Brand assets: `assets/brand/`
 - Marketing page assets: `assets/marketing/`
 - LinkedIn article diagrams and screenshots: `assets/linkedin/`
+- Post 10 grouped assets: `docs/articles/linkedin-ddd-solid-architecture/assets/`
