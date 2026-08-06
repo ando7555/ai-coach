@@ -1,8 +1,9 @@
 # PitchMind Engineering Notes
 
-This folder contains engineering notes that support upcoming implementation work.
+This folder contains engineering notes, architecture decisions, and publishable product-learning material for PitchMind.
 
 Start here:
 
 - [Modular DDD Architecture](MODULAR_DDD_ARCHITECTURE.md): bounded contexts, backend/frontend module boundaries, reusable common/shared code, SOLID rules, and migration tasks.
-- [LinkedIn Article Draft: DDD, SOLID, and Design Patterns](articles/DDD_SOLID_MODULAR_ARCHITECTURE_LINKEDIN.md): publishable article draft with graphics and a hands-on learning exercise.
+- [LinkedIn Article Package: DDD, SOLID, and Design Patterns](articles/linkedin-ddd-solid-architecture/README.md): ready-to-post copy, article notes, image assets, alt text, and a hands-on learning exercise.
+- [PitchMind Logo](assets/pitchmind-logo.svg): current product logo used by the app and documentation pages.

@@ -66,7 +66,6 @@
   <path class="line" d="M880 374 C1015 420, 1185 430, 1355 455" />
 
   <path class="line" d="M245 573 C245 650, 1355 650, 1355 573" />
-  <text class="tiny" x="713" y="640">uses AI provider contract</text>
 
   <rect class="box" x="220" y="690" width="1160" height="104" />
   <text class="label" x="680" y="730">Common / Shared</text>
@@ -76,11 +75,6 @@
   <path class="softline" d="M615 573 L615 690" />
   <path class="softline" d="M985 573 L940 690" />
   <path class="softline" d="M1355 573 L1205 690" />
-
-  <text class="tiny" x="95" y="630">owns football planning language</text>
-  <text class="tiny" x="465" y="630">deterministic, auditable math</text>
-  <text class="tiny" x="835" y="630">roles stay backend-owned</text>
-  <text class="tiny" x="1205" y="630">technical adapter boundary</text>
 
   <text class="subtitle" x="80" y="855">Rule: Prediction calculates. Coaching plans. AI providers execute. Common stays boring.</text>
 </svg>

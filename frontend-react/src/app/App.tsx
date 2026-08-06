@@ -397,7 +397,7 @@ function AuthScreen() {
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <img src="/logo-ai-coach.svg" alt="PitchMind logo" />
+        <img src="/pitchmind-logo.svg" alt="PitchMind logo" />
         <h1>PitchMind Intelligence Portal</h1>
         <p>Use Google or a confirmed email account to access squads, fixtures, prediction readiness, and AI planning workflows.</p>
 
@@ -985,7 +985,7 @@ function Portal() {
 
       <aside className="sidebar" aria-label="Primary">
         <div className="brand-block">
-          <img src="/logo-ai-coach.svg" alt="PitchMind logo" />
+          <img src="/pitchmind-logo.svg" alt="PitchMind logo" />
         </div>
         <div className="identity-card">
           <div className="identity-avatar">

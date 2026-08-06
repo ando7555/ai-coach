@@ -58,7 +58,13 @@ This is how I want to grow the project: one clear boundary at a time.
 Use this image with the post:
 
 ```text
-docs/articles/assets/ddd-solid-ai-architecture.svg
+docs/articles/linkedin-ddd-solid-architecture/assets/ddd-solid-ai-architecture-clean-linkedin.png
+```
+
+Use this alt text:
+
+```text
+PitchMind modular DDD and SOLID architecture diagram showing Coaching, Prediction, Identity, AI Provider, and Common modules.
 ```
 
 ## Optional Longer Article

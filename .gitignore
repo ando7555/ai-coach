@@ -47,3 +47,6 @@ out/
 /frontend-react/.env.*
 !.env.example
 !/frontend-react/.env.example
+!/tools/linkedin-mcp-server/.env.example
+/tools/linkedin-mcp-server/.linkedin-token.json
+/tools/linkedin-mcp-server/*.log

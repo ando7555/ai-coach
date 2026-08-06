@@ -10,8 +10,9 @@ Documentation is published from the dedicated `wiki` branch through GitHub Pages
 Engineering design notes for upcoming implementation work live in this repository:
 
 - [Engineering Notes](docs/README.md)
+- [Wiki Landing Page](docs/index.md)
 - [Modular DDD Architecture](docs/MODULAR_DDD_ARCHITECTURE.md)
-- [DDD/SOLID LinkedIn Article Draft](docs/articles/DDD_SOLID_MODULAR_ARCHITECTURE_LINKEDIN.md)
+- [DDD/SOLID LinkedIn Article Package](docs/articles/linkedin-ddd-solid-architecture/README.md)
 
 ## Implemented Capabilities
 

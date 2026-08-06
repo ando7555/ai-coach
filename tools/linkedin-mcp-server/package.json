@@ -1,0 +1,14 @@
+{
+  "name": "pitchmind-linkedin-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Small stdio MCP server for publishing LinkedIn text and image posts through the official LinkedIn API.",
+  "scripts": {
+    "auth": "node src/oauth-helper.mjs",
+    "start": "node src/server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
