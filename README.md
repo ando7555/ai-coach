@@ -2,7 +2,7 @@
 
 PitchMind is a Java/Spring and React football intelligence application. This repository now keeps application code separate from product, roadmap, brand, and publication documentation.
 
-Documentation is published from the dedicated `wiki` branch through GitHub Pages:
+Documentation is prepared for GitHub Pages from the `docs/` folder, and the same material is mirrored on the dedicated `wiki` branch:
 
 - https://ando7555.github.io/ai-coach/
 - https://github.com/ando7555/ai-coach/tree/wiki
@@ -10,6 +10,7 @@ Documentation is published from the dedicated `wiki` branch through GitHub Pages
 Engineering design notes for upcoming implementation work live in this repository:
 
 - [Engineering Notes](docs/README.md)
+- [Documentation Hub](docs/index.html)
 - [Wiki Landing Page](docs/index.md)
 - [Modular DDD Architecture](docs/MODULAR_DDD_ARCHITECTURE.md)
 - [DDD/SOLID LinkedIn Article Package](docs/articles/linkedin-ddd-solid-architecture/README.md)
