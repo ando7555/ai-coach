@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="PitchMind documentation hub with architecture notes, LinkedIn posts, and product learning materials."
+    />
+    <title>PitchMind Docs Hub</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #152033;
+        --muted: #5d687b;
+        --line: #d8dee8;
+        --panel: #ffffff;
+        --surface: #f4f7fb;
+        --green: #0f9f77;
+        --blue: #1976b8;
+        --gold: #c78b1c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        background: var(--surface);
+        color: var(--ink);
+        line-height: 1.5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--line);
+        background: #ffffff;
+      }
+
+      .topbar-inner,
+      main,
+      footer {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 18px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .brand img {
+        width: 116px;
+        height: auto;
+      }
+
+      .brand-text strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .brand-text span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .repo-link {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 12px;
+        text-decoration: none;
+        font-size: 14px;
+        background: #f9fbfd;
+        white-space: nowrap;
+      }
+
+      .intro {
+        padding: 42px 0 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: clamp(34px, 6vw, 64px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+        max-width: 760px;
+      }
+
+      .summary {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .summary h2,
+      .section h2 {
+        margin: 0 0 14px;
+        font-size: 17px;
+      }
+
+      .summary dl {
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .summary dt {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .summary dd {
+        margin: 2px 0 0;
+        font-weight: 700;
+      }
+
+      .section {
+        margin: 0 0 34px;
+      }
+
+      .post-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .post {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+        text-decoration: none;
+        min-height: 170px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .post:hover {
+        border-color: #9fb2ca;
+      }
+
+      .post-number {
+        width: fit-content;
+        border-radius: 6px;
+        padding: 3px 9px;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .blue {
+        background: var(--blue);
+      }
+
+      .green {
+        background: var(--green);
+      }
+
+      .gold {
+        background: var(--gold);
+      }
+
+      .post strong {
+        font-size: 17px;
+        line-height: 1.25;
+      }
+
+      .post span:last-child {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .link-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .link-list a {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 16px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      footer {
+        padding: 18px 0 32px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 820px) {
+        .topbar-inner,
+        .intro {
+          display: block;
+        }
+
+        .repo-link {
+          display: inline-block;
+          margin-top: 14px;
+        }
+
+        .summary {
+          margin-top: 24px;
+        }
+
+        .post-grid,
+        .link-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <img src="assets/pitchmind-logo.svg" alt="PitchMind logo" />
+          <div class="brand-text">
+            <strong>PitchMind</strong>
+            <span>Football intelligence documentation</span>
+          </div>
+        </div>
+        <a class="repo-link" href="https://github.com/ando7555/ai-coach">GitHub repository</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <h1>Architecture, product notes, and posts in one place.</h1>
+          <p>
+            A single hub for PitchMind engineering documentation, the LinkedIn learning series, architecture diagrams,
+            and reusable publication assets.
+          </p>
+        </div>
+
+        <aside class="summary" aria-label="Documentation summary">
+          <h2>Current Scope</h2>
+          <dl>
+            <div>
+              <dt>Backend</dt>
+              <dd>Spring Boot, GraphQL, Neo4j</dd>
+            </div>
+            <div>
+              <dt>Frontend</dt>
+              <dd>React, Vite, TypeScript</dd>
+            </div>
+            <div>
+              <dt>AI Direction</dt>
+              <dd>Gemini, Ollama, provider strategy</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="section" aria-labelledby="architecture-title">
+        <h2 id="architecture-title">Architecture</h2>
+        <div class="link-list">
+          <a href="MODULAR_DDD_ARCHITECTURE.html">Modular DDD Architecture</a>
+          <a href="README.html">Engineering Notes</a>
+          <a href="articles/linkedin-ddd-solid-architecture/">Post 10 Full Package</a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="posts-title">
+        <h2 id="posts-title">LinkedIn Post Series</h2>
+        <div class="post-grid">
+          <a class="post" href="posts/post-1-introduction.html">
+            <span class="post-number blue">Post 1</span>
+            <strong>Introduction</strong>
+            <span>PitchMind motivation, stack overview, and football intelligence product vision.</span>
+          </a>
+          <a class="post" href="posts/post-2-java-modularity.html">
+            <span class="post-number green">Post 2</span>
+            <strong>Java Modularity</strong>
+            <span>What JPMS means when tried inside a real Spring Boot application.</span>
+          </a>
+          <a class="post" href="posts/post-3-java-fundamentals.html">
+            <span class="post-number gold">Post 3</span>
+            <strong>Java Fundamentals</strong>
+            <span>JVM, type safety, memory model, and production backend fundamentals.</span>
+          </a>
+          <a class="post" href="posts/post-4-java-8-to-17.html">
+            <span class="post-number blue">Post 4</span>
+            <strong>Java 8 To 17</strong>
+            <span>Modern Java features used to make the codebase clearer and more expressive.</span>
+          </a>
+          <a class="post" href="posts/post-5-web-tech.html">
+            <span class="post-number green">Post 5</span>
+            <strong>Web Tech</strong>
+            <span>HTTP, REST versus GraphQL, and the Spring request lifecycle.</span>
+          </a>
+          <a class="post" href="posts/post-6-unify-architecture.html">
+            <span class="post-number gold">Post 6</span>
+            <strong>Unified Architecture</strong>
+            <span>Refactoring toward one coherent application structure without behavior drift.</span>
+          </a>
+          <a class="post" href="posts/post-7-design-patterns.html">
+            <span class="post-number blue">Post 7</span>
+            <strong>Design Patterns</strong>
+            <span>GoF and enterprise patterns found in the real Spring Boot and GraphQL codebase.</span>
+          </a>
+          <a class="post" href="posts/post-8-algorithms-performance.html">
+            <span class="post-number green">Post 8</span>
+            <strong>Algorithms And Performance</strong>
+            <span>Prediction algorithms, data structures, and performance-oriented design.</span>
+          </a>
+          <a class="post" href="posts/post-9-refactoring-patterns.html">
+            <span class="post-number gold">Post 9</span>
+            <strong>Refactoring Patterns</strong>
+            <span>Type safety, extraction, consolidation, and responsibility boundaries.</span>
+          </a>
+          <a class="post" href="posts/post-10-ddd-solid-ai-architecture.html">
+            <span class="post-number blue">Post 10</span>
+            <strong>DDD, SOLID, And Modular AI Product Architecture</strong>
+            <span>How PitchMind separates coaching, prediction, identity, AI providers, and common code.</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="assets-title">
+        <h2 id="assets-title">Assets</h2>
+        <div class="link-list">
+          <a href="assets/pitchmind-logo.svg">PitchMind Logo</a>
+          <a href="articles/linkedin-ddd-solid-architecture/assets/ddd-solid-ai-architecture-clean-linkedin.png">
+            Post 10 LinkedIn PNG
+          </a>
+          <a href="articles/linkedin-ddd-solid-architecture/assets/ddd-solid-ai-architecture.svg">
+            Post 10 Architecture SVG
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      PitchMind documentation hub. Publish from the repository Pages source when GitHub Pages is enabled.
+    </footer>
+  </body>
+</html>
