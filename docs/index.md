@@ -9,6 +9,9 @@ This wiki collects product architecture, implementation guidance, and public lea
 ## Architecture
 
 - [Modular DDD Architecture](MODULAR_DDD_ARCHITECTURE.md): bounded contexts, SOLID rules, backend/frontend module boundaries, and roadmap tasks.
+- [Planning Workspace](planning/README.md): separated task plans for PitchMind product work and the future internal AI Team Workspace.
+- [PitchMind Redesign Tasks](planning/PITCHMIND_REDESIGN_TASKS.md): step-by-step product implementation tasks, acceptance criteria, tests, and learning goals.
+- [AI Team Workspace Tasks](planning/AI_TEAM_WORKSPACE_TASKS.md): separate internal workspace tasks for AI role collaboration, voice/text sessions, approvals, and QA evidence.
 
 ## Posts And Articles
 
