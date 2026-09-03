@@ -31,6 +31,8 @@ Target direction:
 - Move toward DDD modules with clear names and small, reviewable changes.
 - Preserve current behavior while refactoring.
 - Prepare for future Spring AI provider routing and local Ollama usage without coupling prediction to LLM providers.
+- Keep the current Java backend stable until the AI Team Workspace is finished.
+- After the workspace is finished, evaluate heavy backend capabilities for migration to Go based on measurable value.
 
 ## Architecture Map
 
@@ -618,6 +620,65 @@ Acceptance criteria:
 
 - Existing Vite app remains the production frontend until a migration task is approved.
 - Migration plan includes rollback.
+
+## Phase 8 - Future Go Migration
+
+### Task P8.1 - Java-To-Go Migration Assessment
+
+Objective: decide which heavy PitchMind backend capabilities are worth migrating from Java to Go after the AI Team Workspace is finished.
+
+Learning goals:
+
+- Go service design.
+- Backend migration strategy.
+- Performance measurement.
+- Contract-first migration.
+- Strangler pattern.
+
+Scope:
+
+- Inventory heavy backend flows: prediction, data ingestion, batch/evaluation, AI provider calls and long-running analysis jobs.
+- Define current Java contracts and behavior.
+- Identify candidates where Go gives measurable value.
+- Define benchmarks, integration tests and rollback.
+- Decide whether migration should use API composition, event-driven extraction or route-by-route replacement.
+
+Out of scope:
+
+- No immediate Java removal.
+- No rewrite without tests.
+- No database migration bundled into the first Go service.
+
+Acceptance criteria:
+
+- Assessment names candidate services and non-candidates.
+- Every candidate has a contract, benchmark and migration risk.
+- Current Java backend remains production-compatible.
+- The first Go migration slice can be reviewed as a small PR.
+
+### Task P8.2 - First Go PitchMind Service Spike
+
+Objective: build a small proof-of-concept service only after P8.1 is approved.
+
+Learning goals:
+
+- Go HTTP service.
+- Contract tests.
+- Observability.
+- Backward-compatible integration.
+
+Scope:
+
+- Choose one low-risk backend capability.
+- Implement a Go service behind an explicit contract.
+- Keep Java as fallback.
+
+Acceptance criteria:
+
+- Go service passes contract tests.
+- Java fallback still works.
+- Rollback is documented.
+- No existing Java files are removed.
 
 ## First Task To Start
 

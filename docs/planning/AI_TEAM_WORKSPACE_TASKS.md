@@ -8,6 +8,52 @@ The workspace will let the user collaborate with specialized AI roles by voice a
 
 No removes. This workstream must not delete PitchMind files or edit existing PitchMind runtime logic. The first workspace tasks are discovery and design only; implementation begins in separate workspace-owned paths after approval.
 
+## Go Implementation Direction
+
+Updated direction from 2026-09-03:
+
+- Implement new AI Team Workspace backend services primarily in Go.
+- Use this workstream as the user's step-by-step Go learning path, starting from fundamentals and moving into real service implementation.
+- Keep the frontend direction as React/TypeScript unless separately changed.
+- Keep service boundaries independent from PitchMind runtime code.
+- Use Go where it gives practical value: concurrent task workers, MCP/A2A servers, tool execution gateways, event consumers, approval/audit APIs and small deployable services.
+- Do not migrate the current PitchMind Java backend as part of the first workspace milestone.
+- If a service needs Java/Spring AI specifically, document the reason and contract before choosing Java for that service.
+
+Initial Go service candidates:
+
+```text
+services/team-workspace/orchestrator
+services/team-workspace/task-service
+services/team-workspace/approval-service
+services/team-workspace/mcp-gateway
+services/team-workspace/event-worker
+```
+
+## Go Learning Method
+
+Each Go task should teach one concept and apply it immediately inside the AI Team Workspace.
+
+Working loop:
+
+```text
+1. Explain the concept.
+2. Define a tiny implementation task.
+3. User writes the code.
+4. Run tests.
+5. Review the code for correctness, naming, error handling and simplicity.
+6. Record what was learned.
+7. Move to the next slice.
+```
+
+Learning order:
+
+```text
+Go syntax -> packages/modules -> structs/interfaces -> errors -> context -> HTTP APIs
+-> JSON validation -> tests -> concurrency -> persistence -> events -> MCP/A2A adapters
+-> production readiness
+```
+
 ## Source Handling
 
 The file `AI-Team-Workspace-Development-Prompt.md` is used as internal workspace planning context. It does not authorize edits to PitchMind product code.
@@ -150,6 +196,103 @@ Every workspace task is done only when:
 - Private reasoning is not exposed as a work log.
 - Voice and text workflows have fallback behavior.
 - QA evidence includes revision, environment, commands and limitations.
+
+## Phase 0 - Go Learning Foundation
+
+### Task W0.1 - Go Workspace Architecture Decision
+
+Objective: define how Go will be used for the AI Team Workspace before implementation starts.
+
+Learning goals:
+
+- Go project structure.
+- HTTP APIs in Go.
+- Goroutines, context cancellation and worker pools.
+- Clean architecture in Go.
+- Service contracts before implementation.
+
+Scope:
+
+- Decide Go module layout.
+- Choose API style for workspace services.
+- Define service boundaries for orchestrator, task service, approval service, MCP gateway and event workers.
+- Decide how React frontend calls the workspace backend.
+- Decide where AI provider adapters live.
+
+Acceptance criteria:
+
+- ADR explains why Go is selected for workspace services.
+- ADR lists services that will be implemented in Go.
+- ADR lists exceptions where Java would still be allowed.
+- No PitchMind runtime code changes.
+
+### Task W0.2 - Go Basics Through A Tiny Workspace Service
+
+Objective: learn Go fundamentals by creating the smallest possible workspace service.
+
+Learning goals:
+
+- `go mod init`
+- package naming
+- `main.go`
+- structs
+- interfaces
+- errors
+- table-driven tests
+- simple HTTP health endpoint
+
+Scope:
+
+- Create a tiny Go service under a workspace-owned path after approval.
+- Add `/health`.
+- Add one domain struct for an AI role definition.
+- Add tests for role validation.
+
+Out of scope:
+
+- No database.
+- No Kafka.
+- No AI provider calls.
+- No PitchMind runtime integration.
+
+Acceptance criteria:
+
+- `go test ./...` passes for the new workspace service.
+- Service starts locally.
+- `/health` returns a stable JSON response.
+- No existing PitchMind Java or React logic is changed.
+
+### Task W0.3 - Go HTTP Task API Skeleton
+
+Objective: learn Go HTTP APIs by modeling a small task proposal endpoint.
+
+Learning goals:
+
+- HTTP handlers.
+- Request/response DTOs.
+- JSON decoding and encoding.
+- validation.
+- status codes.
+- error responses.
+
+Scope:
+
+- Add a `POST /tasks/proposals` endpoint in the new workspace service.
+- Store proposals in memory only.
+- Validate title, workstream, objective and acceptance criteria.
+
+Out of scope:
+
+- No persistent database yet.
+- No GitHub writes.
+- No agent execution.
+
+Acceptance criteria:
+
+- Valid request creates an in-memory task proposal.
+- Invalid request returns `400` with a clear error.
+- Tests cover success and validation failure.
+- No existing PitchMind runtime logic is changed.
 
 ## Phase 1 - Discovery And Design
 
@@ -466,19 +609,19 @@ Acceptance criteria:
 
 ## First Task To Start
 
-Start with `Task W1.1 - Repository Discovery`.
+Start with `Task W0.1 - Go Workspace Architecture Decision`, then `Task W0.2 - Go Basics Through A Tiny Workspace Service`.
 
 Reason:
 
-- It teaches safe engineering discovery.
-- It prevents mixing PitchMind and the workspace.
-- It produces the evidence needed before creating new folders or code.
+- It makes Go the learning path from the beginning.
+- It prevents random service creation before boundaries are clear.
+- It keeps PitchMind stable while the workspace is implemented separately.
 
 Implementation contract:
 
 ```text
-Inspect repo state, build files, CI, docs and current app paths.
-Write a discovery report under docs/team-workspace/ only after approval.
+Write the Go workspace architecture decision first.
+Then create the smallest Go service only in a workspace-owned path after approval.
 Do not edit PitchMind runtime code.
 Do not commit, push or deploy.
 Ask for review before the first implementation slice.
